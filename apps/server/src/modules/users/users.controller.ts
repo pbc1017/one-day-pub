@@ -2,10 +2,8 @@ import type {
   PaginationParams,
   PaginatedResponse,
   ApiResponse as ApiResponseType,
-  User,
-  CreateUserDto,
-  UpdateUserDto,
-} from '@kamf/interface';
+} from '@kamf/interface/types/common.js';
+import type { User, CreateUserDto, UpdateUserDto } from '@kamf/interface/types/user.js';
 import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiQuery } from '@nestjs/swagger';
 

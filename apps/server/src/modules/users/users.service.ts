@@ -1,12 +1,10 @@
 import type {
-  User,
-  CreateUserDto,
-  UpdateUserDto,
   PaginationParams,
   PaginatedResponse,
   ApiResponse,
-} from '@kamf/interface';
-import { UserRole } from '@kamf/interface';
+} from '@kamf/interface/types/common.js';
+import type { User, CreateUserDto, UpdateUserDto } from '@kamf/interface/types/user.js';
+import { UserRole } from '@kamf/interface/types/user.js';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()

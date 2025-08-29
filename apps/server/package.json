@@ -11,7 +11,7 @@
     "build": "dotenv -e ../../.env -- nest build",
     "start": "dotenv -e ../../.env -- node dist/apps/server/src/main.js",
     "start:prod": "dotenv -e ../../.env -- node dist/apps/server/src/main.js",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist node_modules",
     "lint": "dotenv -e ../../.env -- eslint . --ext .ts",
     "lint:fix": "dotenv -e ../../.env -- eslint . --ext .ts --fix",
     "format": "dotenv -e ../../.env -- prettier --write .",

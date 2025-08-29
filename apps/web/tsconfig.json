@@ -12,8 +12,8 @@
       "@/components/*": ["./src/components/*"],
       "@/lib/*": ["./src/lib/*"],
       "@/app/*": ["./src/app/*"],
-      "@kamf/interface": ["../../packages/interface/src"],
-      "@kamf/interface/*": ["../../packages/interface/src/*"]
+      "@kamf/interface": ["../../packages/interface/dist"],
+      "@kamf/interface/*": ["../../packages/interface/dist/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

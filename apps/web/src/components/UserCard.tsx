@@ -1,6 +1,6 @@
 'use client';
 
-import { User } from '@kamf/interface';
+import { User } from '@kamf/interface/types/user.js';
 
 interface UserCardProps {
   user: User;

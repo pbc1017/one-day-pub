@@ -2,9 +2,9 @@ import type {
   LoginRequest,
   LoginResponse,
   RefreshTokenRequest,
-  ApiResponse,
-} from '@kamf/interface';
-import { UserRole } from '@kamf/interface';
+} from '@kamf/interface/types/api.js';
+import type { ApiResponse } from '@kamf/interface/types/common.js';
+import { UserRole } from '@kamf/interface/types/user.js';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()

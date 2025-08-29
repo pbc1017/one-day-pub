@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "description": "Shared interfaces and types for kamf monorepo",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+    "./types/user.js": {
+      "types": "./dist/types/user.d.ts",
+      "default": "./dist/types/user.js"
+    },
+    "./types/common.js": {
+      "types": "./dist/types/common.d.ts",
+      "default": "./dist/types/common.js"
+    },
+    "./types/api.js": {
+      "types": "./dist/types/api.d.ts",
+      "default": "./dist/types/api.js"
     }
   },
   "files": [
@@ -20,7 +25,7 @@
     "dev": "dotenv -e ../../.env -- tsc --watch",
     "build": "dotenv -e ../../.env -- tsc",
     "start": "echo 'This is a library package'",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo node_modules",
     "lint": "dotenv -e ../../.env -- eslint . --ext .ts",
     "lint:fix": "dotenv -e ../../.env -- eslint . --ext .ts --fix",
     "format": "dotenv -e ../../.env -- prettier --write .",

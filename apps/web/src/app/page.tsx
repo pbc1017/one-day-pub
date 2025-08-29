@@ -1,4 +1,4 @@
-import { UserRole } from '@kamf/interface';
+import { UserRole } from '@kamf/interface/types/user.js';
 
 import { UserCard } from '@/components/UserCard';
 

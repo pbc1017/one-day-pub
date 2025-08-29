@@ -2,8 +2,8 @@ import type {
   LoginRequest,
   LoginResponse,
   RefreshTokenRequest,
-  ApiResponse as ApiResponseType,
-} from '@kamf/interface';
+} from '@kamf/interface/types/api.js';
+import type { ApiResponse as ApiResponseType } from '@kamf/interface/types/common.js';
 import { Controller, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 

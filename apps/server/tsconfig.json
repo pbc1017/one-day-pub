@@ -26,8 +26,8 @@
     "isolatedModules": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@kamf/interface": ["../../packages/interface/src"],
-      "@kamf/interface/*": ["../../packages/interface/src/*"]
+      "@kamf/interface": ["../../packages/interface/dist"],
+      "@kamf/interface/*": ["../../packages/interface/dist/*"]
     }
   },
   "include": ["src/**/*"],
