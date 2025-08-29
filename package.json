@@ -21,7 +21,7 @@
     "format:check": "prettier --check .",
     "clean": "pnpm -r clean && rm -rf node_modules",
     "web": "pnpm --filter @kamf/web",
-    "server": "pnpm --filter @kamf/server",
+    "api": "pnpm --filter @kamf/api",
     "interface": "pnpm --filter @kamf/interface"
   },
   "devDependencies": {

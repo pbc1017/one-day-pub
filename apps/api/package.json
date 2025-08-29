@@ -1,5 +1,5 @@
 {
-  "name": "@kamf/server",
+  "name": "@kamf/api",
   "version": "1.0.0",
   "description": "NestJS backend server for kamf monorepo",
   "author": "Perry",

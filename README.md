@@ -8,7 +8,7 @@ pnpm과 TypeScript를 사용한 현대적인 ESM 기반 모노레포입니다.
 kamf/
 ├── apps/
 │   ├── web/                    # Next.js 14 프론트엔드 앱
-│   └── server/                 # NestJS 백엔드 API 서버
+│   └── api/                    # NestJS 백엔드 API 서버
 ├── packages/
 │   └── interface/              # 공유 타입 및 인터페이스
 ├── package.json                # 루트 워크스페이스 설정
@@ -71,8 +71,8 @@ pnpm clean
 # 웹 앱만 개발 서버 실행
 pnpm --filter @kamf/web dev
 
-# 서버만 개발 서버 실행
-pnpm --filter @kamf/server dev
+# API 서버만 개발 서버 실행
+pnpm --filter @kamf/api dev
 
 # 인터페이스 패키지만 빌드
 pnpm --filter @kamf/interface build
@@ -90,7 +90,7 @@ pnpm --filter @kamf/interface build
   - 타입 안전한 API 호출
   - `@kamf/interface` 패키지 사용
 
-### `apps/server` - NestJS Backend
+### `apps/api` - NestJS Backend
 
 - **프레임워크**: NestJS
 - **포트**: 3001 (기본값)
@@ -132,7 +132,7 @@ pnpm dev
 
 # 또는 개별 실행
 pnpm --filter @kamf/web dev     # 웹: http://localhost:3000
-pnpm --filter @kamf/server dev  # API: http://localhost:3001
+pnpm --filter @kamf/api dev     # API: http://localhost:3001
 ```
 
 ## 📚 API 문서
@@ -166,7 +166,7 @@ pnpm build
 
 # 개별 빌드
 pnpm --filter @kamf/web build
-pnpm --filter @kamf/server build
+pnpm --filter @kamf/api build
 ```
 
 ### 프로덕션 시작
@@ -177,7 +177,7 @@ pnpm start
 
 # 개별 시작  
 pnpm --filter @kamf/web start
-pnpm --filter @kamf/server start
+pnpm --filter @kamf/api start
 ```
 
 ## 🤝 기여하기
