@@ -4,17 +4,9 @@
   "description": "Shared interfaces and types for kamf monorepo",
   "type": "module",
   "exports": {
-    "./types/user.js": {
-      "types": "./dist/types/user.d.ts",
-      "default": "./dist/types/user.js"
-    },
-    "./types/common.js": {
-      "types": "./dist/types/common.d.ts",
-      "default": "./dist/types/common.js"
-    },
-    "./types/api.js": {
-      "types": "./dist/types/api.d.ts",
-      "default": "./dist/types/api.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "files": [
