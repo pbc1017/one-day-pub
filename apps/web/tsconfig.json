@@ -8,14 +8,34 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/app/*": ["./src/app/*"],
-      "@kamf/interface": ["../../packages/interface/dist"],
-      "@kamf/interface/*": ["../../packages/interface/dist/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ],
+      "@/lib/*": [
+        "./src/lib/*"
+      ],
+      "@/app/*": [
+        "./src/app/*"
+      ],
+      "@kamf/interface": [
+        "../../packages/interface/dist"
+      ],
+      "@kamf/interface/*": [
+        "../../packages/interface/dist/*"
+      ]
+    },
+    "strictNullChecks": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
