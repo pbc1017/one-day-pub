@@ -9,15 +9,15 @@ export enum Zone {
   BOOTH = 'booth',
   INFO = 'info',
   FOOD_TRUCK = 'foodTruck',
-  HOF = 'hof',
+  NIGHT_MARKET = 'nightMarket',
 }
 
 /**
  * 축제 날짜
  */
 export enum FestivalDay {
+  FRIDAY = 'FRI',
   SATURDAY = 'SAT',
-  SUNDAY = 'SUN',
 }
 
 /**

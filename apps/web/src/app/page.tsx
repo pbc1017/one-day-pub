@@ -42,10 +42,10 @@ const mapAreas = [
     color: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
   },
   {
-    id: 'hof',
-    nameKr: '호프',
-    nameEn: 'Hof',
-    url: '/map/hof',
+    id: 'nightMarket',
+    nameKr: '야시장',
+    nameEn: 'Night Market',
+    url: '/map/night-market',
     available: true,
     position: 'bottom-8 left-1/2 transform -translate-x-1/2',
     color:
@@ -74,7 +74,7 @@ const operatingHours = [
     status: 'open',
   },
   {
-    zone: '호프존',
+    zone: '야시장',
     hours: '17:00 - 24:00',
     description: '주류 및 안주 판매',
     status: 'open',
@@ -123,9 +123,9 @@ export default function Home() {
           <h1 className="text-7xl font-bold text-white mb-6">
             KAMF <span className="text-purple-gradient">2025</span>
           </h1>
-          <p className="text-2xl text-purple-200 mb-4 font-medium">Korea Arts & Music Festival</p>
+          <p className="text-2xl text-purple-200 mb-4 font-medium">KAIST Art & Music Festival</p>
           <p className="text-lg text-purple-100 mb-6">
-            📅 2025년 5월 17일(토) - 18일(일) | 📍 대학교 캠퍼스
+            📅 2025년 9월 5일(금) - 6일(토) | 📍 대학교 캠퍼스
           </p>
         </div>
         <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500/30 to-pink-500/30 backdrop-blur-sm border border-purple-400/30 text-purple-100 rounded-full text-lg font-medium shadow-lg">
