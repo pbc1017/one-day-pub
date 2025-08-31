@@ -100,9 +100,9 @@ jobs:
           NODE_ENV=production
           API_PORT=${{ steps.vars.outputs.api_port }}
           WEB_PORT=${{ steps.vars.outputs.web_port }}
-          CORS_ORIGIN=https://${{ steps.vars.outputs.domain }}
-          NEXT_PUBLIC_API_URL=https://${{ steps.vars.outputs.domain }}
-          NEXT_PUBLIC_APP_URL=https://${{ steps.vars.outputs.domain }}
+          CORS_ORIGIN=http://${{ steps.vars.outputs.domain }}
+          NEXT_PUBLIC_API_URL=http://${{ steps.vars.outputs.domain }}/api
+          NEXT_PUBLIC_APP_URL=http://${{ steps.vars.outputs.domain }}
 
           # Database Configuration (공유 MySQL)
           DB_HOST=kamf-mysql
