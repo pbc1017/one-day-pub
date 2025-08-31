@@ -120,7 +120,9 @@ if ! docker-compose up -d api web nginx; then
     # 롤백 시도
     print_warning "Attempting to rollback..."
     docker-compose stop api web nginx || true
-    if [ -f .deployment-backup-* ]; then
+    # 백업 파일 존재 확인 (와일드카드 처리 개선)
+    BACKUP_COUNT=$(ls .deployment-backup-* 2>/dev/null | wc -l)
+    if [ "$BACKUP_COUNT" -gt 0 ]; then
         print_info "Rolling back to previous state..."
         # 간단한 롤백: 기존 이미지로 다시 시작
         docker-compose up -d api web nginx || print_error "Rollback failed!"
