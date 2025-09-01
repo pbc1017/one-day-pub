@@ -112,8 +112,30 @@ FLUSH PRIVILEGES;
 
 print_success "Database '${DB_NAME}' is ready"
 
+# ContainerConfig 에러 방지: 사전 환경 정리
+print_info "Preventive cleanup to avoid ContainerConfig errors..."
+
+# 1. Docker 시스템 정리 (dangling 객체 제거)
+docker system prune -f > /dev/null 2>&1 || true
+
+# 2. 이미지 메타데이터 유효성 검증
+print_info "Validating Docker images metadata integrity..."
+if ! docker inspect "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}" > /dev/null 2>&1; then
+    print_warning "API image validation failed! Re-pulling..."
+    docker pull "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"
+fi
+
+if ! docker inspect "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}" > /dev/null 2>&1; then
+    print_warning "Web image validation failed! Re-pulling..."
+    docker pull "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"
+fi
+
+# 3. 기존 컨테이너 완전 제거 (컨테이너 메타데이터 초기화)
+print_info "Ensuring clean container state..."
+docker-compose rm -f api web nginx > /dev/null 2>&1 || true
+
 # 새 컨테이너 시작 (MySQL 제외)
-print_info "Starting updated application containers..."
+print_info "Starting updated application containers with clean state..."
 if ! docker-compose up -d api web nginx; then
     print_error "Failed to start containers!"
     
