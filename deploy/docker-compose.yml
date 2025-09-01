@@ -67,5 +67,5 @@ services:
 
 networks:
   kamf-network:
-    name: ${DEPLOY_PATH:-kamf}-kamf-network
+    name: ${DEPLOY_PATH:-kamf}-network
     driver: bridge
