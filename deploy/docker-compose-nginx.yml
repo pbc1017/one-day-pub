@@ -18,9 +18,8 @@ services:
       - letsencrypt_data:/etc/letsencrypt:ro
       - webroot_data:/var/www/certbot:ro
     networks:
-      - kamf-network # 기본 네트워크
+      - kamf-network # 운영 환경 서비스 접근
       - kamf-dev-network # 개발 환경 서비스 접근
-      - kamf-prod-network # 운영 환경 서비스 접근
     healthcheck:
       test: ['CMD', 'nginx', '-t']
       timeout: 10s
@@ -71,9 +70,9 @@ volumes:
 
 # 외부 네트워크 참조 (다른 compose 파일에서 생성됨)
 networks:
+  kamf-network:
+    external: true
+    name: kamf-network
   kamf-dev-network:
     external: true
     name: kamf-dev-network
-  kamf-prod-network:
-    external: true
-    name: kamf-prod-network
