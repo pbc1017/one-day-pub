@@ -51,6 +51,8 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       NEXT_PORT: 3000 # 내부 포트는 고정
+      HOSTNAME: 0.0.0.0 # Next.js가 모든 인터페이스에서 리스닝
+      HOST: 0.0.0.0 # 추가 바인딩 옵션
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
     depends_on:
