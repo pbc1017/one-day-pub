@@ -1,0 +1,67 @@
+{
+  "name": "kamf",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A modern ESM monorepo with pnpm workspaces",
+  "author": "Perry",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "start": "pnpm -r start",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "web": "pnpm --filter @kamf/web",
+    "api": "pnpm --filter @kamf/api",
+    "interface": "pnpm --filter @kamf/interface",
+    "db:up": "pnpm --filter @kamf/api db:up",
+    "db:down": "pnpm --filter @kamf/api db:down",
+    "db:restart": "pnpm --filter @kamf/api db:restart",
+    "db:logs": "pnpm --filter @kamf/api db:logs",
+    "db:reset": "pnpm --filter @kamf/api db:reset",
+    "db:cli": "pnpm --filter @kamf/api db:cli",
+    "db:status": "pnpm --filter @kamf/api db:status",
+    "db": "pnpm db:up",
+    "migration:generate": "pnpm --filter @kamf/api migration:generate",
+    "migration:create": "pnpm --filter @kamf/api migration:create",
+    "migration:run": "pnpm --filter @kamf/api migration:run",
+    "migration:revert": "pnpm --filter @kamf/api migration:revert",
+    "migration:show": "pnpm --filter @kamf/api migration:show",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "dotenv-cli": "^7.3.0",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}

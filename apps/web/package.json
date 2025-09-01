@@ -1,0 +1,33 @@
+{
+  "name": "@kamf/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "dotenv -e ../../.env -- sh -c 'next dev -p $NEXT_PORT'",
+    "build": "dotenv -e ../../.env -- next build",
+    "start": "dotenv -e ../../.env -- sh -c 'next start -p $NEXT_PORT'",
+    "clean": "rm -rf .next node_modules",
+    "lint": "dotenv -e ../../.env -- eslint . --ext .ts,.tsx",
+    "lint:fix": "dotenv -e ../../.env -- eslint . --ext .ts,.tsx --fix",
+    "format": "dotenv -e ../../.env -- prettier --write .",
+    "format:check": "dotenv -e ../../.env -- prettier --check ."
+  },
+  "dependencies": {
+    "@kamf/interface": "workspace:*",
+    "@tanstack/react-query": "^5.85.6",
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.16",
+    "eslint-config-next": "^14.1.0",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
+  }
+}
