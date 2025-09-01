@@ -25,14 +25,24 @@ print_warning() {
 # 배포 시작
 print_info "=== KAMF Production Deployment Started ==="
 
-# 환경변수 파일 확인 및 로드
-if [ ! -f .env.deploy ]; then
+# 환경변수 파일 확인 및 로드 (경로 수정)
+# GitHub Actions에서 실행 시: /home/user/kamf-dev/ 에서 ./deploy/scripts/deploy.sh 실행
+# 따라서 .env.deploy 파일은 현재 디렉토리 또는 상위 디렉토리에 위치
+if [ -f .env.deploy ]; then
+    ENV_FILE=".env.deploy"
+elif [ -f ../.env.deploy ]; then
+    ENV_FILE="../.env.deploy"
+else
     print_error "Environment file .env.deploy not found!"
+    print_error "Checked paths: ./.env.deploy, ../.env.deploy"
+    print_info "Current directory: $(pwd)"
+    print_info "Directory contents:"
+    ls -la
     exit 1
 fi
 
 print_info "Loading environment variables..."
-export $(cat .env.deploy | grep -v '^#' | xargs)
+export $(cat "$ENV_FILE" | grep -v '^#' | xargs)
 
 # 필수 환경변수 확인
 REQUIRED_VARS=("DOCKER_REGISTRY" "IMAGE_TAG" "DB_PASSWORD" "JWT_SECRET")
@@ -150,14 +160,18 @@ WAIT_TIME=0
 MAX_WAIT=60
 
 while [ $WAIT_TIME -lt $MAX_WAIT ]; do
-    # API 컨테이너 상태 확인 (환경별 이름)
-    if docker ps | grep -q "${DEPLOY_PATH}-api.*Up"; then
+    # API 및 Web 컨테이너 상태 확인 (단순화된 체크)
+    API_RUNNING=$(docker ps --format "table {{.Names}}\t{{.Status}}" | grep "${DEPLOY_PATH}-api" | grep -c "Up" || echo "0")
+    WEB_RUNNING=$(docker ps --format "table {{.Names}}\t{{.Status}}" | grep "${DEPLOY_PATH}-web" | grep -c "Up" || echo "0")
+    
+    if [ "$API_RUNNING" -gt 0 ] && [ "$WEB_RUNNING" -gt 0 ]; then
+        print_success "Both containers are running"
         break
     fi
     
     sleep 2
     WAIT_TIME=$((WAIT_TIME + 2))
-    print_info "Waiting... (${WAIT_TIME}s/${MAX_WAIT}s)"
+    print_info "Waiting... (${WAIT_TIME}s/${MAX_WAIT}s) [API:$API_RUNNING, WEB:$WEB_RUNNING]"
 done
 
 if [ $WAIT_TIME -ge $MAX_WAIT ]; then
@@ -169,15 +183,17 @@ fi
 # 컨테이너 헬스체크 (환경별 컨테이너 이름 사용)
 print_info "Performing container health checks..."
 
-# API 컨테이너 체크
-if ! docker ps | grep -q "${DEPLOY_PATH}-api.*Up"; then
+# API 컨테이너 체크 (단순화된 체크)
+API_RUNNING=$(docker ps --format "table {{.Names}}\t{{.Status}}" | grep "${DEPLOY_PATH}-api" | grep -c "Up" || echo "0")
+if [ "$API_RUNNING" -eq 0 ]; then
     print_error "API container (${DEPLOY_PATH}-api) is not running!"
     docker-compose logs api
     exit 1
 fi
 
-# Web 컨테이너 체크  
-if ! docker ps | grep -q "${DEPLOY_PATH}-web.*Up"; then
+# Web 컨테이너 체크 (단순화된 체크)
+WEB_RUNNING=$(docker ps --format "table {{.Names}}\t{{.Status}}" | grep "${DEPLOY_PATH}-web" | grep -c "Up" || echo "0")
+if [ "$WEB_RUNNING" -eq 0 ]; then
     print_error "Web container (${DEPLOY_PATH}-web) is not running!"
     docker-compose logs web
     exit 1
