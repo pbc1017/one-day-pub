@@ -78,39 +78,29 @@ fi
 
 print_success "All images pulled successfully"
 
-# 기존 컨테이너 중지 (MySQL은 유지)
-print_info "Stopping application containers (keeping MySQL running)..."
-docker-compose stop api web nginx || true
+# 기존 컨테이너 중지
+print_info "Stopping application containers..."
+docker-compose stop api web || true
 
-# MySQL 컨테이너가 이미 실행 중인지 확인
-print_info "Checking MySQL container status..."
-MYSQL_RUNNING=$(docker ps -q -f name=kamf-mysql)
-
-if [ -z "$MYSQL_RUNNING" ]; then
-    print_info "Starting MySQL container first..."
-    docker-compose up -d mysql
-    
-    print_info "Waiting for MySQL to be ready..."
-    for i in {1..30}; do
-        if docker-compose exec -T mysql mysqladmin ping -h localhost --silent; then
-            print_success "MySQL is ready"
-            break
-        fi
-        echo "Waiting for MySQL... ($i/30)"
-        sleep 2
-    done
+# 호스트 MySQL 연결 확인
+print_info "Checking host MySQL connection..."
+if mysql -u ${DB_USERNAME} -p${DB_PASSWORD} -h localhost -e "SELECT 1;" > /dev/null 2>&1; then
+    print_success "MySQL connection verified"
+else
+    print_error "Failed to connect to host MySQL!"
+    print_error "Please ensure MySQL is running and credentials are correct."
+    exit 1
 fi
 
-# 환경별 데이터베이스 생성
-print_info "Ensuring database '${DB_NAME}' exists..."
-docker-compose exec -T mysql mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "
-CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS '${DB_USERNAME}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USERNAME}'@'%';
-FLUSH PRIVILEGES;
-" 2>/dev/null || print_warning "Database setup failed (may already exist)"
-
-print_success "Database '${DB_NAME}' is ready"
+# 데이터베이스 존재 확인
+print_info "Verifying database '${DB_NAME}' exists..."
+if mysql -u ${DB_USERNAME} -p${DB_PASSWORD} -h localhost -e "USE ${DB_NAME};" > /dev/null 2>&1; then
+    print_success "Database '${DB_NAME}' is accessible"
+else
+    print_error "Database '${DB_NAME}' is not accessible!"
+    print_error "Please ensure the database exists and user has proper permissions."
+    exit 1
+fi
 
 # ContainerConfig 에러 방지: 사전 환경 정리
 print_info "Preventive cleanup to avoid ContainerConfig errors..."
@@ -132,22 +122,22 @@ fi
 
 # 3. 기존 컨테이너 완전 제거 (컨테이너 메타데이터 초기화)
 print_info "Ensuring clean container state..."
-docker-compose rm -f api web nginx > /dev/null 2>&1 || true
+docker-compose rm -f api web > /dev/null 2>&1 || true
 
-# 새 컨테이너 시작 (MySQL 제외)
+# 새 컨테이너 시작
 print_info "Starting updated application containers with clean state..."
-if ! docker-compose up -d api web nginx; then
+if ! docker-compose up -d api web; then
     print_error "Failed to start containers!"
     
     # 롤백 시도
     print_warning "Attempting to rollback..."
-    docker-compose stop api web nginx || true
+    docker-compose stop api web || true
     # 백업 파일 존재 확인 (와일드카드 처리 개선)
     BACKUP_COUNT=$(ls .deployment-backup-* 2>/dev/null | wc -l)
     if [ "$BACKUP_COUNT" -gt 0 ]; then
         print_info "Rolling back to previous state..."
         # 간단한 롤백: 기존 이미지로 다시 시작
-        docker-compose up -d api web nginx || print_error "Rollback failed!"
+        docker-compose up -d api web || print_error "Rollback failed!"
     fi
     exit 1
 fi
@@ -193,46 +183,11 @@ if ! docker ps | grep -q "${DEPLOY_PATH}-web.*Up"; then
     exit 1
 fi
 
-# MySQL 컨테이너 체크 (공유)
-if ! docker ps | grep -q "kamf-mysql.*Up"; then
-    print_error "MySQL container (kamf-mysql) is not running!"
-    docker-compose logs mysql
-    exit 1
-fi
-
-# Nginx 컨테이너 체크 (공유)
-if ! docker ps | grep -q "kamf-nginx.*Up"; then
-    print_error "Nginx container (kamf-nginx) is not running!"
-    docker-compose logs nginx
-    exit 1
-fi
-
 print_success "All containers are running"
 
-# Nginx 설정 검증 및 안정화 대기
-print_info "Validating Nginx configuration and waiting for stabilization..."
+# 서비스 안정화 대기
+print_info "Waiting for services to stabilize..."
 sleep 5
-
-NGINX_CONFIG_ATTEMPTS=0
-MAX_NGINX_ATTEMPTS=10
-
-while [ $NGINX_CONFIG_ATTEMPTS -lt $MAX_NGINX_ATTEMPTS ]; do
-    if docker-compose exec -T nginx nginx -t > /dev/null 2>&1; then
-        print_success "Nginx configuration is valid and loaded"
-        break
-    fi
-
-    NGINX_CONFIG_ATTEMPTS=$((NGINX_CONFIG_ATTEMPTS + 1))
-    print_info "Nginx config validation attempt $NGINX_CONFIG_ATTEMPTS/$MAX_NGINX_ATTEMPTS"
-    sleep 2
-done
-
-if [ $NGINX_CONFIG_ATTEMPTS -ge $MAX_NGINX_ATTEMPTS ]; then
-    print_error "Nginx configuration validation failed after restart!"
-    print_error "This could cause 502/503 errors. Check nginx logs:"
-    docker-compose logs nginx
-    exit 1
-fi
 
 # 애플리케이션 레벨 헬스체크
 print_info "Performing application health checks..."
