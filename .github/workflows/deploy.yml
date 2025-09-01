@@ -193,7 +193,7 @@ jobs:
           script: |
             echo "✅ ${{ steps.vars.outputs.environment }} deployment verification completed"
             echo "📊 Final container status:"
-            cd /home/${{ secrets.SERVER_USERNAME }}/${{ steps.vars.outputs.deploy_path }}
+            cd /home/${{ secrets.SERVER_USERNAME }}/${{ steps.vars.outputs.deploy_path }}/deploy
             docker-compose ps
 
   notify:
