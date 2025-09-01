@@ -74,7 +74,7 @@ jobs:
               API_PORT="8000"
               WEB_PORT="3000"
               DB_NAME="kamf_prod"
-              IMAGE_TAG="${{ github.event.workflow_run.head_sha }}"
+              IMAGE_TAG="latest"
               ENVIRONMENT="production"
             fi
           fi
