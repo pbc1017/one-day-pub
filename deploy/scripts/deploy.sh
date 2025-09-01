@@ -68,7 +68,7 @@ cd deploy
 
 # 현재 컨테이너 상태 백업
 print_info "Backing up current container state..."
-if docker-compose ps > .deployment-backup-$(date +%Y%m%d_%H%M%S); then
+if docker-compose -p ${DEPLOY_PATH} ps > .deployment-backup-$(date +%Y%m%d_%H%M%S); then
     print_success "Container state backed up"
 else
     print_warning "Failed to backup container state (continuing anyway)"
@@ -90,7 +90,7 @@ print_success "All images pulled successfully"
 
 # 기존 컨테이너 중지
 print_info "Stopping application containers..."
-docker-compose stop api web || true
+docker-compose -p ${DEPLOY_PATH} stop api web || true
 
 # 호스트 MySQL 연결 확인
 print_info "Checking host MySQL connection..."
@@ -132,22 +132,22 @@ fi
 
 # 3. 기존 컨테이너 완전 제거 (컨테이너 메타데이터 초기화)
 print_info "Ensuring clean container state..."
-docker-compose rm -f api web > /dev/null 2>&1 || true
+docker-compose -p ${DEPLOY_PATH} rm -f api web > /dev/null 2>&1 || true
 
 # 새 컨테이너 시작
 print_info "Starting updated application containers with clean state..."
-if ! docker-compose up -d api web; then
+if ! docker-compose -p ${DEPLOY_PATH} up -d api web; then
     print_error "Failed to start containers!"
     
     # 롤백 시도
     print_warning "Attempting to rollback..."
-    docker-compose stop api web || true
+    docker-compose -p ${DEPLOY_PATH} stop api web || true
     # 백업 파일 존재 확인 (와일드카드 처리 개선)
     BACKUP_COUNT=$(ls .deployment-backup-* 2>/dev/null | wc -l)
     if [ "$BACKUP_COUNT" -gt 0 ]; then
         print_info "Rolling back to previous state..."
         # 간단한 롤백: 기존 이미지로 다시 시작
-        docker-compose up -d api web || print_error "Rollback failed!"
+        docker-compose -p ${DEPLOY_PATH} up -d api web || print_error "Rollback failed!"
     fi
     exit 1
 fi
@@ -176,7 +176,7 @@ done
 
 if [ $WAIT_TIME -ge $MAX_WAIT ]; then
     print_error "Services did not start within $MAX_WAIT seconds!"
-    docker-compose logs
+    docker-compose -p ${DEPLOY_PATH} logs
     exit 1
 fi
 
@@ -187,7 +187,7 @@ print_info "Performing container health checks..."
 API_RUNNING=$(docker ps --format "table {{.Names}}\t{{.Status}}" | grep "${DEPLOY_PATH}-api" | grep -c "Up" || echo "0")
 if [ "$API_RUNNING" -eq 0 ]; then
     print_error "API container (${DEPLOY_PATH}-api) is not running!"
-    docker-compose logs api
+    docker-compose -p ${DEPLOY_PATH} logs api
     exit 1
 fi
 
@@ -195,7 +195,7 @@ fi
 WEB_RUNNING=$(docker ps --format "table {{.Names}}\t{{.Status}}" | grep "${DEPLOY_PATH}-web" | grep -c "Up" || echo "0")
 if [ "$WEB_RUNNING" -eq 0 ]; then
     print_error "Web container (${DEPLOY_PATH}-web) is not running!"
-    docker-compose logs web
+    docker-compose -p ${DEPLOY_PATH} logs web
     exit 1
 fi
 
@@ -213,7 +213,7 @@ HEALTH_CHECK_ATTEMPTS=0
 MAX_HEALTH_ATTEMPTS=15
 
 while [ $HEALTH_CHECK_ATTEMPTS -lt $MAX_HEALTH_ATTEMPTS ]; do
-    if docker-compose exec -T api curl -f http://localhost:8000/health > /dev/null 2>&1; then
+    if docker-compose -p ${DEPLOY_PATH} exec -T api curl -f http://localhost:8000/health > /dev/null 2>&1; then
         print_success "API health check passed"
         break
     fi
@@ -225,12 +225,12 @@ done
 
 if [ $HEALTH_CHECK_ATTEMPTS -ge $MAX_HEALTH_ATTEMPTS ]; then
     print_error "API health check failed after $MAX_HEALTH_ATTEMPTS attempts"
-    docker-compose logs api
+    docker-compose -p ${DEPLOY_PATH} logs api
     exit 1
 fi
 
 # Web 애플리케이션 헬스체크
-if docker-compose exec -T web wget --spider -q http://localhost:3000/ > /dev/null 2>&1; then
+if docker-compose -p ${DEPLOY_PATH} exec -T web wget --spider -q http://localhost:3000/ > /dev/null 2>&1; then
     print_success "Web application health check passed"
 else
     print_warning "Web application internal health check failed (but continuing)"
@@ -310,6 +310,6 @@ print_info "  - Deployment Time: ${DEPLOYMENT_TIME:-$(date '+%Y-%m-%d %H:%M:%S')
 
 # 현재 실행 중인 컨테이너 상태 출력
 print_info "Current container status:"
-docker-compose ps
+docker-compose -p ${DEPLOY_PATH} ps
 
 exit 0
