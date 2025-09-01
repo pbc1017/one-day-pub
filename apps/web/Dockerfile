@@ -60,8 +60,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
 # standalone 빌드 결과물 복사 (.next/standalone)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 
-# 정적 파일 복사 (.next/static)
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+# 정적 파일 복사 (.next/static) - 서버 실행 디렉토리와 동일한 위치에 배치
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 
 # workspace 패키지를 tsconfig 경로에 맞게 복사 (../../packages -> ../packages)
 RUN mkdir -p ../packages
