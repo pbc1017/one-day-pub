@@ -31,10 +31,12 @@ ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 
-# Next.js 빌드 실행
 # 의존성 순서대로 빌드 (interface -> web)
 RUN pnpm --filter @kamf/interface build
 RUN pnpm --filter @kamf/web build
+
+# pnpm deploy를 사용한 production 배포
+RUN pnpm --filter=@kamf/web deploy --prod /tmp/deploy-web
 
 # 런타임 단계
 FROM node:18-alpine AS runner
@@ -61,6 +63,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 # 정적 파일 복사 (.next/static)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
 
+# workspace 패키지를 tsconfig 경로에 맞게 복사 (../../packages -> ../packages)
+RUN mkdir -p ../packages
+COPY --from=builder --chown=nextjs:nodejs /app/packages ../packages
+
 # nextjs 사용자로 전환
 USER nextjs
 
@@ -72,4 +78,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
 # Next.js 서버 시작
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]

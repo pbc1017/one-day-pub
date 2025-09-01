@@ -1,7 +1,7 @@
 # NestJS API용 Dockerfile
 FROM node:18-alpine AS base
 
-# pnpm 설치 및 작업 디렉토리 설정
+# 작업 디렉토리 설정
 WORKDIR /app
 RUN corepack enable pnpm
 
@@ -29,6 +29,9 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @kamf/interface build
 RUN pnpm --filter @kamf/api build
 
+# pnpm deploy를 사용한 production 배포
+RUN pnpm --filter=@kamf/api deploy --prod /tmp/deploy-api
+
 # 런타임 단계
 FROM node:18-alpine AS runner
 WORKDIR /app
@@ -44,11 +47,12 @@ RUN apk add --no-cache curl
 ENV NODE_ENV=production
 ENV SERVER_PORT=8000
 
-# 빌드된 파일 및 종속성 복사
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist ./apps/api/dist
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/package.json ./apps/api/
-COPY --from=builder --chown=nestjs:nodejs /app/packages ./packages
+# pnpm deploy 결과물 복사 (flat node_modules 구조)
+COPY --from=builder --chown=nestjs:nodejs /tmp/deploy-api ./
+
+# workspace 패키지를 tsconfig 경로에 맞게 복사 (../../packages -> ../packages)
+RUN mkdir -p ../packages
+COPY --from=builder --chown=nestjs:nodejs /app/packages ../packages
 
 # nestjs 사용자로 전환
 USER nestjs
@@ -60,5 +64,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1
 
-# 애플리케이션 시작
-CMD ["node", "apps/api/dist/main.js"]
+# 애플리케이션 시작 (pnpm deploy 구조)
+CMD ["node", "dist/main.js"]
