@@ -4,13 +4,14 @@ import type {
   AuthRequest,
   VerifyCodeRequest,
   RefreshTokenRequest,
-} from '@kamf/interface/types/api.js';
-import { ApiResponse } from '@kamf/interface/types/common.js';
-import { UserRole } from '@kamf/interface/types/user.js';
+} from '@kamf/interface/dtos/auth.dto.js';
+import { ApiResponse } from '@kamf/interface/types/common.type.js';
+import { UserRole } from '@kamf/interface/types/user.type.js';
 import { Controller, Post, Body, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBody } from '@nestjs/swagger';
 
 import { MessageResponseDto, AuthResponseDto } from '../../common/dto/common.dto.js';
+import { NicknameGenerator } from '../../common/utils/nickname-generator.js';
 import { UserService } from '../users/users.service.js';
 
 import { AuthRequestDto, VerifyCodeRequestDto, RefreshTokenRequestDto } from './auth.dto.js';
@@ -115,6 +116,29 @@ export class AuthController {
         console.log(`신규 사용자 생성: ${user.id}, 전화번호: ${normalizedPhoneNumber}`);
       } else {
         console.log(`기존 사용자 로그인: ${user.id}, 전화번호: ${normalizedPhoneNumber}`);
+      }
+
+      // displayName이 null인 경우 자동 생성
+      if (!user.displayName) {
+        try {
+          const generatedName = NicknameGenerator.generate();
+          user = await this.userService.updateUser(user.id, { displayName: generatedName });
+          console.log(`자동 닉네임 생성: ${user.id}, 닉네임: ${generatedName}`);
+        } catch (error) {
+          console.error('닉네임 자동 생성 실패:', error);
+          // 닉네임 생성에 실패해도 로그인은 계속 진행
+        }
+      }
+
+      // roles가 없거나 비어있는 경우 기본 USER 역할 부여
+      if (!user.roles || user.roles.length === 0) {
+        try {
+          user = await this.userService.updateUserRoles(user.id, [UserRole.USER]);
+          console.log(`기본 역할 부여: ${user.id}, 역할: USER`);
+        } catch (error) {
+          console.error('기본 역할 부여 실패:', error);
+          // 역할 부여에 실패해도 로그인은 계속 진행
+        }
       }
 
       // JWT 토큰 생성
