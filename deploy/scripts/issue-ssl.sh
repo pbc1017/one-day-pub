@@ -48,7 +48,7 @@ if [[ -z "$DOMAIN" ]]; then
     exit 1
 fi
 
-log_info "도메인: $DOMAIN, dev.$DOMAIN"
+log_info "도메인: $DOMAIN, www.$DOMAIN, dev.$DOMAIN"
 log_info "이메일: $CERTBOT_EMAIL"
 
 # nginx 중지 (standalone 모드 사용을 위해)
@@ -107,7 +107,7 @@ fi
 
 # 최종 테스트
 log_info "SSL 인증서 테스트를 수행합니다..."
-for domain in "$DOMAIN" "dev.$DOMAIN"; do
+for domain in "$DOMAIN" "www.$DOMAIN" "dev.$DOMAIN"; do
     log_info "테스트 중: https://$domain"
     if timeout 10 curl -sI "https://$domain" > /dev/null 2>&1; then
         log_success "$domain SSL 연결 성공"

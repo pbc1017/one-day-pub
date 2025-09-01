@@ -39,7 +39,7 @@ services:
       # nginx webroot 공유 (ACME challenge용)
       - webroot_data:/var/www/certbot
     # standalone 모드로 실행 (일회성)
-    command: certonly --standalone --non-interactive --agree-tos --email ${CERTBOT_EMAIL} -d ${DOMAIN} -d dev.${DOMAIN}
+    command: certonly --standalone --non-interactive --agree-tos --email ${CERTBOT_EMAIL} -d ${DOMAIN} -d www.${DOMAIN} -d dev.${DOMAIN}
     ports:
       - '80:80' # ACME challenge용 (nginx 중지 상태에서만)
     networks:
