@@ -54,8 +54,8 @@ RUN adduser --system --uid 1001 nextjs
 RUN apk add --no-cache wget
 
 # Next.js 빌드 결과물 복사 (standalone 모드 가정)
-# public 폴더 복사
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
+# public 폴더를 서버 실행 디렉토리와 동일한 위치에 복사
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 # standalone 빌드 결과물 복사 (.next/standalone)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
