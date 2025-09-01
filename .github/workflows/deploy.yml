@@ -37,6 +37,16 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_branch }}
 
+      - name: Debug workflow_run context
+        run: |
+          echo "=== DEBUG: workflow_run context ==="
+          echo "Event name: ${{ github.event_name }}"
+          echo "Head branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Head SHA: ${{ github.event.workflow_run.head_sha }}"
+          echo "GitHub SHA: ${{ github.sha }}"
+          echo "Current ref: ${{ github.ref }}"
+          echo "=================================="
+
       - name: Set deployment variables
         id: vars
         run: |
