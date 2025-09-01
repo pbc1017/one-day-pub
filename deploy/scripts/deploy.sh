@@ -209,6 +209,31 @@ fi
 
 print_success "All containers are running"
 
+# Nginx 설정 검증 및 안정화 대기
+print_info "Validating Nginx configuration and waiting for stabilization..."
+sleep 5
+
+NGINX_CONFIG_ATTEMPTS=0
+MAX_NGINX_ATTEMPTS=10
+
+while [ $NGINX_CONFIG_ATTEMPTS -lt $MAX_NGINX_ATTEMPTS ]; do
+    if docker-compose exec -T nginx nginx -t > /dev/null 2>&1; then
+        print_success "Nginx configuration is valid and loaded"
+        break
+    fi
+
+    NGINX_CONFIG_ATTEMPTS=$((NGINX_CONFIG_ATTEMPTS + 1))
+    print_info "Nginx config validation attempt $NGINX_CONFIG_ATTEMPTS/$MAX_NGINX_ATTEMPTS"
+    sleep 2
+done
+
+if [ $NGINX_CONFIG_ATTEMPTS -ge $MAX_NGINX_ATTEMPTS ]; then
+    print_error "Nginx configuration validation failed after restart!"
+    print_error "This could cause 502/503 errors. Check nginx logs:"
+    docker-compose logs nginx
+    exit 1
+fi
+
 # 애플리케이션 레벨 헬스체크
 print_info "Performing application health checks..."
 
@@ -240,19 +265,50 @@ else
     print_warning "Web application internal health check failed (but continuing)"
 fi
 
-# 외부 접근 헬스체크 (포트별)
-print_info "Testing external access on port ${API_PORT}..."
-if curl -f -m 10 http://localhost:${API_PORT}/health > /dev/null 2>&1; then
-    print_success "External API access confirmed"
-else
-    print_warning "External API access test failed (but continuing)"
+# 외부 접근 헬스체크 (포트별) - 재시도 로직 포함
+print_info "Testing external access with retry logic..."
+
+# API 외부 접근 테스트
+EXTERNAL_API_ATTEMPTS=0
+MAX_EXTERNAL_ATTEMPTS=5
+
+while [ $EXTERNAL_API_ATTEMPTS -lt $MAX_EXTERNAL_ATTEMPTS ]; do
+    if curl -f -m 10 http://localhost:${API_PORT}/health > /dev/null 2>&1; then
+        print_success "External API access confirmed on port ${API_PORT}"
+        break
+    fi
+    
+    EXTERNAL_API_ATTEMPTS=$((EXTERNAL_API_ATTEMPTS + 1))
+    if [ $EXTERNAL_API_ATTEMPTS -lt $MAX_EXTERNAL_ATTEMPTS ]; then
+        print_info "External API test attempt $EXTERNAL_API_ATTEMPTS/$MAX_EXTERNAL_ATTEMPTS (retrying...)"
+        sleep 3
+    fi
+done
+
+if [ $EXTERNAL_API_ATTEMPTS -ge $MAX_EXTERNAL_ATTEMPTS ]; then
+    print_warning "External API access test failed after $MAX_EXTERNAL_ATTEMPTS attempts"
+    print_warning "This may indicate port binding or firewall issues"
 fi
 
-print_info "Testing external access on port ${WEB_PORT}..."
-if curl -f -m 10 http://localhost:${WEB_PORT}/ > /dev/null 2>&1; then
-    print_success "External Web access confirmed"  
-else
-    print_warning "External Web access test failed (but continuing)"
+# Web 외부 접근 테스트  
+EXTERNAL_WEB_ATTEMPTS=0
+
+while [ $EXTERNAL_WEB_ATTEMPTS -lt $MAX_EXTERNAL_ATTEMPTS ]; do
+    if curl -f -m 10 http://localhost:${WEB_PORT}/ > /dev/null 2>&1; then
+        print_success "External Web access confirmed on port ${WEB_PORT}"
+        break
+    fi
+    
+    EXTERNAL_WEB_ATTEMPTS=$((EXTERNAL_WEB_ATTEMPTS + 1))
+    if [ $EXTERNAL_WEB_ATTEMPTS -lt $MAX_EXTERNAL_ATTEMPTS ]; then
+        print_info "External Web test attempt $EXTERNAL_WEB_ATTEMPTS/$MAX_EXTERNAL_ATTEMPTS (retrying...)"
+        sleep 3
+    fi
+done
+
+if [ $EXTERNAL_WEB_ATTEMPTS -ge $MAX_EXTERNAL_ATTEMPTS ]; then
+    print_warning "External Web access test failed after $MAX_EXTERNAL_ATTEMPTS attempts"
+    print_warning "This may indicate port binding or firewall issues"
 fi
 
 # 배포 후 정리
