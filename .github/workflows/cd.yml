@@ -67,8 +67,8 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha,scope=api
-          cache-to: type=gha,mode=max,scope=api
+          cache-from: type=gha,scope=${{ github.ref_name }}-api,ignore-error=true
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-api,ignore-error=true
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -86,8 +86,8 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=https://${{ vars.DOMAIN }}/api
             NEXT_PUBLIC_APP_URL=https://${{ vars.DOMAIN }}
-          cache-from: type=gha,scope=web
-          cache-to: type=gha,mode=max,scope=web
+          cache-from: type=gha,scope=${{ github.ref_name }}-web,ignore-error=true
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-web,ignore-error=true
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
