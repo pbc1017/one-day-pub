@@ -1,4 +1,4 @@
-import { BaseEntity } from './common';
+import { BaseEntity } from './common.type';
 
 /**
  * User related types and interfaces
@@ -13,18 +13,18 @@ export enum UserRole {
 
 export interface User extends BaseEntity {
   phoneNumber: string;
-  displayName: string;
+  displayName: string | null;
   roles: UserRole[];
 }
 
 export interface CreateUserRequest {
   phoneNumber: string;
-  displayName?: string;
+  displayName?: string | null;
   roles?: UserRole[];
 }
 
 export interface UpdateUserRequest {
-  displayName?: string;
+  displayName?: string | null;
   roles?: UserRole[];
 }
 

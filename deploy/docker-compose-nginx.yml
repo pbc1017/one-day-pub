@@ -1,0 +1,78 @@
+# Docker Nginx 전용 Compose 파일
+# nginx는 모든 환경에서 공유되는 리버스 프록시
+# 사용법: docker-compose -f docker-compose-nginx.yml up -d
+
+services:
+  # ================================
+  # Nginx 리버스 프록시 (단일 공통 서비스)
+  # ================================
+  nginx:
+    image: nginx:alpine
+    container_name: kamf-nginx # 고정된 이름으로 단일 컨테이너 보장
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - letsencrypt_data:/etc/letsencrypt:ro
+      - webroot_data:/var/www/certbot:ro
+    networks:
+      - kamf-network # 운영 환경 서비스 접근
+      - kamf-dev-network # 개발 환경 서비스 접근
+    healthcheck:
+      test: ['CMD', 'nginx', '-t']
+      timeout: 10s
+      retries: 3
+      interval: 30s
+
+  # ================================
+  # Certbot SSL 인증서 관리
+  # ================================
+  certbot:
+    image: certbot/certbot:latest
+    container_name: kamf-certbot
+    volumes:
+      # 인증서 저장 (nginx와 공유)
+      - letsencrypt_data:/etc/letsencrypt
+      # nginx webroot 공유 (ACME challenge용)
+      - webroot_data:/var/www/certbot
+    # standalone 모드로 실행 (일회성)
+    command: certonly --standalone --non-interactive --agree-tos --email ${CERTBOT_EMAIL} -d ${DOMAIN} -d www.${DOMAIN} -d dev.${DOMAIN}
+    ports:
+      - '80:80' # ACME challenge용 (nginx 중지 상태에서만)
+    networks:
+      - kamf-network
+
+  # ================================
+  # Certbot 갱신 전용 (webroot 모드)
+  # ================================
+  certbot-renew:
+    image: certbot/certbot:latest
+    container_name: kamf-certbot-renew
+    volumes:
+      - letsencrypt_data:/etc/letsencrypt
+      - webroot_data:/var/www/certbot
+    # webroot 모드로 갱신 (nginx 실행 중에도 가능)
+    command: renew --webroot --webroot-path=/var/www/certbot --non-interactive
+    networks:
+      - kamf-network
+
+volumes:
+  # SSL 인증서 저장용 볼륨 (certbot과 공유)
+  letsencrypt_data:
+    external: true
+    name: kamf-letsencrypt-data
+  # webroot 데이터 (ACME challenge용, certbot과 공유)
+  webroot_data:
+    external: true
+    name: kamf-webroot-data
+
+# 외부 네트워크 참조 (다른 compose 파일에서 생성됨)
+networks:
+  kamf-network:
+    external: true
+    name: kamf-network
+  kamf-dev-network:
+    external: true
+    name: kamf-dev-network

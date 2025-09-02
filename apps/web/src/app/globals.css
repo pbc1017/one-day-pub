@@ -128,35 +128,3 @@ body {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(15, 15, 35, 0.1);
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #a855f7, #ec4899);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #9333ea, #db2777);
-}
-
-/* 작은 화면에서 배경 이미지 최소 크기 유지 */
-.bg-home-image {
-  background-image: url('/kamf_home.png');
-  background-size: contain;
-  background-position: top center;
-  background-repeat: no-repeat;
-}
-
-@media (max-width: 350px) {
-  .bg-home-image {
-    background-size: 350px auto;
-  }
-}
