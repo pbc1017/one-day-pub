@@ -259,30 +259,42 @@ docker_cleanup() {
     print_success "Docker 정리 완료"
 }
 
-# ContainerConfig 에러 등 손상된 컨테이너 복구 (프로젝트별 안전한 정리)
+# ContainerConfig 에러 등 손상된 컨테이너 복구 (매우 안전한 프로젝트별 정리)
 force_container_recovery() {
     local project_name="$1"
     local compose_files="$2"
     
     print_warning "손상된 컨테이너 강제 복구 시작 (프로젝트: ${project_name})"
     
-    # 해당 프로젝트의 컨테이너만 강제 중지 및 제거
-    print_info "프로젝트별 손상된 컨테이너 강제 제거 중..."
-    docker-compose -p "${project_name}" ${compose_files} down --remove-orphans || true
+    # 1. 애플리케이션 서비스만 안전하게 중지 (MySQL은 보호)
+    print_info "애플리케이션 서비스만 안전하게 중지 중 (MySQL 보호)..."
+    docker-compose -p "${project_name}" ${compose_files} stop web api || true
+    docker-compose -p "${project_name}" ${compose_files} rm -f web api || true
     
-    # 해당 프로젝트의 손상된 컨테이너만 개별 강제 제거
-    docker ps -a --format "{{.Names}}" | grep "^${project_name}-" | xargs -r docker rm -f || true
+    # 2. 애플리케이션 서비스만 개별 제거 (MySQL은 데이터 보호를 위해 제외)
+    print_info "애플리케이션 컨테이너만 정확히 제거 중 (MySQL 보호)..."
+    for service in web api; do
+        local container_name="${project_name}-${service}"
+        if docker ps -a --format "{{.Names}}" | grep -q "^${container_name}$"; then
+            print_info "  - ${container_name} 제거"
+            docker rm -f "${container_name}" || true
+        fi
+    done
     
-    # 해당 프로젝트의 네트워크만 정리
-    print_info "프로젝트별 네트워크 정리 중..."
-    docker network ls --format "{{.Name}}" | grep "${project_name}" | xargs -r docker network rm || true
+    # MySQL은 데이터 손실 방지를 위해 강제 제거하지 않음
+    print_info "MySQL 컨테이너는 데이터 보호를 위해 보존됨"
     
-    # 안전한 정리: dangling 객체만 정리 (전체 시스템 건드리지 않음)
-    print_info "Dangling 리소스만 안전 정리 중..."
-    docker image prune -f > /dev/null 2>&1 || true
+    # 3. 프로젝트 전용 네트워크만 정리 (정확한 매칭)
+    print_info "프로젝트 네트워크 정리 중..."
+    if docker network ls --format "{{.Name}}" | grep -q "^${project_name}-network$"; then
+        docker network rm "${project_name}-network" || true
+    fi
+    
+    # 4. 매우 안전한 정리: dangling 컨테이너만 (이미지는 건드리지 않음)
+    print_info "중지된 컨테이너만 안전 정리 중..."
     docker container prune -f > /dev/null 2>&1 || true
     
-    print_success "프로젝트별 안전한 컨테이너 복구 완료"
+    print_success "매우 안전한 프로젝트별 컨테이너 복구 완료"
 }
 
 backup_container_state() {
