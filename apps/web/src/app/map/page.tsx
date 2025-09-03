@@ -1,12 +1,14 @@
 import Link from 'next/link';
 
+import { getTodayStagesUrl } from '@/utils/stages';
+
 // 지도 구역 정보
 const mapAreas = [
   {
     id: 'stage',
     nameKr: '무대',
     nameEn: 'Stage',
-    url: '/stages',
+    url: getTodayStagesUrl(),
     available: true,
     position: 'top-8 left-1/2 transform -translate-x-1/2',
     color:
@@ -92,7 +94,7 @@ export default function MapPage() {
     <main className="min-h-screen bg-purple-organic organic-overlay">
       {/* 헤더 */}
       <div className="text-center py-16">
-        <div className="animate-float">
+        <div>
           <h1 className="text-6xl font-bold text-white mb-6">
             KAMF <span className="text-purple-gradient">축제 지도</span>
           </h1>
