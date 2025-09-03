@@ -259,6 +259,30 @@ docker_cleanup() {
     print_success "Docker 정리 완료"
 }
 
+# ContainerConfig 에러 등 손상된 컨테이너 복구
+force_container_recovery() {
+    local project_name="$1"
+    local compose_files="$2"
+    
+    print_warning "손상된 컨테이너 강제 복구 시작..."
+    
+    # 모든 관련 컨테이너 강제 중지 및 제거
+    print_info "손상된 컨테이너 강제 제거 중..."
+    docker-compose -p "${project_name}" ${compose_files} down --remove-orphans || true
+    
+    # 손상된 컨테이너 개별 강제 제거
+    docker ps -a --format "{{.Names}}" | grep "${project_name}" | xargs -r docker rm -f || true
+    
+    # Dangling 이미지 및 볼륨 정리
+    print_info "손상된 Docker 리소스 정리 중..."
+    docker system prune -af --volumes > /dev/null 2>&1 || true
+    
+    # 네트워크 정리
+    docker network ls --format "{{.Name}}" | grep "${project_name}" | xargs -r docker network rm || true
+    
+    print_success "손상된 컨테이너 강제 복구 완료"
+}
+
 backup_container_state() {
     local project_name="$1"
     local backup_file=".deployment-backup-$(date +%Y%m%d_%H%M%S)"

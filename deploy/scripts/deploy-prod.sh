@@ -149,6 +149,31 @@ fi
 print_success "모든 이미지를 성공적으로 가져왔습니다"
 
 # =====================================
+# 이미지 메타데이터 검증 및 복구
+# =====================================
+print_info "Docker 이미지 메타데이터 검증 중..."
+
+# API 이미지 검증
+if ! docker inspect "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}" > /dev/null 2>&1; then
+    print_warning "API 이미지 검증 실패! 다시 가져오는 중..."
+    if ! docker pull "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"; then
+        print_error "API 이미지 재다운로드 실패"
+        exit 1
+    fi
+fi
+
+# Web 이미지 검증
+if ! docker inspect "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}" > /dev/null 2>&1; then
+    print_warning "Web 이미지 검증 실패! 다시 가져오는 중..."
+    if ! docker pull "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"; then
+        print_error "Web 이미지 재다운로드 실패"
+        exit 1
+    fi
+fi
+
+print_success "이미지 메타데이터 검증 완료"
+
+# =====================================
 # Docker MySQL 시작 및 확인
 # =====================================
 print_info "Docker MySQL 시작 및 확인..."
@@ -177,7 +202,27 @@ if [ -n "$CURRENT_API_RUNNING" ] || [ -n "$CURRENT_WEB_RUNNING" ]; then
     # API 먼저 업데이트 (데이터베이스 마이그레이션 등)
     if [ -n "$CURRENT_API_RUNNING" ]; then
         print_info "API 서비스 업데이트 중..."
-        docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d --no-deps api
+        
+        # API 업데이트 시도
+        if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d --no-deps api 2>/dev/null; then
+            print_warning "API 업데이트 실패! ContainerConfig 에러로 인한 강제 복구 시도..."
+            
+            # 강제 복구 실행
+            force_container_recovery "$PROJECT_NAME" "$COMPOSE_FILES"
+            
+            # MySQL 재시작 (공유 서비스이므로 먼저 확인)
+            if ! ensure_docker_mysql "$COMPOSE_FILES" "$PROJECT_NAME" "$MYSQL_PORT"; then
+                print_error "MySQL 복구 실패"
+                exit 1
+            fi
+            
+            # API만 다시 시작
+            print_info "API 서비스 완전 재시작 중..."
+            if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d api; then
+                print_error "강제 복구 후에도 API 시작 실패"
+                exit 1
+            fi
+        fi
         
         # API 준비 대기
         if ! wait_for_container_ready "$PROJECT_NAME" "api" 120; then
@@ -198,7 +243,27 @@ if [ -n "$CURRENT_API_RUNNING" ] || [ -n "$CURRENT_WEB_RUNNING" ]; then
     # Web 업데이트
     if [ -n "$CURRENT_WEB_RUNNING" ]; then
         print_info "Web 서비스 업데이트 중..."
-        docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d --no-deps web
+        
+        # Web 업데이트 시도
+        if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d --no-deps web 2>/dev/null; then
+            print_warning "Web 업데이트 실패! ContainerConfig 에러로 인한 강제 복구 시도..."
+            
+            # 강제 복구 실행
+            force_container_recovery "$PROJECT_NAME" "$COMPOSE_FILES"
+            
+            # MySQL 재시작 (공유 서비스이므로 먼저 확인)
+            if ! ensure_docker_mysql "$COMPOSE_FILES" "$PROJECT_NAME" "$MYSQL_PORT"; then
+                print_error "MySQL 복구 실패"
+                exit 1
+            fi
+            
+            # 완전 재시작으로 복구 시도
+            print_info "전체 서비스 완전 재시작 중..."
+            if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d api web; then
+                print_error "강제 복구 후에도 서비스 시작 실패"
+                exit 1
+            fi
+        fi
         
         # Web 준비 대기
         if ! wait_for_container_ready "$PROJECT_NAME" "web" 120; then
@@ -213,9 +278,24 @@ else
     print_info "새로운 배포: 모든 서비스 시작 중..."
     
     # 전체 서비스 시작
-    if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d --no-deps api web; then
-        print_error "컨테이너 시작 실패!"
-        exit 1
+    if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d --no-deps api web 2>/dev/null; then
+        print_warning "초기 서비스 시작 실패! 강제 복구 시도..."
+        
+        # 강제 복구 실행
+        force_container_recovery "$PROJECT_NAME" "$COMPOSE_FILES"
+        
+        # MySQL 재시작
+        if ! ensure_docker_mysql "$COMPOSE_FILES" "$PROJECT_NAME" "$MYSQL_PORT"; then
+            print_error "MySQL 복구 실패"
+            exit 1
+        fi
+        
+        # 완전 재시작으로 복구 시도
+        print_info "전체 서비스 완전 재시작 중..."
+        if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d api web; then
+            print_error "강제 복구 후에도 서비스 시작 실패"
+            exit 1
+        fi
     fi
     
     # 전체 서비스 준비 대기
