@@ -137,13 +137,24 @@ fi
 # =====================================
 print_info "새로운 애플리케이션 컨테이너 시작 중..."
 
-if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d --no-deps api web; then
-    print_error "컨테이너 시작 실패!"
+if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d --no-deps api web 2>/dev/null; then
+    print_warning "컨테이너 시작 실패! ContainerConfig 에러로 인한 강제 복구 시도..."
     
-    # 간단한 롤백 시도
-    print_warning "롤백 시도 중..."
-    docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} stop api web || true
-    exit 1
+    # 강제 복구 실행
+    force_container_recovery "$PROJECT_NAME" "$COMPOSE_FILES"
+    
+    # MySQL 재시작 (공유 서비스이므로 먼저 확인)
+    if ! ensure_docker_mysql "$COMPOSE_FILES" "$PROJECT_NAME" "$MYSQL_PORT"; then
+        print_error "MySQL 복구 실패"
+        exit 1
+    fi
+    
+    # 완전 재시작으로 복구 시도
+    print_info "전체 서비스 완전 재시작 중..."
+    if ! docker-compose -p "${PROJECT_NAME}" ${COMPOSE_FILES} up -d api web; then
+        print_error "강제 복구 후에도 서비스 시작 실패"
+        exit 1
+    fi
 fi
 
 print_success "컨테이너가 성공적으로 시작되었습니다"
