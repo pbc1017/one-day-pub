@@ -30,14 +30,14 @@
   },
   "zones": {
     "booth": "부스",
-    "info": "안내소",
+    "info": "인포 부스",
     "foodTruck": "푸드트럭",
     "nightMarket": "야시장",
     "stage": "무대"
   },
   "operatingHours": {
     "boothZone": "부스존",
-    "infoDesk": "안내소",
+    "infoDesk": "인포 부스",
     "foodTruck": "푸드트럭",
     "nightMarket": "야시장",
     "stageZone": "무대",
@@ -144,6 +144,7 @@
     "totalCount": "총",
     "totalCountSuffix": "개의 부스가 있습니다",
     "trashCanLocation": "쓰레기통 위치",
+    "trashCanGuide": "🗑️ 초록색 쓰레기통 아이콘이 쓰레기통 위치입니다",
     "noResults": "검색 결과가 없습니다",
     "noResultsDescription": "다른 검색어나 필터를 시도해보세요.",
     "guide": "💡 지도의 점을 클릭하거나 아래 목록에서 부스를 선택하세요"
