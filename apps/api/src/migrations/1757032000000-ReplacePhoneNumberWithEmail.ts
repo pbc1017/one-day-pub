@@ -24,7 +24,7 @@ export class ReplacePhoneNumberWithEmail1757032000000 implements MigrationInterf
     );
 
     // 5. phoneNumber 컬럼의 UNIQUE 인덱스 제거
-    await queryRunner.query(`ALTER TABLE \`users\` DROP INDEX \`IDX_users_phoneNumber\``);
+    await queryRunner.query(`ALTER TABLE \`users\` DROP INDEX \`IDX_1e3d0240b49c40521aaeb95329\``);
 
     // 6. phoneNumber 컬럼 삭제
     await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`phoneNumber\``);
@@ -36,7 +36,7 @@ export class ReplacePhoneNumberWithEmail1757032000000 implements MigrationInterf
 
     // 2. phoneNumber 컬럼에 UNIQUE 인덱스 추가
     await queryRunner.query(
-      `ALTER TABLE \`users\` ADD UNIQUE INDEX \`IDX_users_phoneNumber\` (\`phoneNumber\`)`
+      `ALTER TABLE \`users\` ADD UNIQUE INDEX \`IDX_1e3d0240b49c40521aaeb95329\` (\`phoneNumber\`)`
     );
 
     // 3. 기존 이메일에서 전화번호 형태로 변환 (롤백용 - 실제 전화번호는 복구 불가)
