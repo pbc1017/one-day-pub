@@ -6,43 +6,43 @@ services:
   # 운영 서버용 MySQL
   # ================================
   mysql:
-    container_name: ${DEPLOY_PATH:-kamf}-mysql
+    container_name: ${DEPLOY_PATH:-one-day-pub}-mysql
     ports:
       - '13306:3306'
     volumes:
       - mysql_prod_data:/var/lib/mysql
     networks:
-      - kamf-prod-network
+      - one-day-pub-prod-network
     environment:
-      MYSQL_DATABASE: kamf_prod
+      MYSQL_DATABASE: one_day_pub_prod
 
   # ================================
   # 운영 서버용 API
   # ================================
   api:
-    container_name: ${DEPLOY_PATH:-kamf}-api
+    container_name: ${DEPLOY_PATH:-one-day-pub}-api
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     environment:
       NODE_ENV: production
       DB_HOST: mysql # 컨테이너간 통신
     networks:
-      - kamf-prod-network
+      - one-day-pub-prod-network
 
   # ================================
   # 운영 서버용 Web
   # ================================
   web:
-    container_name: ${DEPLOY_PATH:-kamf}-web
+    container_name: ${DEPLOY_PATH:-one-day-pub}-web
     environment:
       NODE_ENV: production
     networks:
-      - kamf-prod-network
+      - one-day-pub-prod-network
 
 volumes:
   mysql_prod_data:
 
 networks:
-  kamf-prod-network:
-    name: ${DEPLOY_PATH:-kamf}-network
+  one-day-pub-prod-network:
+    name: ${DEPLOY_PATH:-one-day-pub}-network
     driver: bridge

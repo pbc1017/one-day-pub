@@ -1,4 +1,4 @@
-# KAMF 개발 명령어 가이드
+# One Day Pub 개발 명령어 가이드
 
 ## 🚀 프로젝트 설정 및 시작
 
@@ -26,8 +26,8 @@ pnpm dev
 
 
 # 개별 앱 실행
-pnpm --filter @kamf/web dev     # 웹: http://localhost:3000
-pnpm --filter @kamf/api dev     # API: http://localhost:3001
+pnpm --filter @one-day-pub/web dev     # 웹: http://localhost:3000
+pnpm --filter @one-day-pub/api dev     # API: http://localhost:3001
 
 # 빠른 실행 (alias)
 pnpm web dev                    # 웹만
@@ -43,9 +43,9 @@ pnpm api dev                    # API만
 pnpm build
 
 # 개별 빌드
-pnpm --filter @kamf/web build
-pnpm --filter @kamf/api build
-pnpm --filter @kamf/interface build
+pnpm --filter @one-day-pub/web build
+pnpm --filter @one-day-pub/api build
+pnpm --filter @one-day-pub/interface build
 ```
 
 ### 프로덕션 실행
@@ -55,8 +55,8 @@ pnpm --filter @kamf/interface build
 pnpm start
 
 # 개별 시작
-pnpm --filter @kamf/web start
-pnpm --filter @kamf/api start
+pnpm --filter @one-day-pub/web start
+pnpm --filter @one-day-pub/api start
 ```
 
 ## 🗄️ 데이터베이스 관리
@@ -117,8 +117,8 @@ pnpm lint
 pnpm lint:fix
 
 # 개별 앱 린트
-pnpm --filter @kamf/web lint
-pnpm --filter @kamf/api lint
+pnpm --filter @one-day-pub/web lint
+pnpm --filter @one-day-pub/api lint
 ```
 
 ### 포매팅
@@ -131,26 +131,26 @@ pnpm format
 pnpm format:check
 
 # 개별 앱 포맷
-pnpm --filter @kamf/web format
+pnpm --filter @one-day-pub/web format
 ```
 
 ## 🧪 테스트 (API 전용)
 
 ```bash
 # 단위 테스트 실행
-pnpm --filter @kamf/api test
+pnpm --filter @one-day-pub/api test
 
 # 테스트 감시 모드
-pnpm --filter @kamf/api test:watch
+pnpm --filter @one-day-pub/api test:watch
 
 # 커버리지 포함 테스트
-pnpm --filter @kamf/api test:cov
+pnpm --filter @one-day-pub/api test:cov
 
 # E2E 테스트
-pnpm --filter @kamf/api test:e2e
+pnpm --filter @one-day-pub/api test:e2e
 
 # 테스트 디버깅
-pnpm --filter @kamf/api test:debug
+pnpm --filter @one-day-pub/api test:debug
 ```
 
 ## 🧽 정리 및 유지보수
@@ -160,9 +160,9 @@ pnpm --filter @kamf/api test:debug
 pnpm clean
 
 # 개별 정리
-pnpm --filter @kamf/web clean
-pnpm --filter @kamf/api clean
-pnpm --filter @kamf/interface clean
+pnpm --filter @one-day-pub/web clean
+pnpm --filter @one-day-pub/api clean
+pnpm --filter @one-day-pub/interface clean
 ```
 
 ## 🖥️ Darwin (macOS) 시스템 유틸리티
@@ -207,8 +207,8 @@ pnpm list
 pnpm outdated
 
 # 특정 패키지 설치 (워크스페이스)
-pnpm --filter @kamf/web add package-name
-pnpm --filter @kamf/api add package-name
+pnpm --filter @one-day-pub/web add package-name
+pnpm --filter @one-day-pub/api add package-name
 ```
 
 ## 📦 Docker 배포 (선택사항)

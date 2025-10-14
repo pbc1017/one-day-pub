@@ -57,12 +57,12 @@ jobs:
           TAG_PREFIX="${{ steps.env.outputs.tag-prefix }}"
 
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            TAGS="${REGISTRY}/kamf-${SERVICE}:latest,${REGISTRY}/kamf-${SERVICE}:latest-${{ github.sha }}"
-            SCAN_TAG="${REGISTRY}/kamf-${SERVICE}:latest-${{ github.sha }}"
+            TAGS="${REGISTRY}/one-day-pub-${SERVICE}:latest,${REGISTRY}/one-day-pub-${SERVICE}:latest-${{ github.sha }}"
+            SCAN_TAG="${REGISTRY}/one-day-pub-${SERVICE}:latest-${{ github.sha }}"
             IMAGE_TAG="latest-${{ github.sha }}"
           else
-            TAGS="${REGISTRY}/kamf-${SERVICE}:dev,${REGISTRY}/kamf-${SERVICE}:dev-${{ github.sha }}"
-            SCAN_TAG="${REGISTRY}/kamf-${SERVICE}:dev-${{ github.sha }}"
+            TAGS="${REGISTRY}/one-day-pub-${SERVICE}:dev,${REGISTRY}/one-day-pub-${SERVICE}:dev-${{ github.sha }}"
+            SCAN_TAG="${REGISTRY}/one-day-pub-${SERVICE}:dev-${{ github.sha }}"
             IMAGE_TAG="dev-${{ github.sha }}"
           fi
 
@@ -137,8 +137,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            echo "🔐 Applying secrets to kamf-dev namespace..."
-            kubectl create secret generic kamf-secrets -n kamf-dev \
+            echo "🔐 Applying secrets to one-day-pub-dev namespace..."
+            kubectl create secret generic one-day-pub-secrets -n one-day-pub-dev \
               --from-literal=db-username='${{ secrets.DB_USERNAME }}' \
               --from-literal=db-password='${{ secrets.DB_PASSWORD }}' \
               --from-literal=mysql-root-password='${{ secrets.MYSQL_ROOT_PASSWORD }}' \
@@ -163,8 +163,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            echo "🔐 Applying secrets to kamf-prod namespace..."
-            kubectl create secret generic kamf-secrets -n kamf-prod \
+            echo "🔐 Applying secrets to one-day-pub-prod namespace..."
+            kubectl create secret generic one-day-pub-secrets -n one-day-pub-prod \
               --from-literal=db-username='${{ secrets.DB_USERNAME }}' \
               --from-literal=db-password='${{ secrets.DB_PASSWORD }}' \
               --from-literal=mysql-root-password='${{ secrets.MYSQL_ROOT_PASSWORD }}' \
@@ -191,7 +191,7 @@ jobs:
       - name: Checkout GitOps repository
         uses: actions/checkout@v4
         with:
-          repository: pbc1017/KAMF-k8s
+          repository: pbc1017/one-day-pub-sub-k8s
           token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops
 
@@ -205,8 +205,8 @@ jobs:
           REGISTRY="${{ secrets.DOCKERHUB_USERNAME }}"
 
           echo "Updating dev images:"
-          echo "API: ${REGISTRY}/kamf-api:${API_TAG}"
-          echo "Web: ${REGISTRY}/kamf-web:${WEB_TAG}"
+          echo "API: ${REGISTRY}/one-day-pub-api:${API_TAG}"
+          echo "Web: ${REGISTRY}/one-day-pub-web:${WEB_TAG}"
 
           # Update kustomization.yaml with new image tags
           cat > environments/dev/kustomization.yaml << EOF
@@ -228,14 +228,14 @@ jobs:
           - path: mysql-patch.yaml
 
           images:
-          - name: chansparcs/kamf-api
-            newName: ${REGISTRY}/kamf-api
+          - name: chansparcs/one-day-pub-api
+            newName: ${REGISTRY}/one-day-pub-api
             newTag: ${API_TAG}
-          - name: chansparcs/kamf-web  
-            newName: ${REGISTRY}/kamf-web
+          - name: chansparcs/one-day-pub-web  
+            newName: ${REGISTRY}/one-day-pub-web
             newTag: ${WEB_TAG}
 
-          namespace: kamf-dev
+          namespace: one-day-pub-dev
           EOF
 
       - name: Commit and push changes
@@ -251,8 +251,8 @@ jobs:
           else
             git commit -m "🚀 chore(dev): update images to dev-${{ github.sha }}
             
-            - API: ${{ secrets.DOCKERHUB_USERNAME }}/kamf-api:dev-${{ github.sha }}
-            - Web: ${{ secrets.DOCKERHUB_USERNAME }}/kamf-web:dev-${{ github.sha }}
+            - API: ${{ secrets.DOCKERHUB_USERNAME }}/one-day-pub-api:dev-${{ github.sha }}
+            - Web: ${{ secrets.DOCKERHUB_USERNAME }}/one-day-pub-web:dev-${{ github.sha }}
             - Secrets: Updated from GitHub Actions
             - Trigger: ${{ github.actor }} pushed to ${{ github.ref_name }}
             - Commit: ${{ github.sha }}"
@@ -272,7 +272,7 @@ jobs:
       - name: Checkout GitOps repository
         uses: actions/checkout@v4
         with:
-          repository: pbc1017/KAMF-k8s
+          repository: pbc1017/one-day-pub-sub-k8s
           token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops
 
@@ -298,8 +298,8 @@ jobs:
           REGISTRY="${{ secrets.DOCKERHUB_USERNAME }}"
 
           echo "Updating prod images:"
-          echo "API: ${REGISTRY}/kamf-api:${API_TAG}"
-          echo "Web: ${REGISTRY}/kamf-web:${WEB_TAG}"
+          echo "API: ${REGISTRY}/one-day-pub-api:${API_TAG}"
+          echo "Web: ${REGISTRY}/one-day-pub-web:${WEB_TAG}"
 
           # Update kustomization.yaml with new image tags
           cat > environments/prod/kustomization.yaml << EOF
@@ -321,14 +321,14 @@ jobs:
           - path: mysql-patch.yaml
 
           images:
-          - name: chansparcs/kamf-api
-            newName: ${REGISTRY}/kamf-api
+          - name: chansparcs/one-day-pub-api
+            newName: ${REGISTRY}/one-day-pub-api
             newTag: ${API_TAG}
-          - name: chansparcs/kamf-web  
-            newName: ${REGISTRY}/kamf-web
+          - name: chansparcs/one-day-pub-web  
+            newName: ${REGISTRY}/one-day-pub-web
             newTag: ${WEB_TAG}
 
-          namespace: kamf-prod
+          namespace: one-day-pub-prod
           EOF
 
       - name: Commit changes and create PR
@@ -341,8 +341,8 @@ jobs:
           else
             git commit -m "🚀 chore(prod): update images to latest-${{ github.sha }}
             
-            - API: ${{ secrets.DOCKERHUB_USERNAME }}/kamf-api:latest-${{ github.sha }}
-            - Web: ${{ secrets.DOCKERHUB_USERNAME }}/kamf-web:latest-${{ github.sha }}
+            - API: ${{ secrets.DOCKERHUB_USERNAME }}/one-day-pub-api:latest-${{ github.sha }}
+            - Web: ${{ secrets.DOCKERHUB_USERNAME }}/one-day-pub-web:latest-${{ github.sha }}
             - Secrets: Updated from GitHub Actions
             - Trigger: ${{ github.actor }} pushed to ${{ github.ref_name }}
             - Commit: ${{ github.sha }}"
@@ -366,8 +366,8 @@ jobs:
             **Triggered by:** ${{ github.actor }}  
             **Source:** ${{ github.ref_name }} → ${{ github.sha }}  
             **Images:**
-            - \`${{ secrets.DOCKERHUB_USERNAME }}/kamf-api:latest-${{ github.sha }}\`
-            - \`${{ secrets.DOCKERHUB_USERNAME }}/kamf-web:latest-${{ github.sha }}\`
+            - \`${{ secrets.DOCKERHUB_USERNAME }}/one-day-pub-api:latest-${{ github.sha }}\`
+            - \`${{ secrets.DOCKERHUB_USERNAME }}/one-day-pub-web:latest-${{ github.sha }}\`
 
             **Changes:**
             - Updated Kubernetes manifests for production environment
@@ -452,7 +452,7 @@ jobs:
                   {\"title\": \"상태\", \"value\": \"${DEPLOYMENT_MSG}\", \"short\": false},
                   {\"title\": \"다음 단계\", \"value\": \"${ACTION_MSG}\", \"short\": false}
                 ],
-                \"footer\": \"KAMF GitOps Pipeline\",
+                \"footer\": \"One Day Pub GitOps Pipeline\",
                 \"ts\": $(date +%s)
               }]
             }" \

@@ -1,4 +1,4 @@
-# KAMF 코드 스타일 및 컨벤션
+# One Day Pub 코드 스타일 및 컨벤션
 
 ## TypeScript 설정
 
@@ -6,7 +6,7 @@
 - **모듈**: ESNext (ESM)
 - **엄격 모드**: 활성화
 - **데코레이터**: 실험적 데코레이터 지원 (NestJS용)
-- **Path Mapping**: `@kamf/interface` 절대 경로 지원
+- **Path Mapping**: `@one-day-pub/interface` 절대 경로 지원
 
 ## ESLint 규칙
 
@@ -41,7 +41,7 @@
 
 1. Node.js 내장 모듈
 2. 외부 라이브러리
-3. 내부 모듈 (@kamf/\*)
+3. 내부 모듈 (@one-day-pub/\*)
 4. 부모/형제 디렉토리
 5. 인덱스 파일
 

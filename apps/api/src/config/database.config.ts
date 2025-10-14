@@ -12,9 +12,9 @@ export default registerAs(
     type: 'mysql',
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT, 10) || 3306,
-    username: process.env.DB_USERNAME || 'kamf_user',
-    password: process.env.DB_PASSWORD || 'kamf_password',
-    database: process.env.DB_NAME || 'kamf_dev',
+    username: process.env.DB_USERNAME || 'one_day_pub_user',
+    password: process.env.DB_PASSWORD || 'one_day_pub_password',
+    database: process.env.DB_NAME || 'one_day_pub_dev',
     // 🔧 타임존 설정 추가: DB와 서버 모두 UTC로 통일
     timezone: 'Z', // UTC 타임존 강제 설정
     extra: {

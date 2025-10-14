@@ -6,7 +6,7 @@ import type {
   StatsResponseDto,
   HistoryQueryDto,
   HistoryResponseDto,
-} from '@kamf/interface/dtos/safety.dto.js';
+} from '@one-day-pub/interface/dtos/safety.dto.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 

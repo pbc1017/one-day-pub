@@ -6,7 +6,7 @@ services:
   # 로컬 개발용 MySQL 설정
   # ================================
   mysql:
-    container_name: kamf-mysql
+    container_name: one-day-pub-mysql
     ports:
       - '${DB_PORT:-3306}:3306'
     volumes:

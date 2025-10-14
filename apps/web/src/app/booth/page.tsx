@@ -1,6 +1,6 @@
 'use client';
 
-import { Booth } from '@kamf/interface/types/festival.type.js';
+import { Booth } from '@one-day-pub/interface/types/festival.type.js';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState, useMemo, Suspense, useRef, useEffect } from 'react';

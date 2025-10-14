@@ -1,6 +1,6 @@
 'use client';
 
-import { FestivalDay } from '@kamf/interface/types/festival.type.js';
+import { FestivalDay } from '@one-day-pub/interface/types/festival.type.js';
 import { useLocale, useTranslations } from 'next-intl';
 
 interface SegmentControlProps {

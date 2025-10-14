@@ -141,8 +141,8 @@ if command -v curl &> /dev/null; then
     
     test_urls=(
         "http://localhost"
-        "http://kamf.site"
-        "http://dev.kamf.site"
+        "http://one-day-pub.site"
+        "http://dev.one-day-pub.site"
     )
     
     for url in "${test_urls[@]}"; do
@@ -215,6 +215,6 @@ echo "  - nginx 설정 테스트: sudo nginx -t"
 echo "  - nginx 재로드: sudo systemctl reload nginx"
 echo ""
 log_info "🌐 서비스 URL들:"
-echo "  - 운영환경: https://kamf.site"
-echo "  - 개발환경: https://dev.kamf.site"
+echo "  - 운영환경: https://one-day-pub.site"
+echo "  - 개발환경: https://dev.one-day-pub.site"
 echo ""

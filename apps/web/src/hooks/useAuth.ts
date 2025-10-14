@@ -7,7 +7,7 @@ import {
   VerifyCodeRequest,
   AuthResponse,
   RequestCodeResponse,
-} from '@kamf/interface/dtos/auth.dto.js';
+} from '@one-day-pub/interface/dtos/auth.dto.js';
 import { useMutation } from '@tanstack/react-query';
 
 import { apiClient } from '@/lib/api';

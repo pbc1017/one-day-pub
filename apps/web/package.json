@@ -1,5 +1,5 @@
 {
-  "name": "@kamf/web",
+  "name": "@one-day-pub/web",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "format:check": "dotenv -e ../../.env -- prettier --check ."
   },
   "dependencies": {
-    "@kamf/interface": "workspace:*",
+    "@one-day-pub/interface": "workspace:*",
     "@tanstack/react-query": "^5.85.6",
     "next": "^14.1.0",
     "next-intl": "^4.3.6",

@@ -1,6 +1,6 @@
 'use client';
 
-import type { TodayStats, UserStats } from '@kamf/interface/dtos/safety.dto.js';
+import type { TodayStats, UserStats } from '@one-day-pub/interface/dtos/safety.dto.js';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
@@ -11,8 +11,8 @@ import { useSafetyStats, useUpdateSafetyCount } from '@/hooks/useSafety';
 
 /**
  * 현재 도메인에서 환경을 추출
- * dev.kamf.site -> 'dev'
- * kamf.site -> 'prod'
+ * dev.one-day-pub.site -> 'dev'
+ * one-day-pub.site -> 'prod'
  * localhost -> 'dev'
  */
 function getEnvironmentFromDomain(): 'dev' | 'prod' {
@@ -21,7 +21,7 @@ function getEnvironmentFromDomain(): 'dev' | 'prod' {
   const hostname = window.location.hostname;
 
   // 프로덕션 도메인
-  if (hostname === 'kamf.site') {
+  if (hostname === 'one-day-pub.site') {
     return 'prod';
   }
 
@@ -50,8 +50,8 @@ function isBeforeToday(date: Date): boolean {
   return compareDate < today;
 }
 
-const SAFETY_COUNT_KEY = getEnvironmentKey('kamf_safety_count');
-const SAFETY_LAST_SYNC_KEY = getEnvironmentKey('kamf_safety_last_sync');
+const SAFETY_COUNT_KEY = getEnvironmentKey('one_day_pub_safety_count');
+const SAFETY_LAST_SYNC_KEY = getEnvironmentKey('one_day_pub_safety_last_sync');
 
 interface LocalSafetyCount {
   increment: number;

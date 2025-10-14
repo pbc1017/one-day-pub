@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# KAMF 프로덕션 배포 스크립트
+# One Day Pub 프로덕션 배포 스크립트
 # 이 스크립트는 GitHub Actions CD 파이프라인에서 호출됩니다.
 #
 set -e  # 오류 발생 시 즉시 종료
@@ -23,10 +23,10 @@ print_warning() {
 }
 
 # 배포 시작
-print_info "=== KAMF Production Deployment Started ==="
+print_info "=== One Day Pub Production Deployment Started ==="
 
 # 환경변수 파일 확인 및 로드 (경로 수정)
-# GitHub Actions에서 실행 시: /home/user/kamf-dev/ 에서 ./deploy/scripts/deploy.sh 실행
+# GitHub Actions에서 실행 시: /home/user/one-day-pub-dev/ 에서 ./deploy/scripts/deploy.sh 실행
 # 따라서 .env.deploy 파일은 현재 디렉토리 또는 상위 디렉토리에 위치
 if [ -f .env.deploy ]; then
     ENV_FILE=".env.deploy"
@@ -76,13 +76,13 @@ fi
 
 # 최신 이미지 Pull
 print_info "Pulling latest Docker images..."
-if ! docker pull ${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}; then
-    print_error "Failed to pull API image: ${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"
+if ! docker pull ${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}; then
+    print_error "Failed to pull API image: ${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}"
     exit 1
 fi
 
-if ! docker pull ${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}; then
-    print_error "Failed to pull Web image: ${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"
+if ! docker pull ${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}; then
+    print_error "Failed to pull Web image: ${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}"
     exit 1
 fi
 
@@ -120,14 +120,14 @@ docker system prune -f > /dev/null 2>&1 || true
 
 # 2. 이미지 메타데이터 유효성 검증
 print_info "Validating Docker images metadata integrity..."
-if ! docker inspect "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}" > /dev/null 2>&1; then
+if ! docker inspect "${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}" > /dev/null 2>&1; then
     print_warning "API image validation failed! Re-pulling..."
-    docker pull "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"
+    docker pull "${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}"
 fi
 
-if ! docker inspect "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}" > /dev/null 2>&1; then
+if ! docker inspect "${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}" > /dev/null 2>&1; then
     print_warning "Web image validation failed! Re-pulling..."
-    docker pull "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"
+    docker pull "${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}"
 fi
 
 # 3. 기존 컨테이너 완전 제거 (컨테이너 메타데이터 초기화)
@@ -294,12 +294,12 @@ docker volume prune -f || true
 print_success "Cleanup completed"
 
 # 배포 완료 로그
-print_success "=== KAMF ${ENVIRONMENT:-Production} Deployment Completed ==="
+print_success "=== One Day Pub ${ENVIRONMENT:-Production} Deployment Completed ==="
 print_info "Deployment Summary:"
 print_info "  - Environment: ${ENVIRONMENT:-Production}"
-print_info "  - Deploy Path: ${DEPLOY_PATH:-kamf}"
-print_info "  - Domain: ${DOMAIN:-kamf.site}"
-print_info "  - Database: ${DB_NAME:-kamf_prod}"
+print_info "  - Deploy Path: ${DEPLOY_PATH:-one-day-pub}"
+print_info "  - Domain: ${DOMAIN:-one-day-pub.site}"
+print_info "  - Database: ${DB_NAME:-one_day_pub_prod}"
 print_info "  - API Port: ${API_PORT:-8000}"
 print_info "  - Web Port: ${WEB_PORT:-3000}"
 print_info "  - Docker Registry: $DOCKER_REGISTRY"

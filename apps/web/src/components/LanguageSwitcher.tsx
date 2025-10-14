@@ -16,7 +16,7 @@ export default function LanguageSwitcher() {
 
     startTransition(() => {
       // 쿠키 설정 (1년 유효)
-      document.cookie = `KAMF_LOCALE=${newLocale}; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=lax`;
+      document.cookie = `ONE_DAY_PUB_LOCALE=${newLocale}; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=lax`;
 
       // 페이지 새로고침으로 언어 변경 적용
       window.location.reload();

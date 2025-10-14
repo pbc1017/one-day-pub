@@ -8,7 +8,7 @@ export const defaultLocale: Locale = 'ko';
 
 export default getRequestConfig(async () => {
   const cookieStore = cookies();
-  const locale = (cookieStore.get('KAMF_LOCALE')?.value as Locale) ?? defaultLocale;
+  const locale = (cookieStore.get('ONE_DAY_PUB_LOCALE')?.value as Locale) ?? defaultLocale;
 
   return {
     locale,

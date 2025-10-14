@@ -32,11 +32,11 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 
 # 의존성 순서대로 빌드 (interface -> web)
-RUN pnpm --filter @kamf/interface build
-RUN pnpm --filter @kamf/web build
+RUN pnpm --filter @one-day-pub/interface build
+RUN pnpm --filter @one-day-pub/web build
 
 # pnpm deploy를 사용한 production 배포
-RUN pnpm --filter=@kamf/web deploy --prod /tmp/deploy-web
+RUN pnpm --filter=@one-day-pub/web deploy --prod /tmp/deploy-web
 
 # 런타임 단계
 FROM node:18-alpine AS runner

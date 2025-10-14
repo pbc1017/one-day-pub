@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# KAMF 운영 환경 배포 스크립트
+# One Day Pub 운영 환경 배포 스크립트
 # Docker MySQL을 사용한 운영 서버 배포 (보안 강화)
 #
 set -e
@@ -16,13 +16,13 @@ source "${SCRIPT_DIR}/deploy-common.sh"
 # =====================================
 ENVIRONMENT="production"
 COMPOSE_FILES="-f docker-compose.yml -f docker-compose.prod.yml"
-DEFAULT_PROJECT_NAME="kamf"
+DEFAULT_PROJECT_NAME="one-day-pub"
 DEFAULT_MYSQL_PORT="13306"
 DEFAULT_API_PORT="8000"
 DEFAULT_WEB_PORT="3000"
-DEFAULT_DB_NAME="kamf_prod"
+DEFAULT_DB_NAME="one_day_pub_prod"
 
-print_header "KAMF 운영 환경 배포 시작"
+print_header "One Day Pub 운영 환경 배포 시작"
 
 # =====================================
 # 운영 환경 사전 검증
@@ -128,22 +128,22 @@ fi
 print_info "최신 Docker 이미지 가져오는 중..."
 
 # API 이미지 Pull
-if ! docker pull "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"; then
-    print_error "API 이미지를 가져올 수 없습니다: ${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"
+if ! docker pull "${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}"; then
+    print_error "API 이미지를 가져올 수 없습니다: ${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}"
     exit 1
 fi
 
 # Web 이미지 Pull
-if ! docker pull "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"; then
-    print_error "Web 이미지를 가져올 수 없습니다: ${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"
+if ! docker pull "${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}"; then
+    print_error "Web 이미지를 가져올 수 없습니다: ${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}"
     exit 1
 fi
 
 # 이미지 보안 스캔 (선택적)
 if command -v trivy &> /dev/null; then
     print_info "Docker 이미지 보안 스캔 수행 중..."
-    trivy image --exit-code 0 --no-progress "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}" || print_warning "API 이미지 보안 스캔에서 문제가 발견되었습니다"
-    trivy image --exit-code 0 --no-progress "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}" || print_warning "Web 이미지 보안 스캔에서 문제가 발견되었습니다"
+    trivy image --exit-code 0 --no-progress "${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}" || print_warning "API 이미지 보안 스캔에서 문제가 발견되었습니다"
+    trivy image --exit-code 0 --no-progress "${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}" || print_warning "Web 이미지 보안 스캔에서 문제가 발견되었습니다"
 fi
 
 print_success "모든 이미지를 성공적으로 가져왔습니다"
@@ -154,18 +154,18 @@ print_success "모든 이미지를 성공적으로 가져왔습니다"
 print_info "Docker 이미지 메타데이터 검증 중..."
 
 # API 이미지 검증
-if ! docker inspect "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}" > /dev/null 2>&1; then
+if ! docker inspect "${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}" > /dev/null 2>&1; then
     print_warning "API 이미지 검증 실패! 다시 가져오는 중..."
-    if ! docker pull "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"; then
+    if ! docker pull "${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}"; then
         print_error "API 이미지 재다운로드 실패"
         exit 1
     fi
 fi
 
 # Web 이미지 검증
-if ! docker inspect "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}" > /dev/null 2>&1; then
+if ! docker inspect "${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}" > /dev/null 2>&1; then
     print_warning "Web 이미지 검증 실패! 다시 가져오는 중..."
-    if ! docker pull "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"; then
+    if ! docker pull "${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}"; then
         print_error "Web 이미지 재다운로드 실패"
         exit 1
     fi
@@ -379,7 +379,7 @@ find . -name "mysql-backup-*.sql" -mtime +30 -delete 2>/dev/null || true
 # =====================================
 # 배포 완료 리포트
 # =====================================
-DOMAIN="${DOMAIN:-kamf.site}"
+DOMAIN="${DOMAIN:-one-day-pub.site}"
 
 print_deployment_summary \
     "$ENVIRONMENT" \
@@ -396,7 +396,7 @@ print_info "  📊 컨테이너 상태: docker-compose -p $PROJECT_NAME ps"
 print_info "  📝 로그 확인: docker-compose -p $PROJECT_NAME logs"
 print_info "  💾 백업 파일들이 저장되었습니다"
 
-print_success "🎉 KAMF 운영 환경 배포가 성공적으로 완료되었습니다!"
+print_success "🎉 One Day Pub 운영 환경 배포가 성공적으로 완료되었습니다!"
 print_info "운영 서버 접속 정보:"
 print_info "  🌐 웹사이트: https://${DOMAIN}:${WEB_PORT}"
 print_info "  🔗 API: https://${DOMAIN}:${API_PORT}"

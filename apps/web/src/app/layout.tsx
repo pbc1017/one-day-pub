@@ -39,8 +39,8 @@ const Toaster = dynamic(() => import('react-hot-toast').then(mod => ({ default: 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: '2025 KAMF',
-  description: 'KAMF official website',
+  title: '2025 One Day Pub',
+  description: 'One Day Pub official website',
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {

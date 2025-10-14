@@ -79,16 +79,16 @@ fi
 log_info "Docker 볼륨을 생성합니다..."
 
 # SSL 인증서용 볼륨 생성
-if ! docker volume ls | grep -q kamf-letsencrypt-data; then
-    docker volume create kamf-letsencrypt-data
+if ! docker volume ls | grep -q one-day-pub-letsencrypt-data; then
+    docker volume create one-day-pub-letsencrypt-data
     log_success "letsencrypt 볼륨 생성 완료"
 else
     log_info "letsencrypt 볼륨이 이미 존재합니다."
 fi
 
 # webroot 볼륨 생성
-if ! docker volume ls | grep -q kamf-webroot-data; then
-    docker volume create kamf-webroot-data
+if ! docker volume ls | grep -q one-day-pub-webroot-data; then
+    docker volume create one-day-pub-webroot-data
     log_success "webroot 볼륨 생성 완료"
 else
     log_info "webroot 볼륨이 이미 존재합니다."
@@ -96,12 +96,12 @@ fi
 
 # SSL 인증서 상태 확인
 log_info "SSL 인증서 상태를 확인합니다..."
-if docker run --rm -v kamf-letsencrypt-data:/etc/letsencrypt alpine ls /etc/letsencrypt/live/ 2>/dev/null | grep -E "(kamf\.site|dev\.kamf\.site)"; then
+if docker run --rm -v one-day-pub-letsencrypt-data:/etc/letsencrypt alpine ls /etc/letsencrypt/live/ 2>/dev/null | grep -E "(one-day-pub\.site|dev\.one-day-pub\.site)"; then
     log_success "SSL 인증서가 이미 존재합니다."
 else
     log_warning "SSL 인증서가 없습니다. 다음 명령어로 발급하세요:"
     log_info "  export CERTBOT_EMAIL=\"your-email@example.com\""
-    log_info "  export DOMAIN=\"kamf.site\""
+    log_info "  export DOMAIN=\"one-day-pub.site\""
     log_info "  ./scripts/issue-ssl.sh"
 fi
 
@@ -110,9 +110,9 @@ log_info "nginx 설정 파일을 확인합니다..."
 
 config_files=(
     "nginx/conf.d/default.conf"
-    "nginx/conf.d/kamf-common.conf"
-    "nginx/conf.d/kamf-prod.conf"
-    "nginx/conf.d/kamf-dev.conf"
+    "nginx/conf.d/one-day-pub-common.conf"
+    "nginx/conf.d/one-day-pub-prod.conf"
+    "nginx/conf.d/one-day-pub-dev.conf"
 )
 
 missing_files=()
@@ -147,7 +147,7 @@ done
 echo ""
 log_info "2. SSL 인증서 발급 (필요한 경우):"
 echo "   export CERTBOT_EMAIL=\"your-email@example.com\""
-echo "   export DOMAIN=\"kamf.site\""
+echo "   export DOMAIN=\"one-day-pub.site\""
 echo "   ./scripts/issue-ssl.sh"
 echo ""
 log_info "3. Docker Nginx로 전환:"

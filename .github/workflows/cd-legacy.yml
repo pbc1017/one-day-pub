@@ -43,13 +43,13 @@ jobs:
           REGISTRY="${{ secrets.DOCKERHUB_USERNAME }}"
 
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            TAGS="${REGISTRY}/kamf-${SERVICE}:latest,${REGISTRY}/kamf-${SERVICE}:${{ github.sha }}"
-            SCAN_TAG="${REGISTRY}/kamf-${SERVICE}:${{ github.sha }}"
+            TAGS="${REGISTRY}/one-day-pub-${SERVICE}:latest,${REGISTRY}/one-day-pub-${SERVICE}:${{ github.sha }}"
+            SCAN_TAG="${REGISTRY}/one-day-pub-${SERVICE}:${{ github.sha }}"
             ENV_SUFFIX="PROD"
           else
             # dev 브랜치 또는 workflow_dispatch
-            TAGS="${REGISTRY}/kamf-${SERVICE}:dev,${REGISTRY}/kamf-${SERVICE}:dev-${{ github.sha }}"
-            SCAN_TAG="${REGISTRY}/kamf-${SERVICE}:dev-${{ github.sha }}"
+            TAGS="${REGISTRY}/one-day-pub-${SERVICE}:dev,${REGISTRY}/one-day-pub-${SERVICE}:dev-${{ github.sha }}"
+            SCAN_TAG="${REGISTRY}/one-day-pub-${SERVICE}:dev-${{ github.sha }}"
             ENV_SUFFIX="DEV"
           fi
 
@@ -160,7 +160,7 @@ jobs:
           NEXT_PUBLIC_APP_URL=https://${{ steps.vars.outputs.domain }}
 
           # Database Configuration (공유 MySQL)
-          DB_HOST=kamf-mysql
+          DB_HOST=one-day-pub-mysql
           DB_PORT=3306
           DB_USERNAME=${{ secrets.DB_USERNAME }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}

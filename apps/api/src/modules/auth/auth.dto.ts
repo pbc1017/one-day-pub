@@ -1,5 +1,5 @@
-import { AuthRequest, VerifyCodeRequest } from '@kamf/interface/dtos/auth.dto.js';
 import { ApiProperty } from '@nestjs/swagger';
+import { AuthRequest, VerifyCodeRequest } from '@one-day-pub/interface/dtos/auth.dto.js';
 import { IsString, IsNotEmpty, Length, Matches, IsEmail } from 'class-validator';
 
 export class AuthRequestDto implements AuthRequest {

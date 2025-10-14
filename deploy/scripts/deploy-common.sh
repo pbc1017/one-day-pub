@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# KAMF 공통 배포 함수들
+# One Day Pub 공통 배포 함수들
 # 모든 환경별 배포 스크립트에서 공통으로 사용되는 함수들을 정의
 #
 set -e
@@ -171,7 +171,7 @@ validate_db_connection() {
     
     # 3. 실제 DB 연결 테스트
     for i in $(seq 1 $max_attempts); do
-        if docker-compose -p "${project_name}" ${compose_files} exec -T mysql mysql -u"${DB_USERNAME:-kamf_user}" -p"${DB_PASSWORD}" -D"${DB_NAME}" -e "SELECT 'Connection Test Success' as status;" >/dev/null 2>&1; then
+        if docker-compose -p "${project_name}" ${compose_files} exec -T mysql mysql -u"${DB_USERNAME:-one-day-pub_user}" -p"${DB_PASSWORD}" -D"${DB_NAME}" -e "SELECT 'Connection Test Success' as status;" >/dev/null 2>&1; then
             print_success "DB 연결 검증 성공 (${i}/${max_attempts})"
             return 0
         fi

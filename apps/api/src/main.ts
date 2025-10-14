@@ -28,9 +28,9 @@ async function bootstrap() {
 
   // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('KAMF API')
+    .setTitle('One Day Pub API')
     .setDescription(
-      `KAMF(카이스트 축제) 백엔드 API 문서
+      `One Day Pub 백엔드 API 문서
 
 ## 인증 방식
 - SMS 인증을 통한 JWT 토큰 기반 인증
@@ -80,7 +80,7 @@ async function bootstrap() {
       tagsSorter: 'alpha',
       operationsSorter: 'alpha',
     },
-    customSiteTitle: 'KAMF API 문서',
+    customSiteTitle: 'One Day Pub API 문서',
   });
 
   const port = process.env.API_PORT || 8000;

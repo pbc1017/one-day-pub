@@ -1,5 +1,5 @@
-import * as festival from '@kamf/interface/types/festival.type.js';
 import { ApiProperty } from '@nestjs/swagger';
+import * as festival from '@one-day-pub/interface/types/festival.type.js';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 import { BaseEntity } from '../common/entities/base.entity.js';

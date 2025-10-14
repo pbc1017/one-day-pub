@@ -1,11 +1,3 @@
-import type {
-  AuthResponse,
-  RequestCodeResponse,
-  AuthRequest,
-  VerifyCodeRequest,
-} from '@kamf/interface/dtos/auth.dto.js';
-import { ApiResponse } from '@kamf/interface/types/common.type.js';
-import { UserRole } from '@kamf/interface/types/user.type.js';
 import {
   Controller,
   Post,
@@ -16,6 +8,14 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBody } from '@nestjs/swagger';
+import type {
+  AuthResponse,
+  RequestCodeResponse,
+  AuthRequest,
+  VerifyCodeRequest,
+} from '@one-day-pub/interface/dtos/auth.dto.js';
+import { ApiResponse } from '@one-day-pub/interface/types/common.type.js';
+import { UserRole } from '@one-day-pub/interface/types/user.type.js';
 import type { Request, Response } from 'express';
 
 import { MessageResponseDto, AuthResponseDto } from '../../common/dto/common.dto.js';

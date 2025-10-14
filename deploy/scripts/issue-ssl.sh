@@ -44,7 +44,7 @@ fi
 
 if [[ -z "$DOMAIN" ]]; then
     log_error "DOMAIN 환경변수가 설정되지 않았습니다."
-    log_info "예: export DOMAIN=\"kamf.site\""
+    log_info "예: export DOMAIN=\"one-day-pub.site\""
     exit 1
 fi
 
@@ -53,8 +53,8 @@ log_info "이메일: $CERTBOT_EMAIL"
 
 # nginx 중지 (standalone 모드 사용을 위해)
 log_info "nginx 컨테이너를 중지합니다..."
-if docker ps | grep -q kamf-nginx; then
-    docker stop kamf-nginx || true
+if docker ps | grep -q one-day-pub-nginx; then
+    docker stop one-day-pub-nginx || true
     log_success "nginx 컨테이너 중지 완료"
 else
     log_info "nginx 컨테이너가 실행 중이지 않습니다."
@@ -62,13 +62,13 @@ fi
 
 # Docker 볼륨 생성 (없는 경우)
 log_info "필요한 Docker 볼륨을 확인합니다..."
-if ! docker volume ls | grep -q kamf-letsencrypt-data; then
-    docker volume create kamf-letsencrypt-data
+if ! docker volume ls | grep -q one-day-pub-letsencrypt-data; then
+    docker volume create one-day-pub-letsencrypt-data
     log_success "letsencrypt 볼륨 생성 완료"
 fi
 
-if ! docker volume ls | grep -q kamf-webroot-data; then
-    docker volume create kamf-webroot-data  
+if ! docker volume ls | grep -q one-day-pub-webroot-data; then
+    docker volume create one-day-pub-webroot-data  
     log_success "webroot 볼륨 생성 완료"
 fi
 
@@ -83,7 +83,7 @@ fi
 
 # 인증서 확인
 log_info "발급된 인증서를 확인합니다..."
-if docker run --rm -v kamf-letsencrypt-data:/etc/letsencrypt alpine ls -la /etc/letsencrypt/live/ | grep -E "(kamf\.site|dev\.kamf\.site)"; then
+if docker run --rm -v one-day-pub-letsencrypt-data:/etc/letsencrypt alpine ls -la /etc/letsencrypt/live/ | grep -E "(one-day-pub\.site|dev\.one-day-pub\.site)"; then
     log_success "인증서가 성공적으로 생성되었습니다."
 else
     log_warning "인증서 확인에 실패했습니다."
@@ -96,7 +96,7 @@ if docker-compose -f docker-compose-nginx.yml up -d; then
     
     # nginx 설정 테스트
     sleep 5
-    if docker exec kamf-nginx nginx -t; then
+    if docker exec one-day-pub-nginx nginx -t; then
         log_success "nginx 설정 검증 통과"
     else
         log_error "nginx 설정에 오류가 있습니다."
@@ -122,5 +122,5 @@ echo ""
 log_info "📋 다음 단계:"
 log_info "1. 정기 갱신을 위해 cron 설정: ./scripts/setup-ssl-cron.sh"
 log_info "2. 수동 갱신: ./scripts/renew-ssl.sh"
-log_info "3. 인증서 확인: docker run --rm -v kamf-letsencrypt-data:/etc/letsencrypt alpine ls -la /etc/letsencrypt/live/"
+log_info "3. 인증서 확인: docker run --rm -v one-day-pub-letsencrypt-data:/etc/letsencrypt alpine ls -la /etc/letsencrypt/live/"
 echo ""

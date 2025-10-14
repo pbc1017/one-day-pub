@@ -1,6 +1,6 @@
 'use client';
 
-import { User, UserRole } from '@kamf/interface/types/user.type.js';
+import { User, UserRole } from '@one-day-pub/interface/types/user.type.js';
 
 interface UserCardProps {
   user: User;

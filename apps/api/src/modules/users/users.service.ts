@@ -1,6 +1,10 @@
-import { UserRole, CreateUserRequest, UpdateUserRequest } from '@kamf/interface/types/user.type.js';
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  UserRole,
+  CreateUserRequest,
+  UpdateUserRequest,
+} from '@one-day-pub/interface/types/user.type.js';
 import { Repository } from 'typeorm';
 
 import { NicknameGenerator } from '../../common/utils/nickname-generator.js';

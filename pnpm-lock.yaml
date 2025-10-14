@@ -57,7 +57,7 @@ importers:
 
   apps/api:
     dependencies:
-      '@kamf/interface':
+      '@one-day-pub/interface':
         specifier: workspace:*
         version: link:../../packages/interface
       '@nestjs/common':
@@ -178,7 +178,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@kamf/interface':
+      '@one-day-pub/interface':
         specifier: workspace:*
         version: link:../../packages/interface
       '@tanstack/react-query':

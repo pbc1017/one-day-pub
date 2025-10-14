@@ -1,13 +1,4 @@
 import {
-  CountRequestDto,
-  CountResponseDto,
-  StatsResponseDto,
-  StatsQueryDto,
-  HistoryQueryDto,
-  HistoryResponseDto,
-} from '@kamf/interface';
-import { UserRole } from '@kamf/interface/types/user.type.js';
-import {
   Controller,
   Get,
   Post,
@@ -27,6 +18,15 @@ import {
   ApiBody,
   ApiQuery,
 } from '@nestjs/swagger';
+import {
+  CountRequestDto,
+  CountResponseDto,
+  StatsResponseDto,
+  StatsQueryDto,
+  HistoryQueryDto,
+  HistoryResponseDto,
+} from '@one-day-pub/interface';
+import { UserRole } from '@one-day-pub/interface/types/user.type.js';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';

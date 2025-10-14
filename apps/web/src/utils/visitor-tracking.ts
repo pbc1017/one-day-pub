@@ -1,4 +1,7 @@
-import { TrackVisitorRequest, TrackVisitorResponse } from '@kamf/interface/dtos/analytics.dto.js';
+import {
+  TrackVisitorRequest,
+  TrackVisitorResponse,
+} from '@one-day-pub/interface/dtos/analytics.dto.js';
 
 import { apiClient } from '@/lib/api';
 
@@ -6,7 +9,7 @@ import { apiClient } from '@/lib/api';
  * 방문자 추적 관리 클래스
  */
 export class VisitorTracker {
-  private static readonly STORAGE_KEY = 'kamf_visitor_tracked';
+  private static readonly STORAGE_KEY = 'one_day_pub_visitor_tracked';
   private static readonly DEBUG = process.env.NODE_ENV === 'development';
   private static trackingPromise: Promise<boolean> | null = null;
 

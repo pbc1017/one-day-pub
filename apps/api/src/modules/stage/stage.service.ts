@@ -1,6 +1,6 @@
-import { FestivalDay } from '@kamf/interface/types/festival.type.js';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FestivalDay } from '@one-day-pub/interface/types/festival.type.js';
 import { Repository } from 'typeorm';
 
 import { Stage } from '../../entities/stage.entity.js';

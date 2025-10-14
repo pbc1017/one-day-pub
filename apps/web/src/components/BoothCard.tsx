@@ -1,6 +1,6 @@
 'use client';
 
-import { Booth, Zone } from '@kamf/interface/types/festival.type.js';
+import { Booth, Zone } from '@one-day-pub/interface/types/festival.type.js';
 import { useLocale, useTranslations } from 'next-intl';
 import { forwardRef, useMemo } from 'react';
 
@@ -77,7 +77,7 @@ export const BoothCard = forwardRef<HTMLDivElement, BoothCardProps>(function Boo
   const shareData = useMemo(() => {
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const url = `${origin}/booth?id=${booth.boothNumber}`;
-    const title = `${mainTitle} - KAMF 2025`;
+    const title = `${mainTitle} - One Day Pub 2025`;
     const text = `${shareTranslations('boothShareText')} ${mainTitle}: ${description.slice(0, 100)}${description.length > 100 ? '...' : ''}`;
 
     return { url, title, text };

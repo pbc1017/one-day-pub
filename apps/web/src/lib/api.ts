@@ -1,11 +1,11 @@
-import { isValidAuthResponse, AuthError } from '@kamf/interface/dtos/auth.dto.js';
+import { isValidAuthResponse, AuthError } from '@one-day-pub/interface/dtos/auth.dto.js';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // 빌드 환경 감지
 const isBuildTime = typeof window === 'undefined' && process.env.NODE_ENV === 'production';
 
-// ApiError 클래스는 @kamf/interface에서 AuthError로 대체됨
+// ApiError 클래스는 @one-day-pub/interface에서 AuthError로 대체됨
 
 // 빌드 타임용 mock 데이터 생성
 function getMockResponse(endpoint: string) {

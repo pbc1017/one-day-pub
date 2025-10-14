@@ -19,11 +19,11 @@
     "closed": "준비중",
     "newUser": "새 사용자",
     "total": "총",
-    "title": "KAMF 2025",
+    "title": "One Day Pub 2025",
     "subtitle": "KAIST Art & Music Festival"
   },
   "home": {
-    "title": "KAMF 2025",
+    "title": "One Day Pub 2025",
     "subtitle": "KAIST Art & Music Festival",
     "operatingHours": "부스별 운영 시간",
     "notice": "운영 시간은 상황에 따라 변경될 수 있습니다."
@@ -139,7 +139,7 @@
     }
   },
   "booth": {
-    "title": "KAMF 부스",
+    "title": "One Day Pub 부스",
     "subtitle": "다양한 부스와 음식, 체험존을 둘러보세요",
     "totalCount": "총",
     "totalCountSuffix": "개의 부스가 있습니다",
@@ -151,7 +151,7 @@
   },
   "stage": {
     "title": "무대 프로그램",
-    "subtitle": "KAMF 2025의 다양한 공연 일정을 확인해보세요",
+    "subtitle": "One Day Pub 2025의 다양한 공연 일정을 확인해보세요",
     "noScheduled": "예정된 공연이 없습니다",
     "noScheduledDescription": "해당 날짜에 예정된 공연이 없습니다.",
     "performanceInfo": "공연 안내",
@@ -165,11 +165,11 @@
     "shareWith": "공유하기",
     "copyLink": "링크 복사",
     "shareVia": "다른 앱으로 공유",
-    "boothShareText": "KAMF 2025 부스를 확인해보세요!",
-    "stageShareText": "KAMF 2025 무대 공연을 확인해보세요!"
+    "boothShareText": "One Day Pub 2025 부스를 확인해보세요!",
+    "stageShareText": "One Day Pub 2025 무대 공연을 확인해보세요!"
   },
   "metadata": {
     "title": "2025 KAMF",
-    "description": "KAMF official website"
+    "description": "One Day Pub official website"
   }
 }

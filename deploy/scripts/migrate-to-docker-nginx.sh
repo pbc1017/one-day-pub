@@ -62,9 +62,9 @@ fi
 # nginx 설정 파일 존재 확인
 config_files=(
     "nginx/conf.d/default.conf"
-    "nginx/conf.d/kamf-common.conf"
-    "nginx/conf.d/kamf-prod.conf"
-    "nginx/conf.d/kamf-dev.conf"
+    "nginx/conf.d/one-day-pub-common.conf"
+    "nginx/conf.d/one-day-pub-prod.conf"
+    "nginx/conf.d/one-day-pub-dev.conf"
 )
 
 for file in "${config_files[@]}"; do
@@ -77,10 +77,10 @@ done
 
 # SSL 인증서 확인
 ssl_files=(
-    "nginx/ssl/kamf.site.crt"
-    "nginx/ssl/kamf.site.key"
-    "nginx/ssl/dev.kamf.site.crt"
-    "nginx/ssl/dev.kamf.site.key"
+    "nginx/ssl/one-day-pub.site.crt"
+    "nginx/ssl/one-day-pub.site.key"
+    "nginx/ssl/dev.one-day-pub.site.crt"
+    "nginx/ssl/dev.one-day-pub.site.key"
 )
 
 missing_ssl=()
@@ -138,13 +138,13 @@ log_success "호스트 nginx 상태 백업 완료"
 log_info "기존 Docker 서비스들의 상태를 확인합니다..."
 
 # 실행 중인 컨테이너 확인
-running_containers=$(docker ps --format "table {{.Names}}" | grep -E "(kamf|mysql)" | grep -v NAMES || true)
+running_containers=$(docker ps --format "table {{.Names}}" | grep -E "(one-day-pub|mysql)" | grep -v NAMES || true)
 
 if [[ -n "$running_containers" ]]; then
-    log_info "실행 중인 kamf 관련 컨테이너들:"
+    log_info "실행 중인 one-day-pub 관련 컨테이너들:"
     echo "$running_containers"
 else
-    log_warning "실행 중인 kamf 관련 컨테이너가 없습니다."
+    log_warning "실행 중인 one-day-pub 관련 컨테이너가 없습니다."
 fi
 
 # 5. 호스트 nginx 중지
@@ -178,15 +178,15 @@ fi
 log_info "필요한 Docker 네트워크를 확인합니다..."
 
 # dev 환경 네트워크 생성 (없는 경우에만)
-if ! docker network ls | grep -q "kamf-dev-network"; then
+if ! docker network ls | grep -q "one-day-pub-dev-network"; then
     log_info "개발환경 네트워크를 생성합니다..."
-    docker network create kamf-dev-network || true
+    docker network create one-day-pub-dev-network || true
 fi
 
 # prod 환경 네트워크 생성 (없는 경우에만) 
-if ! docker network ls | grep -q "kamf-prod-network"; then
+if ! docker network ls | grep -q "one-day-pub-prod-network"; then
     log_info "운영환경 네트워크를 생성합니다..."
-    docker network create kamf-prod-network || true
+    docker network create one-day-pub-prod-network || true
 fi
 
 # Docker Compose로 nginx 전용 파일 사용
@@ -205,7 +205,7 @@ log_info "nginx 헬스체크를 수행합니다..."
 
 # nginx 컨테이너가 시작될 때까지 대기
 for i in {1..30}; do
-    if docker ps | grep -q "kamf-nginx"; then
+    if docker ps | grep -q "one-day-pub-nginx"; then
         break
     fi
     log_info "nginx 컨테이너 시작 대기 중... (${i}/30)"
@@ -213,7 +213,7 @@ for i in {1..30}; do
 done
 
 # nginx 설정 테스트
-docker exec kamf-nginx nginx -t
+docker exec one-day-pub-nginx nginx -t
 
 if [[ $? -ne 0 ]]; then
     log_error "Docker nginx 설정 테스트에 실패했습니다."
@@ -227,8 +227,8 @@ log_info "서비스 접근성을 테스트합니다..."
 
 # HTTP 리다이렉트 테스트
 test_urls=(
-    "http://kamf.site"
-    "http://dev.kamf.site"
+    "http://one-day-pub.site"
+    "http://dev.one-day-pub.site"
 )
 
 for url in "${test_urls[@]}"; do
@@ -247,7 +247,7 @@ done
 # 9. Docker logs 확인
 log_info "nginx 로그를 확인합니다..."
 echo "=== nginx 로그 (최근 10줄) ==="
-docker logs --tail 10 kamf-nginx || true
+docker logs --tail 10 one-day-pub-nginx || true
 echo "========================="
 
 # 10. 완료 메시지
@@ -255,19 +255,19 @@ echo ""
 log_success "🎉 Docker nginx로 전환이 완료되었습니다!"
 echo ""
 log_info "📊 상태 확인:"
-echo "  - Docker nginx 컨테이너: $(docker ps -q -f name=kamf-nginx | wc -l)개 실행 중"
+echo "  - Docker nginx 컨테이너: $(docker ps -q -f name=one-day-pub-nginx | wc -l)개 실행 중"
 echo "  - 포트 80/443: Docker nginx가 처리"
 echo "  - 호스트 nginx: 중지됨"
 echo ""
 log_info "📋 유용한 명령어들:"
-echo "  - nginx 로그 확인: docker logs -f kamf-nginx"
-echo "  - nginx 설정 테스트: docker exec kamf-nginx nginx -t"
-echo "  - nginx 재로드: docker exec kamf-nginx nginx -s reload"
+echo "  - nginx 로그 확인: docker logs -f one-day-pub-nginx"
+echo "  - nginx 설정 테스트: docker exec one-day-pub-nginx nginx -t"
+echo "  - nginx 재로드: docker exec one-day-pub-nginx nginx -s reload"
 echo "  - 롤백: ./scripts/rollback-to-host-nginx.sh"
 echo ""
 log_info "🌐 서비스 URL들:"
-echo "  - 운영환경: https://kamf.site"
-echo "  - 개발환경: https://dev.kamf.site"
+echo "  - 운영환경: https://one-day-pub.site"
+echo "  - 개발환경: https://dev.one-day-pub.site"
 echo ""
 
 # 성공 시 trap 해제

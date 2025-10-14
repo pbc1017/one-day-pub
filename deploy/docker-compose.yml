@@ -4,14 +4,13 @@ services:
   # ================================
   mysql:
     image: mysql:8.0
-    container_name: ${DEPLOY_PATH:-kamf}-mysql
+    container_name: ${DEPLOY_PATH:-one-day-pub}-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-    command: --default-authentication-plugin=mysql_native_password
     healthcheck:
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       timeout: 20s
@@ -22,8 +21,8 @@ services:
   # API 서비스 (공통 설정)
   # ================================
   api:
-    image: ${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG:-latest}
-    container_name: ${DEPLOY_PATH:-kamf}-api
+    image: ${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG:-latest}
+    container_name: ${DEPLOY_PATH:-one-day-pub}-api
     restart: unless-stopped
     environment:
       # Application Environment
@@ -64,8 +63,8 @@ services:
   # Web 서비스 (공통 설정)
   # ================================
   web:
-    image: ${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG:-latest}
-    container_name: ${DEPLOY_PATH:-kamf}-web
+    image: ${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG:-latest}
+    container_name: ${DEPLOY_PATH:-one-day-pub}-web
     restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-production}

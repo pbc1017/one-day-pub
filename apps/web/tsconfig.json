@@ -9,8 +9,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@kamf/interface": ["../../packages/interface/dist"],
-      "@kamf/interface/*": ["../../packages/interface/dist/*"]
+      "@one-day-pub/interface": ["../../packages/interface/dist"],
+      "@one-day-pub/interface/*": ["../../packages/interface/dist/*"]
     },
     "strictNullChecks": true
   },

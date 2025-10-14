@@ -1,5 +1,3 @@
-import { ApiResponse } from '@kamf/interface/types/common.type.js';
-import { UserRole } from '@kamf/interface/types/user.type.js';
 import { Controller, Get, Patch, Param, Body, UseGuards, ForbiddenException } from '@nestjs/common';
 import {
   ApiTags,
@@ -9,6 +7,8 @@ import {
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { ApiResponse } from '@one-day-pub/interface/types/common.type.js';
+import { UserRole } from '@one-day-pub/interface/types/user.type.js';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';

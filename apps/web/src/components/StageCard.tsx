@@ -1,6 +1,10 @@
 'use client';
 
-import { StageWithDay, StageType, FestivalDay } from '@kamf/interface/types/festival.type.js';
+import {
+  StageWithDay,
+  StageType,
+  FestivalDay,
+} from '@one-day-pub/interface/types/festival.type.js';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMemo, forwardRef } from 'react';
 
@@ -50,7 +54,7 @@ export const StageCard = forwardRef<HTMLDivElement, StageCardProps>(function Sta
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const dayParam = stage.day === FestivalDay.SATURDAY ? 'SAT' : 'FRI';
     const url = `${origin}/stages?day=${dayParam}&id=${stage.id.toString()}`;
-    const title = `${mainTitle} - KAMF 2025`;
+    const title = `${mainTitle} - One Day Pub 2025`;
     const text = `${shareTranslations('stageShareText')} ${mainTitle}: ${description.slice(0, 100)}${description.length > 100 ? '...' : ''}`;
 
     return { url, title, text };

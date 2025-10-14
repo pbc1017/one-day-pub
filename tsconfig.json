@@ -21,8 +21,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "paths": {
-      "@kamf/interface": ["./packages/interface/src"],
-      "@kamf/interface/*": ["./packages/interface/src/*"]
+      "@one-day-pub/interface": ["./packages/interface/src"],
+      "@one-day-pub/interface/*": ["./packages/interface/src/*"]
     },
     "baseUrl": ".",
     "plugins": [

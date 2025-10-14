@@ -1,11 +1,11 @@
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import {
   CountRequestDto,
   CountResponseDto,
   StatsResponseDto,
   HistoryResponseDto,
   UserStatsDto,
-} from '@kamf/interface';
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+} from '@one-day-pub/interface';
 import { DataSource } from 'typeorm';
 
 import { TimeService } from '../../common/services/time.service.js';

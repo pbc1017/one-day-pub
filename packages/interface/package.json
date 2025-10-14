@@ -1,7 +1,7 @@
 {
-  "name": "@kamf/interface",
+  "name": "@one-day-pub/interface",
   "version": "1.0.0",
-  "description": "Shared interfaces and types for kamf monorepo",
+  "description": "Shared interfaces and types for one-day-pub monorepo",
   "type": "module",
   "exports": {
     ".": {

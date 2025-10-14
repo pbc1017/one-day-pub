@@ -20,7 +20,7 @@ export class AppController {
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      service: 'kamf-server',
+      service: 'one-day-pub-server',
     };
   }
 }

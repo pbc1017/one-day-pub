@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# KAMF 개발 환경 배포 스크립트
+# One Day Pub 개발 환경 배포 스크립트
 # Docker MySQL을 사용한 개발 서버 배포
 #
 set -e
@@ -16,13 +16,13 @@ source "${SCRIPT_DIR}/deploy-common.sh"
 # =====================================
 ENVIRONMENT="development"
 COMPOSE_FILES="-f docker-compose.yml -f docker-compose.dev.yml"
-DEFAULT_PROJECT_NAME="kamf-dev"
+DEFAULT_PROJECT_NAME="one-day-pub-dev"
 DEFAULT_MYSQL_PORT="23306"
 DEFAULT_API_PORT="8001"
 DEFAULT_WEB_PORT="3001"
-DEFAULT_DB_NAME="kamf_dev"
+DEFAULT_DB_NAME="one_day_pub_dev"
 
-print_header "KAMF 개발 환경 배포 시작"
+print_header "One Day Pub 개발 환경 배포 시작"
 
 # =====================================
 # 환경변수 로드 및 검증
@@ -80,14 +80,14 @@ backup_container_state "$PROJECT_NAME"
 print_info "최신 Docker 이미지 가져오는 중..."
 
 # API 이미지 Pull
-if ! docker pull "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"; then
-    print_error "API 이미지를 가져올 수 없습니다: ${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"
+if ! docker pull "${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}"; then
+    print_error "API 이미지를 가져올 수 없습니다: ${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}"
     exit 1
 fi
 
 # Web 이미지 Pull
-if ! docker pull "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"; then
-    print_error "Web 이미지를 가져올 수 없습니다: ${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"
+if ! docker pull "${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}"; then
+    print_error "Web 이미지를 가져올 수 없습니다: ${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}"
     exit 1
 fi
 
@@ -121,15 +121,15 @@ docker_cleanup
 print_info "Docker 이미지 메타데이터 검증 중..."
 
 # API 이미지 검증
-if ! docker inspect "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}" > /dev/null 2>&1; then
+if ! docker inspect "${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}" > /dev/null 2>&1; then
     print_warning "API 이미지 검증 실패! 다시 가져오는 중..."
-    docker pull "${DOCKER_REGISTRY}/kamf-api:${IMAGE_TAG}"
+    docker pull "${DOCKER_REGISTRY}/one-day-pub-api:${IMAGE_TAG}"
 fi
 
 # Web 이미지 검증
-if ! docker inspect "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}" > /dev/null 2>&1; then
+if ! docker inspect "${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}" > /dev/null 2>&1; then
     print_warning "Web 이미지 검증 실패! 다시 가져오는 중..."
-    docker pull "${DOCKER_REGISTRY}/kamf-web:${IMAGE_TAG}"
+    docker pull "${DOCKER_REGISTRY}/one-day-pub-web:${IMAGE_TAG}"
 fi
 
 # =====================================
@@ -214,7 +214,7 @@ cleanup_old_backups
 # =====================================
 # 배포 완료 리포트
 # =====================================
-DOMAIN="${DOMAIN:-dev.kamf.site}"
+DOMAIN="${DOMAIN:-dev.one-day-pub.site}"
 
 print_deployment_summary \
     "$ENVIRONMENT" \
@@ -224,7 +224,7 @@ print_deployment_summary \
     "$API_PORT" \
     "$WEB_PORT"
 
-print_success "🎉 KAMF 개발 환경 배포가 성공적으로 완료되었습니다!"
+print_success "🎉 One Day Pub 개발 환경 배포가 성공적으로 완료되었습니다!"
 print_info "개발 서버 접속 정보:"
 print_info "  🌐 웹사이트: https://${DOMAIN}:${WEB_PORT}"
 print_info "  🔗 API: https://${DOMAIN}:${API_PORT}"

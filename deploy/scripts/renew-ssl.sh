@@ -36,7 +36,7 @@ fi
 log_info "Docker certbot으로 SSL 인증서 갱신을 시작합니다..."
 
 # nginx가 실행 중인지 확인
-if ! docker ps | grep -q kamf-nginx; then
+if ! docker ps | grep -q one-day-pub-nginx; then
     log_error "nginx 컨테이너가 실행되지 않고 있습니다."
     log_info "먼저 nginx를 시작하세요: docker-compose -f docker-compose-nginx.yml up -d"
     exit 1
@@ -46,7 +46,7 @@ log_success "nginx 컨테이너가 실행 중입니다."
 
 # 인증서 갱신 전 상태 확인
 log_info "현재 인증서 상태를 확인합니다..."
-docker run --rm -v kamf-letsencrypt-data:/etc/letsencrypt certbot/certbot certificates || true
+docker run --rm -v one-day-pub-letsencrypt-data:/etc/letsencrypt certbot/certbot certificates || true
 
 # 인증서 갱신 (webroot 모드)
 log_info "SSL 인증서 갱신을 수행합니다..."
@@ -59,23 +59,23 @@ fi
 
 # nginx 설정 리로드 (인증서가 갱신된 경우)
 log_info "nginx 설정을 리로드합니다..."
-if docker exec kamf-nginx nginx -s reload; then
+if docker exec one-day-pub-nginx nginx -s reload; then
     log_success "nginx 설정 리로드 완료"
 else
     log_error "nginx 설정 리로드에 실패했습니다."
     
     # nginx 설정 테스트
     log_info "nginx 설정을 테스트합니다..."
-    docker exec kamf-nginx nginx -t || true
+    docker exec one-day-pub-nginx nginx -t || true
 fi
 
 # 갱신 후 상태 확인
 log_info "갱신 후 인증서 상태를 확인합니다..."
-docker run --rm -v kamf-letsencrypt-data:/etc/letsencrypt certbot/certbot certificates | grep -E "(Certificate Name:|Expiry Date:)" || true
+docker run --rm -v one-day-pub-letsencrypt-data:/etc/letsencrypt certbot/certbot certificates | grep -E "(Certificate Name:|Expiry Date:)" || true
 
 # SSL 연결 테스트
 log_info "SSL 연결을 테스트합니다..."
-domains=("kamf.site" "dev.kamf.site")
+domains=("one-day-pub.site" "dev.one-day-pub.site")
 for domain in "${domains[@]}"; do
     log_info "테스트 중: https://$domain"
     if timeout 10 curl -sI "https://$domain" > /dev/null 2>&1; then
@@ -87,7 +87,7 @@ done
 
 # 갱신 로그 확인
 log_info "최근 갱신 로그를 확인합니다..."
-docker run --rm -v kamf-letsencrypt-data:/etc/letsencrypt alpine tail -20 /etc/letsencrypt/letsencrypt.log 2>/dev/null || log_info "갱신 로그를 찾을 수 없습니다."
+docker run --rm -v one-day-pub-letsencrypt-data:/etc/letsencrypt alpine tail -20 /etc/letsencrypt/letsencrypt.log 2>/dev/null || log_info "갱신 로그를 찾을 수 없습니다."
 
 echo ""
 log_success "🔄 SSL 인증서 갱신 작업이 완료되었습니다!"

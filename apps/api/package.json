@@ -1,7 +1,7 @@
 {
-  "name": "@kamf/api",
+  "name": "@one-day-pub/api",
   "version": "1.0.0",
-  "description": "NestJS backend server for kamf monorepo",
+  "description": "NestJS backend server for one-day-pub monorepo",
   "author": "Perry",
   "private": true,
   "license": "MIT",
@@ -35,7 +35,7 @@
     "migration:show": "dotenv -e ../../.env -- typeorm migration:show -d dist/config/typeorm.config.js"
   },
   "dependencies": {
-    "@kamf/interface": "workspace:*",
+    "@one-day-pub/interface": "workspace:*",
     "@nestjs/common": "^10.3.0",
     "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^10.3.0",

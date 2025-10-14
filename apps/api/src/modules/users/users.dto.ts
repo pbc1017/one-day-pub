@@ -1,5 +1,5 @@
-import { UserRole, UpdateUserRequest } from '@kamf/interface/types/user.type.js';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole, UpdateUserRequest } from '@one-day-pub/interface/types/user.type.js';
 import { IsString, IsNotEmpty, IsArray, IsEnum, Length } from 'class-validator';
 
 export class UpdateDisplayNameDto implements Pick<UpdateUserRequest, 'displayName'> {

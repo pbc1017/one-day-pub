@@ -1,7 +1,10 @@
-import { GetBoothsResponse, GetBoothsByZoneResponse } from '@kamf/interface/dtos/festival.dto.js';
-import { Zone } from '@kamf/interface/types/festival.type.js';
 import { Controller, Get, Param, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiParam } from '@nestjs/swagger';
+import {
+  GetBoothsResponse,
+  GetBoothsByZoneResponse,
+} from '@one-day-pub/interface/dtos/festival.dto.js';
+import { Zone } from '@one-day-pub/interface/types/festival.type.js';
 
 import { Booth } from '../../entities/booth.entity.js';
 

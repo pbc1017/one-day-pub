@@ -39,16 +39,16 @@ fi
 log_info "SSL 인증서 자동 갱신 cron 설정을 시작합니다..."
 
 # cron 스크립트 생성
-CRON_SCRIPT="/usr/local/bin/renew-kamf-ssl.sh"
+CRON_SCRIPT="/usr/local/bin/renew-one-day-pub-ssl.sh"
 log_info "cron 스크립트를 생성합니다: $CRON_SCRIPT"
 
 sudo tee "$CRON_SCRIPT" > /dev/null <<EOF
 #!/bin/bash
-# KAMF SSL 인증서 자동 갱신 스크립트
+# One Day Pub SSL 인증서 자동 갱신 스크립트
 # 생성일: $(date)
 
 # 로그 설정
-LOG_FILE="/var/log/kamf-ssl-renew.log"
+LOG_FILE="/var/log/one-day-pub-ssl-renew.log"
 exec 1> >(tee -a "\$LOG_FILE")
 exec 2>&1
 
@@ -80,10 +80,10 @@ CRON_JOB="0 2 * * 0 $CRON_SCRIPT"
 log_info "cron 작업을 추가합니다..."
 
 # 기존 cron 작업 확인
-if crontab -l 2>/dev/null | grep -q "renew-kamf-ssl"; then
-    log_warning "기존 KAMF SSL cron 작업이 있습니다."
+if crontab -l 2>/dev/null | grep -q "renew-one-day-pub-ssl"; then
+    log_warning "기존 One Day Pub SSL cron 작업이 있습니다."
     log_info "기존 cron 작업:"
-    crontab -l | grep "renew-kamf-ssl" || true
+    crontab -l | grep "renew-one-day-pub-ssl" || true
     
     echo -n "기존 작업을 교체하시겠습니까? [y/N]: "
     read -r response
@@ -93,7 +93,7 @@ if crontab -l 2>/dev/null | grep -q "renew-kamf-ssl"; then
     fi
     
     # 기존 작업 제거
-    crontab -l | grep -v "renew-kamf-ssl" | crontab -
+    crontab -l | grep -v "renew-one-day-pub-ssl" | crontab -
     log_success "기존 cron 작업 제거 완료"
 fi
 
@@ -112,9 +112,9 @@ else
 fi
 
 # 로그 파일 생성
-sudo touch /var/log/kamf-ssl-renew.log
-sudo chmod 644 /var/log/kamf-ssl-renew.log
-log_success "로그 파일 생성: /var/log/kamf-ssl-renew.log"
+sudo touch /var/log/one-day-pub-ssl-renew.log
+sudo chmod 644 /var/log/one-day-pub-ssl-renew.log
+log_success "로그 파일 생성: /var/log/one-day-pub-ssl-renew.log"
 
 # 설정 확인
 echo ""
@@ -123,11 +123,11 @@ echo ""
 log_info "📋 설정 정보:"
 log_info "- cron 스케줄: 매주 일요일 오전 2시"
 log_info "- cron 스크립트: $CRON_SCRIPT"
-log_info "- 로그 파일: /var/log/kamf-ssl-renew.log"
+log_info "- 로그 파일: /var/log/one-day-pub-ssl-renew.log"
 echo ""
 log_info "📌 확인 명령어:"
 log_info "- cron 작업 확인: crontab -l"
-log_info "- 로그 확인: tail -f /var/log/kamf-ssl-renew.log"
+log_info "- 로그 확인: tail -f /var/log/one-day-pub-ssl-renew.log"
 log_info "- 수동 갱신 테스트: $CRON_SCRIPT"
 echo ""
 log_info "💡 참고사항:"

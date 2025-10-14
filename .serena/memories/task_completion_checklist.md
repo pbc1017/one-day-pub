@@ -1,4 +1,4 @@
-# KAMF 작업 완료 시 체크리스트
+# One Day Pub 작업 완료 시 체크리스트
 
 ## 📋 코드 작성 완료 후 필수 단계
 
@@ -19,10 +19,10 @@ pnpm build
 
 ```bash
 # API 변경사항이 있는 경우
-pnpm --filter @kamf/api test
+pnpm --filter @one-day-pub/api test
 
 # E2E 테스트 (중요한 기능 변경 시)
-pnpm --filter @kamf/api test:e2e
+pnpm --filter @one-day-pub/api test:e2e
 ```
 
 ### 3. 데이터베이스 마이그레이션 (필요한 경우)
@@ -74,7 +74,7 @@ pnpm lint:fix
 
 ```bash
 # interface 패키지 빌드
-pnpm --filter @kamf/interface build
+pnpm --filter @one-day-pub/interface build
 
 # 타입 정의 업데이트 후 의존 패키지 재시작
 pnpm dev
@@ -113,7 +113,7 @@ git commit -m "feat: add user authentication system"
 # 3. 빌드 및 테스트 최종 확인
 pnpm build
 pnpm lint
-pnpm --filter @kamf/api test
+pnpm --filter @one-day-pub/api test
 ```
 
 ## 🔄 PR/MR 제출 전 체크리스트

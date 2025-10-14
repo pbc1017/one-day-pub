@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# KAMF 서버 초기 설정 스크립트
+# One Day Pub 서버 초기 설정 스크립트
 # Ubuntu 20.04+ 서버에서 실행하여 배포 환경을 준비합니다.
 #
 set -e
@@ -28,7 +28,7 @@ if [[ $EUID -eq 0 ]]; then
    exit 1
 fi
 
-print_info "=== KAMF 서버 환경 설정 시작 ==="
+print_info "=== One Day Pub 서버 환경 설정 시작 ==="
 print_info "서버 정보: $(uname -a)"
 print_info "사용자: $(whoami)"
 print_info "홈 디렉토리: $HOME"
@@ -113,7 +113,7 @@ sudo ufw status
 # 프로젝트 디렉토리 생성
 print_info "프로젝트 디렉토리 구조 생성 중..."
 
-PROJECT_DIR="$HOME/kamf"
+PROJECT_DIR="$HOME/one-day-pub"
 mkdir -p $PROJECT_DIR
 mkdir -p $PROJECT_DIR/deploy/scripts
 mkdir -p $PROJECT_DIR/deploy/logs
@@ -123,7 +123,7 @@ print_success "프로젝트 디렉토리 생성 완료: $PROJECT_DIR"
 
 # 로그 로테이션 설정
 print_info "로그 로테이션 설정 중..."
-sudo tee /etc/logrotate.d/kamf > /dev/null <<EOF
+sudo tee /etc/logrotate.d/one-day-pub > /dev/null <<EOF
 $PROJECT_DIR/deploy/logs/*.log {
     daily
     missingok
@@ -149,10 +149,10 @@ print_info "=== SSH 키 설정 가이드 ==="
 print_info "GitHub Actions에서 서버에 접근하려면 SSH 키가 필요합니다:"
 print_info ""
 print_info "1. 로컬에서 SSH 키 생성:"
-print_info "   ssh-keygen -t rsa -b 4096 -C 'github-actions@kamf' -f ~/.ssh/kamf_deploy_key"
+print_info "   ssh-keygen -t rsa -b 4096 -C 'github-actions@one-day-pub' -f ~/.ssh/one-day-pub_deploy_key"
 print_info ""
 print_info "2. 공개키를 서버에 등록:"
-print_info "   cat ~/.ssh/kamf_deploy_key.pub >> $HOME/.ssh/authorized_keys"
+print_info "   cat ~/.ssh/one-day-pub_deploy_key.pub >> $HOME/.ssh/authorized_keys"
 print_info ""
 print_info "3. GitHub Secrets에 개인키 등록:"
 print_info "   SERVER_SSH_KEY: (개인키 전체 내용을 복사하여 등록)"
@@ -184,7 +184,7 @@ fi
 print_info "Docker 컨테이너 자동 시작 스크립트 생성 중..."
 tee $PROJECT_DIR/start-containers.sh > /dev/null <<EOF
 #!/bin/bash
-# KAMF 컨테이너 자동 시작 스크립트
+# One Day Pub 컨테이너 자동 시작 스크립트
 cd $PROJECT_DIR/deploy
 docker-compose up -d
 EOF
@@ -202,7 +202,7 @@ print_info "Available Memory: $(free -h | awk 'NR==2{print $2}')"
 print_info "Available Disk: $(df -h / | awk 'NR==2{print $4}')"
 
 # 완료 메시지
-print_success "=== KAMF 서버 환경 설정 완료 ==="
+print_success "=== One Day Pub 서버 환경 설정 완료 ==="
 print_info ""
 print_info "다음 단계:"
 print_info "1. SSH 키를 설정하여 GitHub Actions에서 접근 가능하도록 구성"

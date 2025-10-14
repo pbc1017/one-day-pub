@@ -1,6 +1,6 @@
-import { Zone } from '@kamf/interface/types/festival.type.js';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Zone } from '@one-day-pub/interface/types/festival.type.js';
 import { Repository } from 'typeorm';
 
 import { Booth } from '../../entities/booth.entity.js';

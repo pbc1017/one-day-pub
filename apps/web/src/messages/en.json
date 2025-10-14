@@ -19,11 +19,11 @@
     "closed": "Preparing",
     "newUser": "New User",
     "total": "Total",
-    "title": "KAMF 2025",
+    "title": "One Day Pub 2025",
     "subtitle": "KAIST Art & Music Festival"
   },
   "home": {
-    "title": "KAMF 2025",
+    "title": "One Day Pub 2025",
     "subtitle": "KAIST Art & Music Festival",
     "operatingHours": "Operating Hours by Zone",
     "notice": "Operating hours may change depending on circumstances."
@@ -139,7 +139,7 @@
     }
   },
   "booth": {
-    "title": "KAMF Booths",
+    "title": "One Day Pub Booths",
     "subtitle": "Explore various booths, food, and experience zones",
     "totalCount": "Total of",
     "totalCountSuffix": "booths available",
@@ -151,7 +151,7 @@
   },
   "stage": {
     "title": "Stage Program",
-    "subtitle": "Check out the diverse performance schedule of KAMF 2025",
+    "subtitle": "Check out the diverse performance schedule of One Day Pub 2025",
     "noScheduled": "No scheduled performances",
     "noScheduledDescription": "There are no scheduled performances for this date.",
     "performanceInfo": "Performance Information",
@@ -165,11 +165,11 @@
     "shareWith": "Share",
     "copyLink": "Copy Link",
     "shareVia": "Share via other apps",
-    "boothShareText": "Check out this KAMF 2025 booth!",
-    "stageShareText": "Check out this KAMF 2025 stage performance!"
+    "boothShareText": "Check out this One Day Pub 2025 booth!",
+    "stageShareText": "Check out this One Day Pub 2025 stage performance!"
   },
   "metadata": {
     "title": "2025 KAMF",
-    "description": "KAMF official website"
+    "description": "One Day Pub official website"
   }
 }

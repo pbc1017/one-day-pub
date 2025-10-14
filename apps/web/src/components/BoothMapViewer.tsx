@@ -1,6 +1,6 @@
 'use client';
 
-import { Booth } from '@kamf/interface/types/festival.type.js';
+import { Booth } from '@one-day-pub/interface/types/festival.type.js';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -53,7 +53,7 @@ export function BoothMapViewer({
       >
         <img
           src="/kamf_map.png"
-          alt="KAMF 축제 지도"
+          alt="One Day Pub 축제 지도"
           className={`w-full h-full object-cover transition-opacity duration-300 ${
             isImageLoaded ? 'opacity-100' : 'opacity-0'
           }`}

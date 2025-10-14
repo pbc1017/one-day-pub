@@ -81,7 +81,7 @@ export default function Header() {
             <Link href="/" className="flex-shrink-0 my-1" onClick={closeMenu}>
               <Image
                 src="/kamf_logo.png"
-                alt="KAMF 2025"
+                alt="One Day Pub 2025"
                 width={100}
                 height={30}
                 className="object-contain hover:scale-105 transition-transform duration-300"

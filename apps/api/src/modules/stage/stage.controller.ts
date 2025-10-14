@@ -1,6 +1,6 @@
-import { GetStagesResponse } from '@kamf/interface/dtos/festival.dto.js';
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse } from '@nestjs/swagger';
+import { GetStagesResponse } from '@one-day-pub/interface/dtos/festival.dto.js';
 
 import { Stage } from '../../entities/stage.entity.js';
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { GetUserResponse } from '@kamf/interface/dtos/user.dto.js';
-import { AuthTokens } from '@kamf/interface/types/auth.type.js';
+import { GetUserResponse } from '@one-day-pub/interface/dtos/user.dto.js';
+import { AuthTokens } from '@one-day-pub/interface/types/auth.type.js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 

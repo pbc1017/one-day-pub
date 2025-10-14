@@ -26,11 +26,11 @@ COPY . .
 RUN pnpm install --frozen-lockfile
 
 # 의존성 순서대로 빌드 (interface -> api)
-RUN pnpm --filter @kamf/interface build
-RUN pnpm --filter @kamf/api build
+RUN pnpm --filter @one-day-pub/interface build
+RUN pnpm --filter @one-day-pub/api build
 
 # pnpm deploy를 사용한 production 배포
-RUN pnpm --filter=@kamf/api deploy --prod /tmp/deploy-api
+RUN pnpm --filter=@one-day-pub/api deploy --prod /tmp/deploy-api
 
 # 런타임 단계
 FROM node:18-alpine AS runner

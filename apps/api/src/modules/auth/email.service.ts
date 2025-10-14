@@ -52,9 +52,9 @@ export class EmailService {
 
     try {
       const emailData: Mailgun.messages.SendData = {
-        from: `KAMF 2025 <${this.fromEmail}>`,
+        from: `One Day Pub 2025 <${this.fromEmail}>`,
         to: email,
-        subject: 'KAMF 2025 이메일 인증 코드',
+        subject: 'One Day Pub 2025 이메일 인증 코드',
         html: this.generateVerificationEmailTemplate(code),
         text: this.generateVerificationEmailText(code),
       };
@@ -77,7 +77,7 @@ export class EmailService {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KAMF 2025 이메일 인증</title>
+  <title>One Day Pub 2025 이메일 인증</title>
   <style>
     body {
       margin: 0;
@@ -209,7 +209,7 @@ export class EmailService {
   <div style="padding: 40px 20px;">
     <div class="container">
       <div class="header">
-        <h1>🎵 KAMF 2025</h1>
+        <h1>🎵 One Day Pub 2025</h1>
         <p>이메일 인증</p>
       </div>
       
@@ -228,7 +228,7 @@ export class EmailService {
       </div>
       
       <div class="footer">
-        <p>이 이메일은 KAMF 2025 로그인 요청에 의해 자동으로 발송되었습니다.</p>
+        <p>이 이메일은 One Day Pub 2025 로그인 요청에 의해 자동으로 발송되었습니다.</p>
         <p>본인이 요청하지 않았다면 이 메일을 무시해주세요.</p>
       </div>
     </div>
@@ -242,11 +242,11 @@ export class EmailService {
    */
   private generateVerificationEmailText(code: string): string {
     return `
-🎵 KAMF 2025 - 이메일 인증
+🎵 One Day Pub 2025 - 이메일 인증
 
 안녕하세요!
 
-KAMF 2025 로그인을 위한 인증 코드입니다.
+One Day Pub 2025 로그인을 위한 인증 코드입니다.
 
 인증 코드: ${code}
 
@@ -257,7 +257,7 @@ KAMF 2025 로그인을 위한 인증 코드입니다.
 - 다른 사람과 공유하지 마세요
 - 본인이 요청하지 않았다면 이 메일을 무시해주세요
 
-KAMF 2025 팀 드림
+One Day Pub 2025 팀 드림
 `;
   }
 

@@ -93,7 +93,7 @@ export default async function Home() {
       <div className="text-center py-16">
         <div>
           <h1 className="text-6xl font-bold text-white mb-6">
-            <span className="text-purple-gradient">KAMF</span> 2025
+            <span className="text-purple-gradient">One Day Pub</span> 2025
           </h1>
           <p className="text-2xl text-purple-200 font-medium">{common('subtitle')}</p>
         </div>
@@ -105,7 +105,7 @@ export default async function Home() {
           <div className="card-purple card-purple-hover rounded-3xl p-8 mb-12">
             <Image
               src="/kamf_main.png"
-              alt="KAMF 2025"
+              alt="One Day Pub 2025"
               width={400}
               height={400}
               className="object-contain mx-auto mb-8"

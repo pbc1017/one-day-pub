@@ -1,11 +1,11 @@
-# KAMF - Modern ESM Monorepo
+# One Day Pub - Modern ESM Monorepo
 
 pnpm과 TypeScript를 사용한 현대적인 ESM 기반 모노레포입니다.
 
 ## 📦 프로젝트 구조
 
 ```
-kamf/
+one-day-pub/
 ├── apps/
 │   ├── web/                    # Next.js 14 프론트엔드 앱
 │   └── api/                    # NestJS 백엔드 API 서버
@@ -69,13 +69,13 @@ pnpm clean
 
 ```bash
 # 웹 앱만 개발 서버 실행
-pnpm --filter @kamf/web dev
+pnpm --filter @one-day-pub/web dev
 
 # API 서버만 개발 서버 실행
-pnpm --filter @kamf/api dev
+pnpm --filter @one-day-pub/api dev
 
 # 인터페이스 패키지만 빌드
-pnpm --filter @kamf/interface build
+pnpm --filter @one-day-pub/interface build
 ```
 
 ## 🏗️ 패키지 상세
@@ -88,7 +88,7 @@ pnpm --filter @kamf/interface build
 - **기능**:
   - 현대적인 React 18 기반
   - 타입 안전한 API 호출
-  - `@kamf/interface` 패키지 사용
+  - `@one-day-pub/interface` 패키지 사용
 
 ### `apps/api` - NestJS Backend
 
@@ -99,7 +99,7 @@ pnpm --filter @kamf/interface build
   - RESTful API
   - 사용자 관리 (Users)
   - 인증 (Auth)
-  - `@kamf/interface` 패키지 사용
+  - `@one-day-pub/interface` 패키지 사용
 
 ### `packages/interface` - Shared Types
 
@@ -131,8 +131,8 @@ cp apps/server/env.example apps/server/.env
 pnpm dev
 
 # 또는 개별 실행
-pnpm --filter @kamf/web dev     # 웹: http://localhost:3000
-pnpm --filter @kamf/api dev     # API: http://localhost:3001
+pnpm --filter @one-day-pub/web dev     # 웹: http://localhost:3000
+pnpm --filter @one-day-pub/api dev     # API: http://localhost:3001
 ```
 
 ## 📚 API 문서
@@ -153,7 +153,7 @@ pnpm --filter @kamf/api dev     # API: http://localhost:3001
 ### TypeScript
 
 - **엄격한 타입 검사**
-- **공유 타입**: `@kamf/interface` 패키지 통해 타입 안전성 보장
+- **공유 타입**: `@one-day-pub/interface` 패키지 통해 타입 안전성 보장
 - **Path Mapping**: 절대 경로 import 지원
 
 ## 🏃‍♂️ 배포
@@ -165,8 +165,8 @@ pnpm --filter @kamf/api dev     # API: http://localhost:3001
 pnpm build
 
 # 개별 빌드
-pnpm --filter @kamf/web build
-pnpm --filter @kamf/api build
+pnpm --filter @one-day-pub/web build
+pnpm --filter @one-day-pub/api build
 ```
 
 ### 프로덕션 시작
@@ -176,8 +176,8 @@ pnpm --filter @kamf/api build
 pnpm start
 
 # 개별 시작  
-pnpm --filter @kamf/web start
-pnpm --filter @kamf/api start
+pnpm --filter @one-day-pub/web start
+pnpm --filter @one-day-pub/api start
 ```
 
 ## 🤝 기여하기

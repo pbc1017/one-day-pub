@@ -1,6 +1,6 @@
 'use client';
 
-import { FestivalDay, StageWithDay, Stage } from '@kamf/interface/types/festival.type.js';
+import { FestivalDay, StageWithDay, Stage } from '@one-day-pub/interface/types/festival.type.js';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useMemo, Suspense, useEffect, useState, useRef } from 'react';

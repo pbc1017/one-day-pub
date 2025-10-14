@@ -1,8 +1,8 @@
-# KAMF 프로젝트 개요
+# One Day Pub 프로젝트 개요
 
 ## 프로젝트 정보
 
-- **이름**: KAMF (Korean Advanced Institute of Science and Technology Festival)
+- **이름**: One Day Pub (Korean Advanced Institute of Science and Technology Festival)
 - **설명**: 현대적인 ESM 기반 모노레포로 구성된 축제 관리 시스템
 - **버전**: 1.0.0
 - **라이선스**: MIT

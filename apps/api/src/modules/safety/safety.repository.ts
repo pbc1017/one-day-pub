@@ -1,6 +1,6 @@
-import { HistoryItemDto } from '@kamf/interface';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { HistoryItemDto } from '@one-day-pub/interface';
 import { Repository, QueryRunner, Between } from 'typeorm';
 
 import { TimeService } from '../../common/services/time.service.js';
