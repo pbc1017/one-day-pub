@@ -1,4 +1,3 @@
-import { useTranslations } from 'next-intl';
 import React from 'react';
 
 import Button from '@/components/ui/Button';
@@ -11,7 +10,6 @@ interface EmailFormProps {
 }
 
 export default function EmailForm({ email, setEmail, onRequestCode, isLoading }: EmailFormProps) {
-  const t = useTranslations('auth');
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
@@ -31,7 +29,7 @@ export default function EmailForm({ email, setEmail, onRequestCode, isLoading }:
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">{t('emailAddress')}</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">이메일 주소</label>
         <div className="relative">
           <input
             type="email"
@@ -59,17 +57,17 @@ export default function EmailForm({ email, setEmail, onRequestCode, isLoading }:
           </div>
         </div>
         {email && !isValidEmail(email) && (
-          <p className="mt-2 text-sm text-red-600">{t('validEmailRequired')}</p>
+          <p className="mt-2 text-sm text-red-600">올바른 이메일 주소를 입력해주세요.</p>
         )}
       </div>
 
       <Button type="submit" disabled={!isValid} isLoading={isLoading} fullWidth size="lg">
-        {t('getVerificationCode')}
+        인증번호 받기
       </Button>
 
       <div className="text-center text-sm text-gray-600">
-        <p>{t('emailSentInfo')}</p>
-        <p className="mt-1 text-xs text-gray-500">{t('checkSpamFolder')}</p>
+        <p>입력하신 이메일로 인증번호가 발송됩니다.</p>
+        <p className="mt-1 text-xs text-gray-500">스팸함도 확인해보세요!</p>
       </div>
     </form>
   );

@@ -5,7 +5,6 @@ import {
   StageType,
   FestivalDay,
 } from '@one-day-pub/interface/types/festival.type.js';
-import { useLocale, useTranslations } from 'next-intl';
 import { useMemo, forwardRef } from 'react';
 
 import { ShareButton } from '@/components/ui/ShareButton';
@@ -21,33 +20,19 @@ const stageTypeGradients = {
   [StageType.MAIN_STAGE]: 'from-orange-600 to-red-600',
 };
 
-// stageTypeLabels는 이제 useTranslations를 통해 처리
+const stageTypeLabels = {
+  [StageType.OPEN_STAGE]: '오픈 스테이지',
+  [StageType.MAIN_STAGE]: '메인 스테이지',
+};
 
 export const StageCard = forwardRef<HTMLDivElement, StageCardProps>(function StageCard(
   { stage, isSelected = false, onClick },
   ref
 ) {
-  const locale = useLocale();
-  const stages = useTranslations('stages');
-  const shareTranslations = useTranslations('share');
-  const isEnglish = locale === 'en';
-
   // 언어에 따른 필드 선택
-  const mainTitle = isEnglish ? stage.titleEn : stage.titleKo;
-  const subTitle = isEnglish ? stage.titleKo : stage.titleEn;
-  const description = isEnglish ? stage.descriptionEn : stage.descriptionKo;
-
-  // Stage type 라벨 매핑
-  const getStageTypeLabel = (stageType: StageType) => {
-    switch (stageType) {
-      case StageType.OPEN_STAGE:
-        return stages('openStage');
-      case StageType.MAIN_STAGE:
-        return stages('mainStage');
-      default:
-        return stageType;
-    }
-  };
+  const mainTitle = stage.titleKo;
+  const subTitle = stage.titleEn;
+  const description = stage.descriptionKo;
 
   // 공유 URL 및 콘텐츠 생성 (클라이언트 사이드에서만)
   const shareData = useMemo(() => {
@@ -55,10 +40,10 @@ export const StageCard = forwardRef<HTMLDivElement, StageCardProps>(function Sta
     const dayParam = stage.day === FestivalDay.SATURDAY ? 'SAT' : 'FRI';
     const url = `${origin}/stages?day=${dayParam}&id=${stage.id.toString()}`;
     const title = `${mainTitle} - One Day Pub 2025`;
-    const text = `${shareTranslations('stageShareText')} ${mainTitle}: ${description.slice(0, 100)}${description.length > 100 ? '...' : ''}`;
+    const text = `One Day Pub 2025 무대 공연을 확인해보세요! ${mainTitle}: ${description.slice(0, 100)}${description.length > 100 ? '...' : ''}`;
 
     return { url, title, text };
-  }, [stage.id, stage.day, mainTitle, description, shareTranslations]);
+  }, [stage.id, stage.day, mainTitle, description]);
 
   const handleClick = () => {
     onClick?.(stage.id.toString());
@@ -80,7 +65,7 @@ export const StageCard = forwardRef<HTMLDivElement, StageCardProps>(function Sta
           <div
             className={`bg-gradient-to-r ${stageTypeGradients[stage.stageType]} text-white px-3 py-1 rounded-full text-sm font-medium shadow-md`}
           >
-            {getStageTypeLabel(stage.stageType)}
+            {stageTypeLabels[stage.stageType]}
           </div>
         </div>
       </div>

@@ -2,7 +2,6 @@
 
 import { Booth } from '@one-day-pub/interface/types/festival.type.js';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
 import { useState, useMemo, Suspense, useRef, useEffect } from 'react';
 
 import { BoothCard } from '@/components/BoothCard';
@@ -36,11 +35,8 @@ function BoothListSkeleton() {
 
 // 실제 부스 리스트 컴포넌트
 function BoothListContent() {
-  const locale = useLocale();
-  const t = useTranslations('booth');
   const searchParams = useSearchParams();
   const router = useRouter();
-  const isEnglish = locale === 'en';
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBoothNumber, setSelectedBoothNumber] = useState<string | null>(null);
   const [showTrashCans, setShowTrashCans] = useState(false);
@@ -59,22 +55,13 @@ function BoothListContent() {
 
       const query = searchQuery.toLowerCase();
 
-      if (isEnglish) {
-        // 영어 모드: 주제목(titleEn), 부제목(titleKo), 설명(descriptionEn)
-        return (
-          booth.titleEn.toLowerCase().includes(query) ||
-          booth.titleKo.toLowerCase().includes(query) ||
-          booth.descriptionEn.toLowerCase().includes(query)
-        );
-      } else {
-        // 한국어 모드: 주제목(titleKo), 부제목(titleKo는 중복), 설명(descriptionKo)
-        return (
-          booth.titleKo.toLowerCase().includes(query) ||
-          booth.descriptionKo.toLowerCase().includes(query)
-        );
-      }
+      // 한국어 모드: 주제목(titleKo), 설명(descriptionKo)
+      return (
+        booth.titleKo.toLowerCase().includes(query) ||
+        booth.descriptionKo.toLowerCase().includes(query)
+      );
     });
-  }, [booths, searchQuery, isEnglish]);
+  }, [booths, searchQuery]);
 
   // 헤더 높이를 계산하는 함수
   const getHeaderHeight = () => {
@@ -199,9 +186,11 @@ function BoothListContent() {
         <div className="text-center mb-12">
           <div>
             <h1 className="text-6xl font-bold text-white mb-6">
-              <span className="text-purple-gradient">{t('title')}</span>
+              <span className="text-purple-gradient">One Day Pub 부스</span>
             </h1>
-            <p className="text-2xl text-purple-200 font-medium">{t('subtitle')}</p>
+            <p className="text-2xl text-purple-200 font-medium">
+              다양한 부스와 음식, 체험존을 둘러보세요
+            </p>
           </div>
         </div>
 
@@ -214,11 +203,11 @@ function BoothListContent() {
         <div className="mb-8 flex flex-row flex-wrap items-center gap-4">
           <div className="card-purple p-6 rounded-2xl max-w-[80%] flex-shrink">
             <p className="text-purple-100 text-lg break-keep">
-              {t('totalCount')}{' '}
+              총{' '}
               <span className="font-bold text-purple-gradient text-xl">
                 {filteredBooths.length}
               </span>{' '}
-              {t('totalCountSuffix')}
+              개의 부스가 있습니다
             </p>
           </div>
 
@@ -230,7 +219,7 @@ function BoothListContent() {
                 : 'bg-purple-600/60 text-purple-100 hover:bg-purple-500/70 hover:text-white'
             }`}
           >
-            {t('trashCanLocation')}
+            쓰레기통 위치
             {showTrashCans && <span className="text-xs">✓</span>}
           </button>
         </div>
@@ -282,8 +271,8 @@ function BoothListContent() {
                       d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.47-.881-6.071-2.33"
                     />
                   </svg>
-                  <h3 className="text-2xl font-bold text-white mb-3">{t('noResults')}</h3>
-                  <p className="text-purple-200 text-lg">{t('noResultsDescription')}</p>
+                  <h3 className="text-2xl font-bold text-white mb-3">검색 결과가 없습니다</h3>
+                  <p className="text-purple-200 text-lg">다른 검색어나 필터를 시도해보세요.</p>
                 </div>
               </div>
             )}

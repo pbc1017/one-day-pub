@@ -1,15 +1,11 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
 
 import { getTodayStagesUrl } from '@/utils/stages';
 
-export default async function Home() {
-  const t = await getTranslations('home');
-  const common = await getTranslations('common');
-  const nav = await getTranslations('nav');
-  const operatingHoursT = await getTranslations('operatingHours');
-
+export default function Home() {
   // 한국 시간 기준 현재 시간 구하기
   const getCurrentKoreanTime = () => {
     const now = new Date();
@@ -46,43 +42,43 @@ export default async function Home() {
   // 부스별 운영 시간 정보 (실시간 상태 계산)
   const operatingHoursData = [
     {
-      zone: operatingHoursT('boothZone'),
+      zone: '부스존',
       hours: '13:00 - 18:00',
-      description: operatingHoursT('descriptions.booth'),
+      description: '학과별 체험 부스',
       status: isCurrentlyOpen('13:00 - 18:00') ? 'open' : 'closed',
     },
     {
-      zone: operatingHoursT('infoDesk'),
+      zone: '인포 부스',
       hours: '13:00 - 22:30',
-      description: operatingHoursT('descriptions.info'),
+      description: '종합 안내 및 분실물',
       status: isCurrentlyOpen('13:00 - 22:30') ? 'open' : 'closed',
     },
     {
-      zone: operatingHoursT('foodTruck'),
+      zone: '푸드트럭',
       hours: '13:00 - 22:30',
-      description: operatingHoursT('descriptions.foodTruck'),
+      description: '다양한 음식 판매',
       status: isCurrentlyOpen('13:00 - 22:30') ? 'open' : 'closed',
     },
     {
-      zone: operatingHoursT('nightMarket'),
+      zone: '야시장',
       hours: '18:00 - 22:30',
-      description: operatingHoursT('descriptions.nightMarket'),
+      description: '주류 및 안주 판매',
       status: isCurrentlyOpen('18:00 - 22:30') ? 'open' : 'closed',
     },
     {
-      zone: operatingHoursT('stageZone'),
+      zone: '무대',
       hours: '15:00 - 22:00',
-      description: operatingHoursT('descriptions.stage'),
+      description: '공연 및 이벤트',
       status: isCurrentlyOpen('15:00 - 22:00') ? 'open' : 'closed',
     },
   ];
   const mainNavigation = [
     {
-      title: nav('boothMap'),
+      title: '부스 배치도',
       url: '/booth',
     },
     {
-      title: nav('stageSchedule'),
+      title: '무대 시간표',
       url: getTodayStagesUrl(),
     },
   ];
@@ -95,7 +91,7 @@ export default async function Home() {
           <h1 className="text-6xl font-bold text-white mb-6">
             <span className="text-pink-gradient">One Day Pub</span> 2025
           </h1>
-          <p className="text-2xl text-white font-medium">{common('subtitle')}</p>
+          <p className="text-2xl text-white font-medium">KAIST Art & Music Festival</p>
         </div>
       </div>
 
@@ -125,7 +121,7 @@ export default async function Home() {
 
         {/* 부스별 운영 시간 */}
         <div className="card-pink rounded-3xl shadow-2xl p-8 mb-16">
-          <h3 className="text-3xl font-bold text-white mb-8 text-center">{t('operatingHours')}</h3>
+          <h3 className="text-3xl font-bold text-white mb-8 text-center">부스별 운영 시간</h3>
           <div className="space-y-4">
             {operatingHoursData.map((booth, index) => (
               <div
@@ -144,7 +140,7 @@ export default async function Home() {
                           : 'bg-orange-600 text-white border-2 border-orange-500'
                       }`}
                     >
-                      {booth.status === 'open' ? common('open') : common('closed')}
+                      {booth.status === 'open' ? '운영중' : '준비중'}
                     </span>
                   </div>
                   <p className="text-gray-300 text-sm md:text-base break-words">
@@ -160,7 +156,9 @@ export default async function Home() {
 
           {/* 추가 안내 */}
           <div className="mt-8 p-6 bg-[#0a0a0a] border-2 border-[#E53C87] rounded-xl">
-            <p className="text-white text-center leading-relaxed">💡 {t('notice')}</p>
+            <p className="text-white text-center leading-relaxed">
+              💡 운영 시간은 상황에 따라 변경될 수 있습니다.
+            </p>
           </div>
         </div>
       </div>
