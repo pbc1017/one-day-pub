@@ -2,10 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-
-import LanguageSwitcher from './LanguageSwitcher';
 
 import { useAuth } from '@/providers/AuthProvider';
 import { getTodayStagesUrl } from '@/utils/stages';
@@ -13,8 +10,6 @@ import { getTodayStagesUrl } from '@/utils/stages';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated, isLoading, logout } = useAuth();
-  const t = useTranslations('nav');
-  const common = useTranslations('common');
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -35,11 +30,11 @@ export default function Header() {
   // 기본 네비게이션 아이템
   const basicNavigationItems = [
     {
-      title: t('boothMap'),
+      title: '부스 배치도',
       url: '/booth',
     },
     {
-      title: t('stageSchedule'),
+      title: '무대 시간표',
       url: getTodayStagesUrl(),
     },
   ];
@@ -53,19 +48,19 @@ export default function Header() {
           ...(hasSafetyRole
             ? [
                 {
-                  title: t('safetyManagement'),
+                  title: '안전 관리',
                   url: '/safety',
                 },
               ]
             : []),
           {
-            title: t('mypage'),
+            title: '마이페이지',
             url: '/mypage',
           },
         ]
       : [
           {
-            title: t('login'),
+            title: '로그인',
             url: '/login',
           },
         ]),
@@ -73,7 +68,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-800/95 backdrop-blur-md border-b border-gray-700 shadow-lg">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-[#E53C87]/50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* 로고 */}
@@ -89,13 +84,12 @@ export default function Header() {
               />
             </Link>
 
-            {/* 언어 전환기 및 햄버거 메뉴 버튼 */}
-            <div className="flex-1 flex justify-end items-center space-x-4">
-              <LanguageSwitcher />
+            {/* 햄버거 메뉴 버튼 */}
+            <div className="flex-1 flex justify-end items-center">
               <button
                 onClick={toggleMenu}
-                className="relative w-10 h-10 flex flex-col justify-center items-center space-y-1 bg-white hover:bg-violet-500 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg group"
-                aria-label={t('openMenu')}
+                className="relative w-10 h-10 flex flex-col justify-center items-center space-y-1 bg-white hover:bg-[#E53C87] rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg group"
+                aria-label="메뉴 열기"
               >
                 <span
                   className={`block w-6 h-0.5 bg-black group-hover:bg-white transition-all duration-300 ${
@@ -133,14 +127,14 @@ export default function Header() {
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="h-full bg-gray-900/95 backdrop-blur-xl border-l border-gray-700 shadow-2xl">
+        <div className="h-full bg-black/95 backdrop-blur-xl border-l border-[#E53C87]/50 shadow-2xl">
           {/* 메뉴 헤더 */}
-          <div className="flex justify-between items-center p-6 border-b border-gray-700">
-            <h2 className="text-2xl font-bold text-white">{t('menu')}</h2>
+          <div className="flex justify-between items-center p-6 border-b border-[#E53C87]/50">
+            <h2 className="text-2xl font-bold text-white">메뉴</h2>
             <button
               onClick={closeMenu}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-600/20 hover:bg-violet-500 transition-colors duration-200"
-              aria-label={t('closeMenu')}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-600/20 hover:bg-[#E53C87] transition-colors duration-200"
+              aria-label="메뉴 닫기"
             >
               <svg
                 className="w-5 h-5 text-white"
@@ -160,9 +154,9 @@ export default function Header() {
 
           {/* 사용자 정보 (로그인된 경우) */}
           {isAuthenticated && user && (
-            <div className="p-6 border-b border-gray-700">
+            <div className="p-6 border-b border-[#E53C87]/50">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-violet-500 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-[#E53C87] rounded-full flex items-center justify-center">
                   <svg
                     className="w-6 h-6 text-white"
                     fill="none"
@@ -178,9 +172,7 @@ export default function Header() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-white font-semibold">
-                    {user.displayName || common('newUser')}
-                  </p>
+                  <p className="text-white font-semibold">{user.displayName || '새 사용자'}</p>
                   <p className="text-gray-400 text-sm">{user.email}</p>
                 </div>
               </div>
@@ -193,7 +185,7 @@ export default function Header() {
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                <span className="ml-2 text-white">{common('loading')}</span>
+                <span className="ml-2 text-white">로딩 중...</span>
               </div>
             ) : (
               <ul className="space-y-4">
@@ -202,7 +194,7 @@ export default function Header() {
                     <Link
                       href={item.url}
                       onClick={closeMenu}
-                      className="block w-full text-left p-4 text-lg font-semibold text-black bg-white hover:bg-violet-500 hover:text-white rounded-2xl border border-gray-300 hover:border-violet-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
+                      className="block w-full text-left p-4 text-lg font-semibold text-white bg-[#E53C87] hover:bg-[#F06292] rounded-2xl border-2 border-[#E53C87] hover:border-[#F06292] transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
                     >
                       {item.title}
                     </Link>
@@ -216,7 +208,7 @@ export default function Header() {
                       onClick={handleLogout}
                       className="block w-full text-left p-4 text-lg font-semibold text-white bg-red-600 hover:bg-red-700 rounded-2xl border border-red-500 hover:border-red-700 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
                     >
-                      {t('logout')}
+                      로그아웃
                     </button>
                   </li>
                 )}
@@ -226,9 +218,9 @@ export default function Header() {
 
           {/* 하단 정보 */}
           <div className="absolute bottom-6 left-6 right-6 text-center">
-            <div className="p-4 bg-gray-800/20 rounded-2xl border border-gray-700">
-              <p className="text-violet-400 text-sm font-semibold">{common('title')}</p>
-              <p className="text-gray-300 text-xs mt-1">{common('subtitle')}</p>
+            <div className="p-4 bg-[#0a0a0a] rounded-2xl border-2 border-[#E53C87]/50">
+              <p className="text-[#E53C87] text-sm font-semibold">One Day Pub 2025</p>
+              <p className="text-gray-300 text-xs mt-1">KAIST Art & Music Festival</p>
             </div>
           </div>
         </div>

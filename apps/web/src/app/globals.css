@@ -4,13 +4,14 @@
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 15, 15, 35;
-  --background-end-rgb: 30, 27, 75;
-  --primary-purple: 99, 102, 241;
-  --secondary-purple: 168, 85, 247;
-  --accent-pink: 236, 72, 153;
-  --purple-dark: 67, 56, 202;
-  --purple-light: 196, 181, 253;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+  --primary-pink: 229, 60, 135;
+  --secondary-pink: 240, 98, 146;
+  --accent-pink: 229, 60, 135;
+  --bg-dark: 0, 0, 0;
+  --bg-card: 26, 26, 26;
+  --bg-card-dark: 18, 18, 18;
 }
 
 @media (prefers-color-scheme: light) {
@@ -23,11 +24,7 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-    135deg,
-    rgb(var(--background-start-rgb)) 0%,
-    rgb(var(--background-end-rgb)) 100%
-  );
+  background: #000000;
   min-height: 100vh;
 }
 
@@ -60,6 +57,10 @@ body {
     radial-gradient(circle at 70% 80%, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
     radial-gradient(circle at 20% 80%, rgba(236, 72, 153, 0.2) 0%, transparent 50%),
     linear-gradient(135deg, #0f0f23 0%, #1e1b4b 100%);
+}
+
+.bg-black-organic {
+  background: #000000;
 }
 
 /* Organic shape overlay */
@@ -112,4 +113,21 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.text-pink-gradient {
+  background: linear-gradient(135deg, #e53c87, #f06292, #ec407a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card styles - Pink theme */
+.card-pink {
+  background: #1a1a1a;
+  border: 2px solid #e53c87;
+}
+
+.card-pink-hover {
+  @apply hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-400 transition-all duration-300 hover:scale-[1.02];
 }

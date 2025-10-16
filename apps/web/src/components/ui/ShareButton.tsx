@@ -1,6 +1,5 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -12,7 +11,6 @@ interface ShareButtonProps {
 }
 
 export function ShareButton({ title, text, url, className = '' }: ShareButtonProps) {
-  const t = useTranslations('share');
   const [isSharing, setIsSharing] = useState(false);
 
   const handleShare = async () => {
@@ -34,7 +32,7 @@ export function ShareButton({ title, text, url, className = '' }: ShareButtonPro
       // Clipboard API fallback
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(url);
-        toast.success(t('shareSuccess'));
+        toast.success('링크가 복사되었습니다!');
       } else {
         // Legacy fallback for older browsers
         const textArea = document.createElement('textarea');
@@ -48,7 +46,7 @@ export function ShareButton({ title, text, url, className = '' }: ShareButtonPro
 
         try {
           document.execCommand('copy');
-          toast.success(t('shareSuccess'));
+          toast.success('링크가 복사되었습니다!');
         } catch (err) {
           throw new Error('Copy command failed');
         } finally {
@@ -57,7 +55,7 @@ export function ShareButton({ title, text, url, className = '' }: ShareButtonPro
       }
     } catch (error) {
       console.error('Share failed:', error);
-      toast.error(t('shareError'));
+      toast.error('공유에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsSharing(false);
     }
@@ -78,8 +76,8 @@ export function ShareButton({ title, text, url, className = '' }: ShareButtonPro
         disabled:opacity-50 disabled:cursor-not-allowed
         ${className}
       `}
-      title={t('shareButton')}
-      aria-label={t('shareButton')}
+      title="공유"
+      aria-label="공유"
     >
       {/* 공유 아이콘 (외부 화살표 스타일) */}
       <svg
@@ -102,7 +100,7 @@ export function ShareButton({ title, text, url, className = '' }: ShareButtonPro
       {/* 호버 시 툴팁 효과 */}
       <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
         <div className="bg-black/80 text-white text-sm px-3 py-1 rounded-lg whitespace-nowrap backdrop-blur-sm">
-          {t('shareButton')}
+          공유
           {/* 툴팁 화살표 */}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2">
             <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/80"></div>

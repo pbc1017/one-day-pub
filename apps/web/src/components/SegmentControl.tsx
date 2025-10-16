@@ -1,7 +1,6 @@
 'use client';
 
 import { FestivalDay } from '@one-day-pub/interface/types/festival.type.js';
-import { useLocale, useTranslations } from 'next-intl';
 
 interface SegmentControlProps {
   selectedDay: FestivalDay;
@@ -9,20 +8,16 @@ interface SegmentControlProps {
 }
 
 export function SegmentControl({ selectedDay, onDayChange }: SegmentControlProps) {
-  const locale = useLocale();
-  const t = useTranslations('days');
-  const isEnglish = locale === 'en';
-
   const days = [
     {
       value: FestivalDay.FRIDAY,
-      label: isEnglish ? t('fri') : t('friday'),
-      shortLabel: t('fri'),
+      label: '금요일 (FRI)',
+      shortLabel: 'FRI',
     },
     {
       value: FestivalDay.SATURDAY,
-      label: isEnglish ? t('sat') : t('saturday'),
-      shortLabel: t('sat'),
+      label: '토요일 (SAT)',
+      shortLabel: 'SAT',
     },
   ];
 
