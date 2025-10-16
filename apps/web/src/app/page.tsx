@@ -14,7 +14,7 @@ export default function Home() {
           <h2 className="text-4xl font-bold text-white mb-2">일일호프</h2>
           <p className="text-xl text-pink-gradient font-semibold">w. 하루해</p>
           <div className="mt-4 inline-block px-6 py-2 rounded-full border-2 border-[#E53C87]">
-            <p className="text-white font-bold">일시 : 2025. 11. 11 18:00</p>
+            <p className="text-white font-bold">일시 : 2025. 11. 11. 18:00</p>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ export default function Home() {
                   <span className="text-pink-gradient font-bold">1타임</span> : 19:00~21:00
                 </p>
                 <p className="text-base">
-                  <span className="text-pink-gradient font-bold">2타임</span> : 21:30~23:30
+                  <span className="text-pink-gradient font-bold">2타임</span> : 22:00~24:00
                 </p>
               </div>
 
