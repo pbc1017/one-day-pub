@@ -73,7 +73,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-800/95 backdrop-blur-md border-b border-gray-700 shadow-lg">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-[#E53C87]/50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* 로고 */}
@@ -94,7 +94,7 @@ export default function Header() {
               <LanguageSwitcher />
               <button
                 onClick={toggleMenu}
-                className="relative w-10 h-10 flex flex-col justify-center items-center space-y-1 bg-white hover:bg-violet-500 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg group"
+                className="relative w-10 h-10 flex flex-col justify-center items-center space-y-1 bg-white hover:bg-[#E53C87] rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg group"
                 aria-label={t('openMenu')}
               >
                 <span
@@ -133,13 +133,13 @@ export default function Header() {
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="h-full bg-gray-900/95 backdrop-blur-xl border-l border-gray-700 shadow-2xl">
+        <div className="h-full bg-black/95 backdrop-blur-xl border-l border-[#E53C87]/50 shadow-2xl">
           {/* 메뉴 헤더 */}
-          <div className="flex justify-between items-center p-6 border-b border-gray-700">
+          <div className="flex justify-between items-center p-6 border-b border-[#E53C87]/50">
             <h2 className="text-2xl font-bold text-white">{t('menu')}</h2>
             <button
               onClick={closeMenu}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-600/20 hover:bg-violet-500 transition-colors duration-200"
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-600/20 hover:bg-[#E53C87] transition-colors duration-200"
               aria-label={t('closeMenu')}
             >
               <svg
@@ -160,9 +160,9 @@ export default function Header() {
 
           {/* 사용자 정보 (로그인된 경우) */}
           {isAuthenticated && user && (
-            <div className="p-6 border-b border-gray-700">
+            <div className="p-6 border-b border-[#E53C87]/50">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-violet-500 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-[#E53C87] rounded-full flex items-center justify-center">
                   <svg
                     className="w-6 h-6 text-white"
                     fill="none"
@@ -202,7 +202,7 @@ export default function Header() {
                     <Link
                       href={item.url}
                       onClick={closeMenu}
-                      className="block w-full text-left p-4 text-lg font-semibold text-black bg-white hover:bg-violet-500 hover:text-white rounded-2xl border border-gray-300 hover:border-violet-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
+                      className="block w-full text-left p-4 text-lg font-semibold text-white bg-[#E53C87] hover:bg-[#F06292] rounded-2xl border-2 border-[#E53C87] hover:border-[#F06292] transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
                     >
                       {item.title}
                     </Link>
@@ -226,8 +226,8 @@ export default function Header() {
 
           {/* 하단 정보 */}
           <div className="absolute bottom-6 left-6 right-6 text-center">
-            <div className="p-4 bg-gray-800/20 rounded-2xl border border-gray-700">
-              <p className="text-violet-400 text-sm font-semibold">{common('title')}</p>
+            <div className="p-4 bg-[#0a0a0a] rounded-2xl border-2 border-[#E53C87]/50">
+              <p className="text-[#E53C87] text-sm font-semibold">{common('title')}</p>
               <p className="text-gray-300 text-xs mt-1">{common('subtitle')}</p>
             </div>
           </div>

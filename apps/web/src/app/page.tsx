@@ -88,21 +88,21 @@ export default async function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-purple-organic organic-overlay">
+    <main className="min-h-screen bg-black-organic organic-overlay">
       {/* 헤더 */}
       <div className="text-center py-16">
         <div>
           <h1 className="text-6xl font-bold text-white mb-6">
-            <span className="text-purple-gradient">One Day Pub</span> 2025
+            <span className="text-pink-gradient">One Day Pub</span> 2025
           </h1>
-          <p className="text-2xl text-purple-200 font-medium">{common('subtitle')}</p>
+          <p className="text-2xl text-white font-medium">{common('subtitle')}</p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6">
         {/* 메인 로고 및 네비게이션 */}
         <div className="text-center mb-16">
-          <div className="card-purple card-purple-hover rounded-3xl p-8 mb-12">
+          <div className="card-pink card-pink-hover rounded-3xl p-8 mb-12">
             <Image
               src="/kamf_main.png"
               alt="One Day Pub 2025"
@@ -114,7 +114,7 @@ export default async function Home() {
             <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
               {mainNavigation.map((nav, index) => (
                 <Link key={index} href={nav.url}>
-                  <button className="w-full py-4 px-8 bg-gradient-to-r from-purple-700/40 to-indigo-700/40 hover:from-purple-600/60 hover:to-indigo-600/60 backdrop-blur-sm border border-purple-400/30 hover:border-purple-300/50 rounded-xl transition-all duration-300 text-xl font-bold text-white hover:scale-105 text-center">
+                  <button className="w-full py-4 px-8 bg-[#E53C87] hover:bg-[#F06292] border-2 border-[#E53C87] hover:border-[#F06292] rounded-xl transition-all duration-300 text-xl font-bold text-white hover:scale-105 text-center">
                     {nav.title}
                   </button>
                 </Link>
@@ -124,13 +124,13 @@ export default async function Home() {
         </div>
 
         {/* 부스별 운영 시간 */}
-        <div className="card-purple rounded-3xl shadow-2xl p-8 mb-16">
+        <div className="card-pink rounded-3xl shadow-2xl p-8 mb-16">
           <h3 className="text-3xl font-bold text-white mb-8 text-center">{t('operatingHours')}</h3>
           <div className="space-y-4">
             {operatingHoursData.map((booth, index) => (
               <div
                 key={index}
-                className="flex flex-col md:flex-row md:items-center md:justify-between p-6 bg-gradient-to-r from-purple-800/20 to-indigo-800/20 backdrop-blur-sm border border-purple-500/20 rounded-xl hover:border-purple-400/30 transition-all duration-300"
+                className="flex flex-col md:flex-row md:items-center md:justify-between p-6 bg-[#0a0a0a] border-2 border-[#E53C87]/40 rounded-xl hover:border-[#E53C87] transition-all duration-300"
               >
                 <div className="flex-1 mb-4 md:mb-0">
                   <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
@@ -140,14 +140,14 @@ export default async function Home() {
                     <span
                       className={`px-2 md:px-3 py-1 text-xs md:text-sm font-medium rounded-full ${
                         booth.status === 'open'
-                          ? 'bg-gradient-to-r from-green-500/30 to-emerald-500/30 text-green-200 border border-green-400/30'
-                          : 'bg-gradient-to-r from-yellow-500/30 to-orange-500/30 text-yellow-200 border border-yellow-400/30'
+                          ? 'bg-green-600 text-white border-2 border-green-500'
+                          : 'bg-orange-600 text-white border-2 border-orange-500'
                       }`}
                     >
                       {booth.status === 'open' ? common('open') : common('closed')}
                     </span>
                   </div>
-                  <p className="text-purple-200 text-sm md:text-base break-words">
+                  <p className="text-gray-300 text-sm md:text-base break-words">
                     {booth.description}
                   </p>
                 </div>
@@ -159,8 +159,8 @@ export default async function Home() {
           </div>
 
           {/* 추가 안내 */}
-          <div className="mt-8 p-6 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 backdrop-blur-sm border border-purple-400/30 rounded-xl">
-            <p className="text-purple-100 text-center leading-relaxed">💡 {t('notice')}</p>
+          <div className="mt-8 p-6 bg-[#0a0a0a] border-2 border-[#E53C87] rounded-xl">
+            <p className="text-white text-center leading-relaxed">💡 {t('notice')}</p>
           </div>
         </div>
       </div>
