@@ -1,8 +1,10 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
       <div className="max-w-sm mx-auto px-4 py-8">
@@ -22,7 +24,10 @@ export default function Home() {
         <div className="mb-8">
           <div className="card-pink rounded-3xl p-6">
             <div className="grid grid-cols-2 gap-4">
-              <button className="w-full py-4 px-6 bg-[#E53C87] hover:bg-[#F06292] border-2 border-[#E53C87] hover:border-[#F06292] rounded-xl transition-all duration-300 text-lg font-bold text-white">
+              <button
+                onClick={() => router.push('/register')}
+                className="w-full py-4 px-6 bg-[#E53C87] hover:bg-[#F06292] border-2 border-[#E53C87] hover:border-[#F06292] rounded-xl transition-all duration-300 text-lg font-bold text-white"
+              >
                 신청하기
               </button>
               <button className="w-full py-4 px-6 bg-[#E53C87] hover:bg-[#F06292] border-2 border-[#E53C87] hover:border-[#F06292] rounded-xl transition-all duration-300 text-lg font-bold text-white">
