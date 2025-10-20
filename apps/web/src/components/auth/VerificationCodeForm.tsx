@@ -1,4 +1,3 @@
-import { useTranslations } from 'next-intl';
 import React, { useState, useEffect, useRef } from 'react';
 
 import Button from '@/components/ui/Button';
@@ -20,7 +19,6 @@ export default function VerificationCodeForm({
   isLoading,
   isResending = false,
 }: VerificationCodeFormProps) {
-  const t = useTranslations('auth');
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(180); // 3분 = 180초
   const [isExpired, setIsExpired] = useState(false);
@@ -153,16 +151,14 @@ export default function VerificationCodeForm({
           </svg>
           <span className="text-sm font-medium text-blue-900">{email}</span>
         </div>
-        <p className="text-sm text-gray-600 mt-2">{t('emailSent')}</p>
+        <p className="text-sm text-gray-600 mt-2">위 이메일로 인증번호를 발송했습니다</p>
 
         {/* 타이머 표시 */}
         <div className="mt-3">
           {isExpired ? (
-            <p className="text-sm text-red-600 font-medium">{t('verificationExpired')}</p>
+            <p className="text-sm text-red-600 font-medium">인증번호가 만료되었습니다</p>
           ) : (
-            <p className="text-sm text-blue-600 font-medium">
-              {t('validTime')}: {formatTime(timeLeft)}
-            </p>
+            <p className="text-sm text-blue-600 font-medium">유효시간: {formatTime(timeLeft)}</p>
           )}
         </div>
       </div>
@@ -170,7 +166,7 @@ export default function VerificationCodeForm({
       {/* 인증번호 입력 */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
-          {t('verificationCode')}
+          인증번호 6자리
         </label>
         <div className="flex space-x-2 justify-center" onPaste={handlePaste}>
           {code.map((digit, index) => (
@@ -200,7 +196,7 @@ export default function VerificationCodeForm({
           isLoading={isLoading}
           fullWidth
         >
-          {isExpired ? t('timeExpired') : t('login')}
+          {isExpired ? '시간 만료' : '로그인'}
         </Button>
 
         {/* 재시도 버튼 */}
@@ -212,7 +208,7 @@ export default function VerificationCodeForm({
             fullWidth
             className="bg-green-600 hover:bg-green-700 focus:ring-green-500"
           >
-            {t('resendCode')}
+            인증번호 재발송
           </Button>
         )}
 
@@ -223,14 +219,14 @@ export default function VerificationCodeForm({
           fullWidth
           disabled={isLoading}
         >
-          {t('backToEmail')}
+          이메일 다시 입력
         </Button>
       </div>
 
       {/* 도움말 */}
       <div className="text-center">
         <p className="text-sm text-gray-500">
-          {t('noVerificationCode')}{' '}
+          인증번호가 오지 않나요?{' '}
           {!isExpired ? (
             <button
               type="button"
@@ -238,7 +234,7 @@ export default function VerificationCodeForm({
               className="text-blue-600 hover:text-blue-700 font-medium"
               disabled={isLoading || isResending}
             >
-              {t('resend')}
+              재발송하기
             </button>
           ) : (
             <button
@@ -247,7 +243,7 @@ export default function VerificationCodeForm({
               className="text-blue-600 hover:text-blue-700 font-medium"
               disabled={isLoading}
             >
-              {t('changeEmail')}
+              이메일 변경
             </button>
           )}
         </p>

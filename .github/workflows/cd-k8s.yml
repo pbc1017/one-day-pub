@@ -191,7 +191,7 @@ jobs:
       - name: Checkout GitOps repository
         uses: actions/checkout@v4
         with:
-          repository: pbc1017/one-day-pub-sub-k8s
+          repository: pbc1017/one-day-pub-k8s
           token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops
 
@@ -272,7 +272,7 @@ jobs:
       - name: Checkout GitOps repository
         uses: actions/checkout@v4
         with:
-          repository: pbc1017/one-day-pub-sub-k8s
+          repository: pbc1017/one-day-pub-k8s
           token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops
 

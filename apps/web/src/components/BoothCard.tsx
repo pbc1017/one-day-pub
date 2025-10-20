@@ -1,7 +1,6 @@
 'use client';
 
 import { Booth, Zone } from '@one-day-pub/interface/types/festival.type.js';
-import { useLocale, useTranslations } from 'next-intl';
 import { forwardRef, useMemo } from 'react';
 
 import { ShareButton } from '@/components/ui/ShareButton';
@@ -18,6 +17,13 @@ const zoneColors = {
   [Zone.INFO]: 'from-purple-500 to-violet-600',
   [Zone.FOOD_TRUCK]: 'from-purple-500 to-pink-500',
   [Zone.NIGHT_MARKET]: 'from-violet-600 to-purple-600',
+};
+
+const zoneLabels = {
+  [Zone.BOOTH]: '부스',
+  [Zone.INFO]: '인포 부스',
+  [Zone.FOOD_TRUCK]: '푸드트럭',
+  [Zone.NIGHT_MARKET]: '야시장',
 };
 
 function highlightText(text: string, query: string) {
@@ -44,30 +50,9 @@ export const BoothCard = forwardRef<HTMLDivElement, BoothCardProps>(function Boo
   { booth, searchQuery = '', isSelected = false, onClick },
   ref
 ) {
-  const locale = useLocale();
-  const zones = useTranslations('zones');
-  const shareTranslations = useTranslations('share');
-  const isEnglish = locale === 'en';
-
-  const mainTitle = isEnglish ? booth.titleEn : booth.titleKo;
-  const subTitle = isEnglish ? booth.titleKo : booth.titleEn;
-  const description = isEnglish ? booth.descriptionEn : booth.descriptionKo;
-
-  // Zone 라벨 매핑
-  const getZoneLabel = (zone: Zone) => {
-    switch (zone) {
-      case Zone.BOOTH:
-        return zones('booth');
-      case Zone.INFO:
-        return zones('info');
-      case Zone.FOOD_TRUCK:
-        return zones('foodTruck');
-      case Zone.NIGHT_MARKET:
-        return zones('nightMarket');
-      default:
-        return zone;
-    }
-  };
+  const mainTitle = booth.titleKo;
+  const subTitle = booth.titleEn;
+  const description = booth.descriptionKo;
 
   const handleClick = () => {
     onClick?.(booth.boothNumber);
@@ -78,10 +63,10 @@ export const BoothCard = forwardRef<HTMLDivElement, BoothCardProps>(function Boo
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     const url = `${origin}/booth?id=${booth.boothNumber}`;
     const title = `${mainTitle} - One Day Pub 2025`;
-    const text = `${shareTranslations('boothShareText')} ${mainTitle}: ${description.slice(0, 100)}${description.length > 100 ? '...' : ''}`;
+    const text = `One Day Pub 2025 부스를 확인해보세요! ${mainTitle}: ${description.slice(0, 100)}${description.length > 100 ? '...' : ''}`;
 
     return { url, title, text };
-  }, [booth.boothNumber, mainTitle, description, shareTranslations]);
+  }, [booth.boothNumber, mainTitle, description]);
 
   return (
     <div
@@ -114,7 +99,7 @@ export const BoothCard = forwardRef<HTMLDivElement, BoothCardProps>(function Boo
           <span
             className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r ${zoneColors[booth.zone]} text-white shadow-lg`}
           >
-            {getZoneLabel(booth.zone)}
+            {zoneLabels[booth.zone]}
           </span>
           <span
             className={`text-sm font-medium transition-colors ${
