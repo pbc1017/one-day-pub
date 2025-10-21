@@ -197,7 +197,7 @@ jobs:
 
       - name: Update development image tags
         run: |
-          cd gitops
+          cd gitops/environments/dev
 
           # Get image tags from build job
           API_TAG="dev-${{ github.sha }}"
@@ -208,35 +208,13 @@ jobs:
           echo "API: ${REGISTRY}/one-day-pub-api:${API_TAG}"
           echo "Web: ${REGISTRY}/one-day-pub-web:${WEB_TAG}"
 
-          # Update kustomization.yaml with new image tags
-          cat > environments/dev/kustomization.yaml << EOF
-          apiVersion: kustomize.config.k8s.io/v1beta1
-          kind: Kustomization
-
-          resources:
-          - ../../base/api
-          - ../../base/web  
-          - ../../base/mysql
-          - namespace.yaml
-          - nodeport-services.yaml
-          - ingress-route.yaml
-          # - secrets.yaml  # Removed: Secrets applied directly via SSH
-
-          patches:
-          - path: api-patch.yaml
-          - path: web-patch.yaml
-          - path: mysql-patch.yaml
-
-          images:
-          - name: chansparcs/one-day-pub-api
-            newName: ${REGISTRY}/one-day-pub-api
-            newTag: ${API_TAG}
-          - name: chansparcs/one-day-pub-web  
-            newName: ${REGISTRY}/one-day-pub-web
-            newTag: ${WEB_TAG}
-
-          namespace: one-day-pub-dev
-          EOF
+          # Update only image tags using kustomize edit (preserves existing structure)
+          kustomize edit set image \
+            chansparcs/one-day-pub-api=${REGISTRY}/one-day-pub-api:${API_TAG} \
+            chansparcs/one-day-pub-web=${REGISTRY}/one-day-pub-web:${WEB_TAG}
+          
+          echo "✅ Image tags updated in kustomization.yaml"
+          cat kustomization.yaml
 
       - name: Commit and push changes
         run: |
@@ -290,7 +268,7 @@ jobs:
 
       - name: Update production image tags
         run: |
-          cd gitops
+          cd gitops/environments/prod
 
           # Get image tags from build job
           API_TAG="latest-${{ github.sha }}"
@@ -301,35 +279,13 @@ jobs:
           echo "API: ${REGISTRY}/one-day-pub-api:${API_TAG}"
           echo "Web: ${REGISTRY}/one-day-pub-web:${WEB_TAG}"
 
-          # Update kustomization.yaml with new image tags
-          cat > environments/prod/kustomization.yaml << EOF
-          apiVersion: kustomize.config.k8s.io/v1beta1
-          kind: Kustomization
-
-          resources:
-          - ../../base/api
-          - ../../base/web  
-          - ../../base/mysql
-          - namespace.yaml
-          - nodeport-services.yaml
-          - ingress-route.yaml
-          # - secrets.yaml  # Removed: Secrets applied directly via SSH
-
-          patches:
-          - path: api-patch.yaml
-          - path: web-patch.yaml
-          - path: mysql-patch.yaml
-
-          images:
-          - name: chansparcs/one-day-pub-api
-            newName: ${REGISTRY}/one-day-pub-api
-            newTag: ${API_TAG}
-          - name: chansparcs/one-day-pub-web  
-            newName: ${REGISTRY}/one-day-pub-web
-            newTag: ${WEB_TAG}
-
-          namespace: one-day-pub-prod
-          EOF
+          # Update only image tags using kustomize edit (preserves existing structure)
+          kustomize edit set image \
+            chansparcs/one-day-pub-api=${REGISTRY}/one-day-pub-api:${API_TAG} \
+            chansparcs/one-day-pub-web=${REGISTRY}/one-day-pub-web:${WEB_TAG}
+          
+          echo "✅ Image tags updated in kustomization.yaml"
+          cat kustomization.yaml
 
       - name: Commit changes and create PR
         run: |
