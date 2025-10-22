@@ -1,12 +1,8 @@
-// Types
-export * from './types/common.type.js';
-export * from './types/user.type.js';
-export * from './types/festival.type.js';
-export * from './types/auth.type.js';
+// Common schemas
+export * from './schemas/common/index.js';
 
-// DTOs
-export * from './dtos/analytics.dto.js';
-export * from './dtos/auth.dto.js';
-export * from './dtos/festival.dto.js';
-export * from './dtos/user.dto.js';
-export * from './dtos/safety.dto.js';
+// Auth schemas
+export * from './schemas/auth/index.js';
+
+// Registration schemas
+export * from './schemas/registration/index.js';
