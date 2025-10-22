@@ -2,8 +2,10 @@
  * 3단계: 개인정보 입력
  */
 
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
+import AlertDialog from '@/components/ui/AlertDialog';
 import { PersonalInfo, CompanionInfo, School } from '@/types/register';
 
 interface PersonalInfoStepProps {
@@ -27,10 +29,12 @@ export default function PersonalInfoStep({
   onNext,
   onPrev,
 }: PersonalInfoStepProps) {
+  const router = useRouter();
   const [errors, setErrors] = useState<Partial<Record<keyof PersonalInfo, string>>>({});
   const [companionErrors, setCompanionErrors] = useState<
     Partial<Record<keyof CompanionInfo, string>>
   >({});
+  const [showMinorAlert, setShowMinorAlert] = useState(false);
 
   const is2People = partySize === 2;
 
@@ -90,6 +94,10 @@ export default function PersonalInfoStep({
       newErrors.birthYear = '생년을 입력해주세요';
     } else if (!/^\d{4}$/.test(data.birthYear)) {
       newErrors.birthYear = '4자리 숫자로 입력해주세요 (예: 2000)';
+    } else if (parseInt(data.birthYear) >= 2007) {
+      // 미성년자 체크 (2007년생 이상)
+      setShowMinorAlert(true);
+      return false;
     }
     if (!data.phone.trim()) {
       newErrors.phone = '전화번호를 입력해주세요';
@@ -128,6 +136,10 @@ export default function PersonalInfoStep({
       newErrors.birthYear = '생년을 입력해주세요';
     } else if (!/^\d{4}$/.test(companionData.birthYear)) {
       newErrors.birthYear = '4자리 숫자로 입력해주세요 (예: 2000)';
+    } else if (parseInt(companionData.birthYear) >= 2007) {
+      // 미성년자 체크 (2007년생 이상)
+      setShowMinorAlert(true);
+      return false;
     }
     if (!companionData.phone.trim()) {
       newErrors.phone = '전화번호를 입력해주세요';
@@ -146,6 +158,10 @@ export default function PersonalInfoStep({
     if (isPersonalValid && isCompanionValid) {
       onNext();
     }
+  };
+
+  const handleMinorAlert = () => {
+    router.replace('/');
   };
 
   return (
@@ -351,6 +367,13 @@ export default function PersonalInfoStep({
           다음
         </button>
       </div>
+
+      {/* 미성년자 알림 다이얼로그 */}
+      <AlertDialog
+        isOpen={showMinorAlert}
+        message="미성년자는 신청이 불가합니다"
+        onConfirm={handleMinorAlert}
+      />
     </div>
   );
 }
