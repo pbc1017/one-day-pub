@@ -224,7 +224,7 @@ POST /api/registrations/send-verification-code
 
 ```typescript
 {
-  email: string
+  email: string;
 }
 ```
 
@@ -285,13 +285,13 @@ GET /api/registrations/availability
 
 **Query Parameters:**
 
-| 파라미터    | 타입    | 필수 | 설명                      |
-| ----------- | ------- | ---- | ------------------------- |
-| isMeeting   | boolean | ✅   | 미팅석 여부               |
-| school      | string  | ✅   | 'CNU' \| 'KAIST'          |
-| gender      | string  | ✅   | 'M' \| 'F'                |
-| time        | number  | ✅   | 1 \| 2                    |
-| memberCount | number  | ✅   | 1 \| 2                    |
+| 파라미터    | 타입    | 필수 | 설명             |
+| ----------- | ------- | ---- | ---------------- |
+| isMeeting   | boolean | ✅   | 미팅석 여부      |
+| school      | string  | ✅   | 'CNU' \| 'KAIST' |
+| gender      | string  | ✅   | 'M' \| 'F'       |
+| time        | number  | ✅   | 1 \| 2           |
+| memberCount | number  | ✅   | 1 \| 2           |
 
 **Response:**
 
@@ -395,7 +395,7 @@ POST /api/auth/send-code
 
 ```typescript
 {
-  email: string
+  email: string;
 }
 ```
 
@@ -447,7 +447,7 @@ POST /api/auth/refresh
 
 ```typescript
 {
-  refreshToken: string
+  refreshToken: string;
 }
 ```
 
@@ -471,7 +471,7 @@ Authorization: Bearer {accessToken}
 
 ```typescript
 {
-  success: boolean
+  success: boolean;
 }
 ```
 
@@ -582,7 +582,7 @@ Authorization: Bearer {accessToken}
 
 ```typescript
 {
-  status: "PENDING" | "PAYMENT_CONFIRMED" | "CANCELLED"
+  status: 'PENDING' | 'PAYMENT_CONFIRMED' | 'CANCELLED';
 }
 ```
 
@@ -669,16 +669,19 @@ Authorization: Bearer {accessToken}
 #### 작업 내역
 
 1. [ ] 마이그레이션 생성
+
    ```bash
    npm run migration:generate -- src/migrations/UserBasedSystem
    ```
 
 2. [ ] 마이그레이션 실행
+
    ```bash
    npm run migration:run
    ```
 
 3. [ ] 시드 실행
+
    ```bash
    npm run seed
    ```
@@ -1023,13 +1026,13 @@ THROTTLE_LIMIT=10
 
 ## 변경 이력
 
-| 날짜       | 항목                     | 변경 내용                                    |
-| ---------- | ------------------------ | -------------------------------------------- |
-| 2025-10-22 | User 기반 설계로 전환    | Admin + Applicant를 users 테이블로 통합     |
-| 2025-10-22 | 이메일 인증 플로우 추가  | 신청 전 이메일 인증 필수화                   |
-| 2025-10-22 | 로그인 시스템 추가       | 일반 사용자도 로그인하여 신청 관리 가능      |
-| 2025-10-22 | registration_members     | userId 추가, email 제거                      |
-| 2025-10-22 | email_verifications      | isUsed, updatedAt 추가, purpose 확장         |
+| 날짜       | 항목                    | 변경 내용                               |
+| ---------- | ----------------------- | --------------------------------------- |
+| 2025-10-22 | User 기반 설계로 전환   | Admin + Applicant를 users 테이블로 통합 |
+| 2025-10-22 | 이메일 인증 플로우 추가 | 신청 전 이메일 인증 필수화              |
+| 2025-10-22 | 로그인 시스템 추가      | 일반 사용자도 로그인하여 신청 관리 가능 |
+| 2025-10-22 | registration_members    | userId 추가, email 제거                 |
+| 2025-10-22 | email_verifications     | isUsed, updatedAt 추가, purpose 확장    |
 
 ---
 
