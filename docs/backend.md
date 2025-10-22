@@ -655,12 +655,12 @@ Authorization: Bearer {accessToken}
    - `seat/` 모듈
 
 4. ✅ 시드 데이터
-   - 좌석 56개
+   - 좌석 56석 (4인석 8개 + 6인석 4개 테이블)
    - 관리자 계정 1개
 
 ---
 
-### Phase 2: 마이그레이션 및 DB 설정 (예정)
+### Phase 2: 마이그레이션 및 DB 설정 ✅ **완료**
 
 #### 목표
 
@@ -668,62 +668,46 @@ Authorization: Bearer {accessToken}
 
 #### 작업 내역
 
-1. [ ] 마이그레이션 생성
+1. ✅ 마이그레이션 생성
+   - `1761137256895-InitUserBasedSystem.ts`
 
-   ```bash
-   npm run migration:generate -- src/migrations/UserBasedSystem
-   ```
+2. ✅ 마이그레이션 실행
+   - 6개 테이블 생성 완료
 
-2. [ ] 마이그레이션 실행
+3. ✅ 시드 실행
+   - 좌석 56석, 관리자 계정 1개
 
-   ```bash
-   npm run migration:run
-   ```
-
-3. [ ] 시드 실행
-
-   ```bash
-   npm run seed
-   ```
-
-4. [ ] DB 검증
+4. ✅ DB 검증
    - 모든 테이블 생성 확인
    - 외래 키 제약조건 확인
    - 인덱스 생성 확인
 
 ---
 
-### Phase 3: DTO 및 검증 (예정)
+### Phase 3: DTO 및 검증 (진행 중) - Zod + nestjs-zod
 
 #### 목표
 
-API 요청/응답 타입 정의 및 검증 설정
+Zod 스키마를 사용한 타입 정의 및 검증 설정
+- Single Source of Truth: 스키마와 타입을 한 곳에서 관리
+- 런타임 검증 + 컴파일 타임 타입 체크
+- 프론트엔드와 백엔드 간 스키마 공유
 
 #### 작업 내역
 
-1. [ ] Registration DTOs
-   - `SendVerificationCodeDto`
-   - `VerifyEmailDto`
-   - `CheckAvailabilityDto`
-   - `CreateRegistrationDto`
-   - `UpdateRegistrationDto`
+1. [ ] packages/interface Zod 스키마
+   - `schemas/common/` (response, token)
+   - `schemas/auth/` (request)
+   - `schemas/registration/` (member, request, response)
 
-2. [ ] Auth DTOs
-   - `SendCodeDto`
-   - `VerifyCodeDto`
-   - `RefreshTokenDto`
+2. [ ] apps/api nestjs-zod DTOs
+   - Registration DTOs (4개)
+   - Auth DTOs (3개)
+   - Common DTOs (1개)
 
-3. [ ] Admin DTOs
-   - `RegistrationQueryDto`
-   - `UpdateStatusDto`
-
-4. [ ] Response DTOs
-   - `TokenResponseDto`
-   - `PaginatedResponseDto<T>`
-
-5. [ ] Validation Pipes
-   - 전역 ValidationPipe 설정
-   - 커스텀 검증 (학번 형식, 이메일 도메인 등)
+3. [ ] Validation Pipes
+   - 전역 ZodValidationPipe 설정
+   - Query parameter 변환 처리
 
 ---
 

@@ -26,5 +26,5 @@ export async function seedSeats(dataSource: DataSource) {
   }
 
   await seatRepo.save(seats);
-  console.log('✅ 좌석 12개 생성 완료 (4인석 8개 + 6인석 4개)');
+  console.log('✅ 좌석 56석 생성 완료 (4인석 8개 + 6인석 4개 = 12테이블)');
 }
