@@ -1,6 +1,6 @@
 # 일일호프 백엔드 구현 계획
 
-> 최종 업데이트: 2025-10-22  
+> 최종 업데이트: 2025-10-22 (User 기반 설계로 전환)
 > SSOT 문서 기반 백엔드 API 및 데이터베이스 설계
 
 ---
@@ -16,14 +16,40 @@
 
 ## 데이터베이스 스키마
 
-### 1. registrations (신청 정보)
+### 1. users (사용자)
+
+일반 신청자와 관리자를 포함한 모든 사용자 계정
+
+```sql
+CREATE TABLE users (
+  id VARCHAR(36) PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  role ENUM('APPLICANT', 'ADMIN', 'SUPER_ADMIN') DEFAULT 'APPLICANT',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  INDEX idx_email (email),
+  INDEX idx_role (role)
+);
+```
+
+**필드 설명:**
+
+- `id`: UUID 기본 키
+- `email`: 이메일 (중복 불가)
+- `role`: 사용자 역할
+  - `APPLICANT`: 일반 신청자 (기본값)
+  - `ADMIN`: 관리자
+  - `SUPER_ADMIN`: 최고 관리자
+
+### 2. registrations (신청 정보)
 
 신청의 기본 정보를 저장하는 메인 테이블
 
 ```sql
 CREATE TABLE registrations (
   id VARCHAR(36) PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
+  user_id VARCHAR(36) NOT NULL,
   school ENUM('CNU', 'KAIST') NOT NULL,
   gender ENUM('MALE', 'FEMALE') NOT NULL,
   seat_type ENUM('MEETING', 'GENERAL') NOT NULL,
@@ -33,7 +59,9 @@ CREATE TABLE registrations (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (seat_id) REFERENCES seats(id) ON DELETE SET NULL,
+  INDEX idx_user (user_id),
   INDEX idx_status (status),
   INDEX idx_seat_type_time (seat_type, time_slot),
   INDEX idx_school_gender_time (school, gender, time_slot)
@@ -43,7 +71,7 @@ CREATE TABLE registrations (
 **필드 설명:**
 
 - `id`: UUID 기본 키
-- `email`: 신청 대표 이메일 (중복 불가)
+- `user_id`: 사용자 ID (FK to users)
 - `school`: 학교 (CNU/KAIST)
 - `gender`: 성별 (MALE/FEMALE)
 - `seat_type`: 좌석 유형 (MEETING/GENERAL)
@@ -51,7 +79,11 @@ CREATE TABLE registrations (
 - `status`: 신청 상태
 - `seat_id`: 자유석인 경우 좌석 ID (FK)
 
-### 2. registration_members (신청자 정보)
+**비즈니스 규칙:**
+
+- 한 사용자(email)당 하나의 PENDING/PAYMENT_CONFIRMED 신청만 가능
+
+### 3. registration_members (신청자 정보)
 
 신청자와 동반인의 개인정보를 저장
 
@@ -59,32 +91,36 @@ CREATE TABLE registrations (
 CREATE TABLE registration_members (
   id VARCHAR(36) PRIMARY KEY,
   registration_id VARCHAR(36) NOT NULL,
+  user_id VARCHAR(36) NULL,
   `order` INT NOT NULL,
   name VARCHAR(100) NOT NULL,
   department VARCHAR(100) NOT NULL,
   student_id VARCHAR(20) NOT NULL,
   birth_year INT NOT NULL,
   phone_number VARCHAR(20) NOT NULL,
-  email VARCHAR(255) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
   FOREIGN KEY (registration_id) REFERENCES registrations(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
   UNIQUE KEY uk_registration_order (registration_id, `order`),
-  INDEX idx_registration (registration_id)
+  INDEX idx_registration (registration_id),
+  INDEX idx_user (user_id)
 );
 ```
 
 **필드 설명:**
 
 - `order`: 1 = 신청자, 2 = 동반인
-- `email`: 신청자(order=1)의 이메일 (동반인은 NULL)
+- `user_id`: 사용자 ID (nullable)
+  - 신청자(order=1): `registration.user_id`와 동일 (필수)
+  - 동반인(order=2): NULL (기본값, 나중에 연결 가능)
 - `department`: 학과
 - `student_id`: 학번 (KAIST: 8자리, 충남대: 9자리)
 - `birth_year`: 출생년도 (4자리)
 - `phone_number`: 전화번호
 
-### 3. seats (좌석 마스터)
+### 4. seats (좌석 마스터)
 
 좌석 정보를 관리하는 마스터 테이블
 
@@ -113,38 +149,21 @@ CREATE TABLE seats (
 - 6인석: 4개 (총 24석)
 - **총 56석** (타임당 남/녀 각 28명)
 
-### 4. admin_users (관리자)
-
-관리자 계정 정보
-
-```sql
-CREATE TABLE admin_users (
-  id VARCHAR(36) PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  role ENUM('SUPER_ADMIN', 'ADMIN') DEFAULT 'ADMIN',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-**필드 설명:**
-
-- `email`: 관리자 이메일 (비밀번호 없음, 이메일 인증 사용)
-- `role`: 관리자 권한 레벨
-
 ### 5. email_verifications (이메일 인증)
 
-관리자 로그인을 위한 이메일 인증 코드
+이메일 인증 코드 관리 (신청, 로그인 모두 사용)
 
 ```sql
 CREATE TABLE email_verifications (
   id VARCHAR(36) PRIMARY KEY,
   email VARCHAR(255) NOT NULL,
   code VARCHAR(6) NOT NULL,
-  purpose ENUM('ADMIN_LOGIN') NOT NULL,
+  purpose ENUM('REGISTRATION', 'LOGIN', 'ADMIN_LOGIN') NOT NULL,
   is_verified BOOLEAN DEFAULT FALSE,
+  is_used BOOLEAN DEFAULT FALSE,
   expires_at TIMESTAMP NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
   INDEX idx_email_code (email, code, is_verified),
   INDEX idx_expires (expires_at)
@@ -154,27 +173,31 @@ CREATE TABLE email_verifications (
 **필드 설명:**
 
 - `code`: 6자리 인증 코드
-- `purpose`: 인증 목적 (관리자 로그인)
+- `purpose`: 인증 목적
+  - `REGISTRATION`: 신청 시 이메일 인증
+  - `LOGIN`: 일반 사용자 로그인
+  - `ADMIN_LOGIN`: 관리자 로그인
 - `is_verified`: 인증 완료 여부
+- `is_used`: 사용 완료 여부 (신청 완료 등)
 - `expires_at`: 만료 시간 (10분)
 
-### 6. admin_refresh_tokens (리프레시 토큰)
+### 6. refresh_tokens (리프레시 토큰)
 
-관리자 리프레시 토큰 관리
+사용자 리프레시 토큰 관리 (일반 사용자 + 관리자)
 
 ```sql
-CREATE TABLE admin_refresh_tokens (
+CREATE TABLE refresh_tokens (
   id VARCHAR(36) PRIMARY KEY,
-  admin_user_id VARCHAR(36) NOT NULL,
+  user_id VARCHAR(36) NOT NULL,
   token VARCHAR(500) UNIQUE NOT NULL,
   expires_at TIMESTAMP NOT NULL,
   is_revoked BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-  FOREIGN KEY (admin_user_id) REFERENCES admin_users(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_token (token),
-  INDEX idx_admin_user (admin_user_id),
+  INDEX idx_user (user_id),
   INDEX idx_revoked_expires (is_revoked, expires_at)
 );
 ```
@@ -191,9 +214,70 @@ CREATE TABLE admin_refresh_tokens (
 
 ### Public API (인증 불필요)
 
-#### 1. 신청 가능 여부 조회
+#### 1. 신청용 이메일 인증 코드 발송
 
-미팅석 또는 일반석의 신청 가능 여부를 확인
+```http
+POST /api/registrations/send-verification-code
+```
+
+**Request:**
+
+```typescript
+{
+  email: string
+}
+```
+
+**Response:**
+
+```typescript
+// 성공
+{
+  success: true,
+  message: "인증 코드가 발송되었습니다. (유효시간: 10분)"
+}
+
+// 중복 신청
+{
+  success: false,
+  error: "DUPLICATE_REGISTRATION",
+  message: "이미 신청한 이메일입니다. 로그인하여 신청 내역을 확인하세요."
+}
+```
+
+#### 2. 이메일 인증 코드 검증
+
+```http
+POST /api/registrations/verify-email
+```
+
+**Request:**
+
+```typescript
+{
+  email: string,
+  code: string
+}
+```
+
+**Response:**
+
+```typescript
+// 성공
+{
+  success: true,
+  message: "이메일 인증이 완료되었습니다."
+}
+
+// 실패
+{
+  success: false,
+  error: "INVALID_CODE",
+  message: "인증 코드가 올바르지 않습니다."
+}
+```
+
+#### 3. 신청 가능 여부 조회
 
 ```http
 GET /api/registrations/availability
@@ -206,7 +290,7 @@ GET /api/registrations/availability
 | isMeeting   | boolean | ✅   | 미팅석 여부               |
 | school      | string  | ✅   | 'CNU' \| 'KAIST'          |
 | gender      | string  | ✅   | 'M' \| 'F'                |
-| time        | number  | ⚠️   | 1 \| 2 (미팅석일 때 필수) |
+| time        | number  | ✅   | 1 \| 2                    |
 | memberCount | number  | ✅   | 1 \| 2                    |
 
 **Response:**
@@ -217,33 +301,11 @@ GET /api/registrations/availability
 }
 ```
 
-**비즈니스 로직:**
-
-미팅석인 경우:
-
-- KAIST 남성: 10명 제한
-- KAIST 여성: 8명 제한
-- CNU 남성: 8명 제한
-- CNU 여성: 10명 제한
-
-일반석인 경우:
-
-- 타임당 남성: 28명 제한
-- 타임당 여성: 28명 제한
-
-#### 2. 일반석 좌석 조회
-
-특정 타임의 일반석 좌석별 현황 조회
+#### 4. 일반석 좌석 조회
 
 ```http
-GET /api/seats/general
+GET /api/seats/general?time=1
 ```
-
-**Query Parameters:**
-
-| 파라미터 | 타입   | 필수 | 설명   |
-| -------- | ------ | ---- | ------ |
-| time     | number | ✅   | 1 \| 2 |
 
 **Response:**
 
@@ -251,98 +313,89 @@ GET /api/seats/general
 {
   seats: [
     {
-      seatId: number, // 좌석 ID
-      availableCount: number, // 잔여 인원
-      femaleCount: number, // 현재 여성 인원
-      maleCount: number, // 현재 남성 인원
+      seatId: number,
+      availableCount: number,
+      femaleCount: number,
+      maleCount: number,
     },
   ];
 }
 ```
 
-#### 3. 신청하기
-
-일일호프 신청 생성
+#### 5. 신청하기
 
 ```http
 POST /api/registrations
 ```
 
-**Request Body:**
+**Request:**
 
 ```typescript
 {
-  isMeeting: boolean,           // 미팅석 여부
-  email: string,                // 대표 이메일
-  gender: 'M' | 'F',           // 성별
-  school: 'CNU' | 'KAIST',     // 학교
-  time: 1 | 2,                  // 타임
-  seatId?: number,              // 좌석 ID (일반석일 때 필수)
+  email: string,                // 검증된 이메일
+  school: "CNU" | "KAIST",
+  gender: "M" | "F",
+  seatType: "MEETING" | "GENERAL",
+  timeSlot: 1 | 2,
+  seatId?: number,              // 자유석만
   members: [
     {
-      name: string,             // 이름
-      department: string,       // 학과
-      studentId: string,        // 학번
-      birthYear: number,        // 출생년도
-      phoneNumber: string,      // 전화번호
-      email?: string            // 이메일 (신청자만)
+      name: string,
+      department: string,
+      studentId: string,
+      birthYear: number,
+      phoneNumber: string
     }
   ]
 }
 ```
 
-**검증 규칙:**
+**비즈니스 로직:**
 
-미팅석:
-
-- `members` 배열 길이 = 2 (필수)
-- `time` 필수
-- `members[0].email` 필수
-
-일반석:
-
-- `members` 배열 길이 = 1 (필수)
-- `seatId` 필수
-- `members[0].email` 필수
+1. 최근 검증된 `email_verifications` 확인 (30분 이내)
+2. `email`로 `users` 테이블에서 User 조회/생성 (role: APPLICANT)
+3. 중복 신청 확인
+4. `Registration` 생성 (`user_id` 연결)
+5. `RegistrationMember` 생성
+   - 신청자(order=1): `user_id` 연결
+   - 동반인(order=2): `user_id = null`
+6. 신청 완료 이메일 발송
 
 **Response:**
 
 ```typescript
 // 성공
-200 OK
+{
+  registrationId: string,
+  message: "신청이 완료되었습니다."
+}
 
 // 좌석 선점 실패
-422 Unprocessable Entity
-{
+422 {
   message: "이미 선점된 좌석입니다"
 }
 
-// 기타 검증 실패
-400 Bad Request
-{
-  message: string
+// 이메일 인증 만료
+400 {
+  message: "이메일 인증이 만료되었습니다. 다시 인증해주세요."
 }
 ```
 
 ---
 
-### Admin API (JWT 인증 필요)
+### Auth API
 
-#### 관리자 인증
-
-##### 1. 인증 코드 발송
-
-관리자 이메일로 6자리 인증 코드 발송
+#### 6. 로그인용 인증 코드 발송
 
 ```http
-POST /api/admin/auth/send-code
+POST /api/auth/send-code
 ```
 
-**Request Body:**
+**Request:**
 
 ```typescript
 {
-  email: string;
+  email: string
 }
 ```
 
@@ -350,24 +403,23 @@ POST /api/admin/auth/send-code
 
 ```typescript
 {
-  success: boolean;
+  success: true,
+  message: "인증 코드가 발송되었습니다."
 }
 ```
 
-##### 2. 인증 코드 확인 및 로그인
-
-인증 코드 확인 후 Access Token + Refresh Token 발급
+#### 7. 로그인 (코드 검증)
 
 ```http
-POST /api/admin/auth/verify-code
+POST /api/auth/verify-code
 ```
 
-**Request Body:**
+**Request:**
 
 ```typescript
 {
   email: string,
-  code: string  // 6자리
+  code: string
 }
 ```
 
@@ -375,24 +427,27 @@ POST /api/admin/auth/verify-code
 
 ```typescript
 {
-  accessToken: string,   // 15분 유효
-  refreshToken: string   // 30일 유효
+  accessToken: string,   // 15분
+  refreshToken: string,  // 30일
+  user: {
+    id: string,
+    email: string,
+    role: "APPLICANT" | "ADMIN" | "SUPER_ADMIN"
+  }
 }
 ```
 
-##### 3. Access Token 갱신
-
-Refresh Token으로 새로운 Access Token 발급
+#### 8. Access Token 갱신
 
 ```http
-POST /api/admin/auth/refresh
+POST /api/auth/refresh
 ```
 
-**Request Body:**
+**Request:**
 
 ```typescript
 {
-  refreshToken: string;
+  refreshToken: string
 }
 ```
 
@@ -405,34 +460,103 @@ POST /api/admin/auth/refresh
 }
 ```
 
-##### 4. 로그아웃
-
-Refresh Token 무효화
+#### 9. 로그아웃
 
 ```http
-POST /api/admin/auth/logout
-```
-
-**Headers:**
-
-```
-Authorization: Bearer {refreshToken}
+POST /api/auth/logout
+Authorization: Bearer {accessToken}
 ```
 
 **Response:**
 
 ```typescript
 {
-  success: boolean;
+  success: boolean
 }
 ```
 
-#### 관리자 기능
+---
 
-##### 1. 신청 목록 조회
+### My API (로그인 필수 - APPLICANT)
+
+#### 10. 내 신청 목록 조회
+
+```http
+GET /api/my/registrations
+Authorization: Bearer {accessToken}
+```
+
+**Response:**
+
+```typescript
+{
+  myRegistrations: [
+    {
+      id: string,
+      role: "APPLICANT",
+      school: string,
+      gender: string,
+      seatType: string,
+      timeSlot: string,
+      status: "PENDING" | "PAYMENT_CONFIRMED" | "CANCELLED",
+      seat: { seatNumber: string, tableSize: number } | null,
+      members: [
+        {
+          order: number,
+          name: string,
+          department: string,
+          studentId: string,
+          birthYear: number,
+          phoneNumber: string
+        }
+      ],
+      createdAt: string
+    }
+  ],
+  companionRegistrations: [  // 내가 동반인으로 참여한 신청
+    {
+      id: string,
+      role: "COMPANION",
+      applicantName: string,
+      ...
+    }
+  ]
+}
+```
+
+#### 11. 신청 수정
+
+```http
+PATCH /api/my/registrations/:id
+Authorization: Bearer {accessToken}
+```
+
+**Request:**
+
+```typescript
+{
+  seatId?: number,  // 좌석 변경 (자유석만)
+  members?: [...]   // 개인정보 수정
+}
+```
+
+#### 12. 신청 취소
+
+```http
+DELETE /api/my/registrations/:id
+Authorization: Bearer {accessToken}
+```
+
+---
+
+### Admin API (로그인 필수 - ADMIN, SUPER_ADMIN)
+
+#### 13. 전체 신청 목록 조회
 
 ```http
 GET /api/admin/registrations
+Authorization: Bearer {accessToken}
+@Roles('ADMIN', 'SUPER_ADMIN')
 ```
 
 **Query Parameters:**
@@ -446,117 +570,28 @@ GET /api/admin/registrations
 | timeSlot | string | ❌   | 'TIME_1' \| 'TIME_2'                            |
 | school   | string | ❌   | 'CNU' \| 'KAIST'                                |
 
-**Response:**
-
-```typescript
-{
-  data: [
-    {
-      id: string,
-      email: string,
-      school: string,
-      gender: string,
-      seatType: string,
-      timeSlot: string,
-      status: string,
-      seatId: number | null,
-      createdAt: string,
-      members: [
-        {
-          order: number,
-          name: string,
-          department: string,
-          studentId: string,
-          birthYear: number,
-          phoneNumber: string,
-          email: string | null
-        }
-      ]
-    }
-  ],
-  total: number,
-  page: number,
-  limit: number
-}
-```
-
-##### 2. 신청 상세 조회
-
-```http
-GET /api/admin/registrations/:id
-```
-
-**Response:**
-
-```typescript
-{
-  id: string,
-  email: string,
-  school: string,
-  gender: string,
-  seatType: string,
-  timeSlot: string,
-  status: string,
-  seatId: number | null,
-  createdAt: string,
-  updatedAt: string,
-  members: [
-    {
-      id: string,
-      order: number,
-      name: string,
-      department: string,
-      studentId: string,
-      birthYear: number,
-      phoneNumber: string,
-      email: string | null
-    }
-  ]
-}
-```
-
-##### 3. 신청 상태 변경
-
-입금 확인 등의 상태 변경
+#### 14. 입금 확인 (상태 변경)
 
 ```http
 PATCH /api/admin/registrations/:id/status
+Authorization: Bearer {accessToken}
+@Roles('ADMIN', 'SUPER_ADMIN')
 ```
 
-**Request Body:**
+**Request:**
 
 ```typescript
 {
-  status: 'PENDING' | 'PAYMENT_CONFIRMED' | 'CANCELLED';
+  status: "PENDING" | "PAYMENT_CONFIRMED" | "CANCELLED"
 }
 ```
 
-**Response:**
-
-```typescript
-{
-  success: boolean;
-}
-```
-
-##### 4. 신청 삭제
-
-```http
-DELETE /api/admin/registrations/:id
-```
-
-**Response:**
-
-```typescript
-{
-  success: boolean;
-}
-```
-
-##### 5. 통계 조회
+#### 15. 통계 조회
 
 ```http
 GET /api/admin/statistics
+Authorization: Bearer {accessToken}
+@Roles('ADMIN', 'SUPER_ADMIN')
 ```
 
 **Response:**
@@ -587,9 +622,7 @@ GET /api/admin/statistics
         female: number
       }
     },
-    time2: {
-      // 동일 구조
-    }
+    time2: { /* 동일 구조 */ }
   }
 }
 ```
@@ -598,74 +631,66 @@ GET /api/admin/statistics
 
 ## 페이즈별 구현 계획
 
-### Phase 1: 데이터베이스 및 엔티티 (1일)
-
-#### 목표
-
-기존 테이블 제거 및 새로운 스키마 구축
+### Phase 1: 데이터베이스 및 엔티티 ✅ **완료**
 
 #### 작업 내역
 
-1. **기존 코드 정리**
-   - [ ] 기존 엔티티 파일 삭제
-     - `user.entity.ts`
-     - `role.entity.ts`
-     - `booth.entity.ts`
-     - `stage.entity.ts`
-     - `safety-count.entity.ts`
-     - `safety-minute-stats.entity.ts`
-     - `visitor-analytics.entity.ts`
-   - [ ] 기존 모듈 삭제
-     - `UsersModule`
-     - `BoothModule`
-     - `StageModule`
-     - `SafetyModule`
-     - `AnalyticsModule`
-   - [ ] 기존 마이그레이션 파일 백업/삭제
+1. ✅ Enum 타입 정의 (7개)
+   - `UserRole` (APPLICANT, ADMIN, SUPER_ADMIN)
+   - `EmailVerificationPurpose` (REGISTRATION, LOGIN, ADMIN_LOGIN)
+   - School, Gender, SeatType, TimeSlot, RegistrationStatus
 
-2. **Enum 타입 정의**
-   - [ ] `src/common/enums/` 디렉토리 생성
-   - [ ] `school.enum.ts` (CNU, KAIST)
-   - [ ] `gender.enum.ts` (MALE, FEMALE)
-   - [ ] `seat-type.enum.ts` (MEETING, GENERAL)
-   - [ ] `time-slot.enum.ts` (TIME_1, TIME_2)
-   - [ ] `registration-status.enum.ts` (PENDING, PAYMENT_CONFIRMED, CANCELLED)
-   - [ ] `admin-role.enum.ts` (SUPER_ADMIN, ADMIN)
-   - [ ] `email-verification-purpose.enum.ts` (ADMIN_LOGIN)
+2. ✅ 엔티티 생성 (6개)
+   - `User` (users)
+   - `RefreshToken` (refresh_tokens)
+   - `EmailVerification` (email_verifications)
+   - `Registration` (registrations)
+   - `RegistrationMember` (registration_members)
+   - `Seat` (seats)
 
-3. **엔티티 생성**
-   - [ ] `registration.entity.ts`
-   - [ ] `registration-member.entity.ts`
-   - [ ] `seat.entity.ts`
-   - [ ] `admin-user.entity.ts`
-   - [ ] `email-verification.entity.ts`
-   - [ ] `admin-refresh-token.entity.ts`
+3. ✅ 모듈 구조 생성
+   - `user/` 모듈
+   - `auth/` 모듈
+   - `registration/` 모듈
+   - `seat/` 모듈
 
-4. **마이그레이션 생성**
-   - [ ] `npm run migration:generate -- -n InitialSchema`
-   - [ ] 마이그레이션 파일 검토
-   - [ ] 인덱스 확인
-
-5. **시드 데이터 작성**
-   - [ ] `src/database/seeds/` 디렉토리 생성
-   - [ ] `seat.seed.ts`: 좌석 데이터 (4인석 8개, 6인석 4개)
-   - [ ] `admin-user.seed.ts`: 관리자 계정 1개
-
-6. **실행 및 검증**
-   - [ ] `npm run migration:run`
-   - [ ] `npm run seed:run`
-   - [ ] DB 테이블 구조 확인
-   - [ ] 시드 데이터 확인
-
-**완료 기준:**
-
-- 모든 테이블이 생성됨
-- 좌석 56개가 삽입됨
-- 관리자 계정 1개 생성됨
+4. ✅ 시드 데이터
+   - 좌석 56개
+   - 관리자 계정 1개
 
 ---
 
-### Phase 2: DTO 및 공통 모듈 (0.5일)
+### Phase 2: 마이그레이션 및 DB 설정 (예정)
+
+#### 목표
+
+기존 테이블 제거 및 새로운 스키마 적용
+
+#### 작업 내역
+
+1. [ ] 마이그레이션 생성
+   ```bash
+   npm run migration:generate -- src/migrations/UserBasedSystem
+   ```
+
+2. [ ] 마이그레이션 실행
+   ```bash
+   npm run migration:run
+   ```
+
+3. [ ] 시드 실행
+   ```bash
+   npm run seed
+   ```
+
+4. [ ] DB 검증
+   - 모든 테이블 생성 확인
+   - 외래 키 제약조건 확인
+   - 인덱스 생성 확인
+
+---
+
+### Phase 3: DTO 및 검증 (예정)
 
 #### 목표
 
@@ -673,240 +698,148 @@ API 요청/응답 타입 정의 및 검증 설정
 
 #### 작업 내역
 
-1. **DTO 디렉토리 구조**
+1. [ ] Registration DTOs
+   - `SendVerificationCodeDto`
+   - `VerifyEmailDto`
+   - `CheckAvailabilityDto`
+   - `CreateRegistrationDto`
+   - `UpdateRegistrationDto`
 
-   ```
-   src/
-     modules/
-       registration/
-         dto/
-           check-availability.dto.ts
-           create-registration.dto.ts
-           get-general-seats.dto.ts
-       admin/
-         dto/
-           admin-login.dto.ts
-           admin-refresh.dto.ts
-           registration-query.dto.ts
-           update-status.dto.ts
-   ```
+2. [ ] Auth DTOs
+   - `SendCodeDto`
+   - `VerifyCodeDto`
+   - `RefreshTokenDto`
 
-2. **Registration DTOs**
-   - [ ] `CheckAvailabilityDto`
-     - isMeeting, school, gender, time, memberCount
-     - class-validator 데코레이터 추가
-   - [ ] `CreateRegistrationDto`
-     - isMeeting, email, gender, school, time, seatId, members
-     - 커스텀 검증: 미팅석 2명, 일반석 1명
-   - [ ] `MemberDto`
-     - name, department, studentId, birthYear, phoneNumber, email
+3. [ ] Admin DTOs
+   - `RegistrationQueryDto`
+   - `UpdateStatusDto`
 
-3. **Admin DTOs**
-   - [ ] `AdminSendCodeDto`
-   - [ ] `AdminVerifyCodeDto`
-   - [ ] `RefreshTokenDto`
-   - [ ] `RegistrationQueryDto` (페이지네이션)
-   - [ ] `UpdateStatusDto`
+4. [ ] Response DTOs
+   - `TokenResponseDto`
+   - `PaginatedResponseDto<T>`
 
-4. **Response DTOs**
-   - [ ] `AvailabilityResponseDto`
-   - [ ] `GeneralSeatsResponseDto`
-   - [ ] `TokenResponseDto`
-   - [ ] `PaginatedResponseDto<T>`
-
-5. **Validation Pipes 설정**
-   - [ ] `main.ts`에 전역 ValidationPipe 설정
-   - [ ] 커스텀 ValidationPipe (whitelist, transform 옵션)
-
-6. **Exception Filters**
-   - [ ] `HttpExceptionFilter` 생성
-   - [ ] 에러 응답 포맷 통일
-
-**완료 기준:**
-
-- 모든 DTO가 정의됨
-- class-validator 검증이 작동함
-- 에러 응답이 일관된 포맷으로 반환됨
+5. [ ] Validation Pipes
+   - 전역 ValidationPipe 설정
+   - 커스텀 검증 (학번 형식, 이메일 도메인 등)
 
 ---
 
-### Phase 3: 관리자 인증 (1일)
+### Phase 4: Auth 모듈 구현 (예정)
 
 #### 목표
 
-이메일 인증 기반 관리자 로그인 및 JWT 토큰 시스템 구현
+이메일 인증 기반 로그인 시스템 구현
 
 #### 작업 내역
 
-1. **JWT 모듈 설정**
-   - [ ] `@nestjs/jwt` 설치
-   - [ ] `.env`에 JWT_SECRET 추가
-   - [ ] JwtModule.register() 설정
+1. [ ] EmailService
+   - 인증 코드 발송
+   - 이메일 템플릿
 
-2. **EmailService 구현**
-   - [ ] `src/common/services/email.service.ts` 생성
-   - [ ] nodemailer 설정
-   - [ ] 인증 코드 발송 메서드
-   - [ ] 이메일 템플릿 작성
+2. [ ] AuthService
+   - `sendVerificationCode()`
+   - `verifyCode()`
+   - `refreshAccessToken()`
+   - `logout()`
 
-3. **AdminAuthService 구현**
-   - [ ] `sendVerificationCode()`
-     - 관리자 이메일 확인
-     - 6자리 코드 생성
-     - DB 저장 (10분 유효)
-     - 이메일 발송
-   - [ ] `verifyCodeAndGenerateTokens()`
-     - 코드 검증
-     - Access Token 생성 (15분)
-     - Refresh Token 생성 (30일)
-     - DB 저장
-   - [ ] `refreshAccessToken()`
-     - Refresh Token 검증
-     - 새 Access Token 발급
-     - Refresh Token Rotation
-   - [ ] `logout()`
-     - Refresh Token 무효화
+3. [ ] Guards
+   - `JwtAuthGuard`
+   - `RolesGuard`
 
-4. **Guards 구현**
-   - [ ] `JwtAuthGuard` (passport-jwt 기반)
-   - [ ] `@CurrentAdmin()` 데코레이터
+4. [ ] Decorators
+   - `@CurrentUser()`
+   - `@Roles()`
 
-5. **API 엔드포인트**
-   - [ ] `POST /api/admin/auth/send-code`
-   - [ ] `POST /api/admin/auth/verify-code`
-   - [ ] `POST /api/admin/auth/refresh`
-   - [ ] `POST /api/admin/auth/logout`
-
-6. **테스트**
-   - [ ] 인증 코드 발송 테스트
-   - [ ] 로그인 플로우 테스트
-   - [ ] Token Rotation 테스트
-   - [ ] 만료 토큰 처리 테스트
-
-**완료 기준:**
-
-- 관리자 로그인이 작동함
-- Access Token으로 보호된 엔드포인트 접근 가능
-- Refresh Token으로 갱신 가능
-- 로그아웃 시 토큰 무효화됨
+5. [ ] AuthController
+   - POST `/auth/send-code`
+   - POST `/auth/verify-code`
+   - POST `/auth/refresh`
+   - POST `/auth/logout`
 
 ---
 
-### Phase 4: 신청 기능 (1.5일)
+### Phase 5: Registration 모듈 구현 (예정)
 
 #### 목표
 
-일일호프 신청 관련 Public API 3개 구현
+신청 관련 Public API 구현
 
 #### 작업 내역
 
-1. **RegistrationModule 생성**
-   - [ ] `src/modules/registration/` 디렉토리 생성
-   - [ ] RegistrationController
-   - [ ] RegistrationService
-   - [ ] TypeOrmModule.forFeature([Registration, RegistrationMember, Seat])
+1. [ ] RegistrationService
+   - `sendVerificationCode()` (신청용)
+   - `verifyEmail()` (신청용)
+   - `checkAvailability()`
+   - `getGeneralSeats()`
+   - `createRegistration()`
 
-2. **GET /api/registrations/availability**
-   - [ ] `checkAvailability()` 메서드 구현
-   - [ ] 미팅석 인원 제한 로직
-     - KAIST 남: 10, KAIST 여: 8, CNU 남: 8, CNU 여: 10
-   - [ ] 일반석 인원 제한 로직
-     - 타임당 남/녀 각 28명
-   - [ ] memberCount 고려 (2명 신청 시)
+2. [ ] RegistrationController
+   - POST `/registrations/send-verification-code`
+   - POST `/registrations/verify-email`
+   - GET `/registrations/availability`
+   - GET `/seats/general`
+   - POST `/registrations`
 
-3. **GET /api/seats/general**
-   - [ ] `getGeneralSeats()` 메서드 구현
-   - [ ] 좌석별 현재 인원 집계
-   - [ ] availableCount, femaleCount, maleCount 계산
-
-4. **POST /api/registrations**
-   - [ ] `createRegistration()` 메서드 구현
-   - [ ] 트랜잭션 처리
-   - [ ] 검증 로직
-     - 이메일 중복 체크
-     - 미팅석: 2명 필수, 타임 필수
-     - 일반석: 1명 필수, 좌석 선택 필수
-   - [ ] 좌석 중복 방지 (Pessimistic Lock)
-   - [ ] Registration + RegistrationMember 저장
-   - [ ] 에러 처리
-     - 422: "이미 선점된 좌석입니다"
-     - 400: 기타 검증 오류
-
-5. **동시성 처리**
-   - [ ] 좌석 선택 시 Pessimistic Write Lock
-   - [ ] 트랜잭션 격리 수준 설정
-
-6. **테스트**
-   - [ ] 신청 가능 여부 조회 테스트
-   - [ ] 좌석 조회 테스트
-   - [ ] 신청 생성 테스트
-   - [ ] 동시 신청 시나리오 테스트
-   - [ ] 인원 제한 테스트
-
-**완료 기준:**
-
-- 3개 Public API가 모두 작동함
-- 동시에 같은 좌석 선택 시 1명만 성공
-- 인원 제한이 정확히 작동함
+3. [ ] 비즈니스 로직
+   - 이메일 중복 확인
+   - 인원 제한 확인
+   - 좌석 중복 방지 (Pessimistic Lock)
+   - User 자동 생성/조회
+   - 신청 완료 이메일 발송
 
 ---
 
-### Phase 5: 관리자 기능 (1일)
+### Phase 6: My 모듈 구현 (예정)
 
 #### 목표
 
-관리자 대시보드를 위한 CRUD API 구현
+로그인 사용자의 신청 관리 API 구현
 
 #### 작업 내역
 
-1. **AdminModule 생성**
-   - [ ] `src/modules/admin/` 디렉토리 생성
-   - [ ] AdminController
-   - [ ] AdminService
+1. [ ] MyRegistrationController
+   - GET `/my/registrations`
+   - PATCH `/my/registrations/:id`
+   - DELETE `/my/registrations/:id`
 
-2. **GET /api/admin/registrations**
-   - [ ] 페이지네이션 구현
-   - [ ] 필터링 (status, seatType, timeSlot, school)
-   - [ ] 정렬 (createdAt desc)
-   - [ ] members 조인
+2. [ ] MyRegistrationService
+   - `getMyRegistrations()`
+   - `updateMyRegistration()`
+   - `cancelMyRegistration()`
 
-3. **GET /api/admin/registrations/:id**
-   - [ ] 신청 상세 조회
-   - [ ] members 포함
-
-4. **PATCH /api/admin/registrations/:id/status**
-   - [ ] 상태 변경 (입금 확인 등)
-   - [ ] 검증: CANCELLED 상태는 변경 불가
-
-5. **DELETE /api/admin/registrations/:id**
-   - [ ] Soft Delete 또는 상태 변경
-   - [ ] Cascade로 members도 삭제
-
-6. **GET /api/admin/statistics**
-   - [ ] 전체 통계 집계
-   - [ ] 상태별, 좌석유형별, 타임별 카운트
-   - [ ] 미팅석: 학교/성별 세부 카운트
-   - [ ] 일반석: 성별 카운트
-
-7. **권한 확인**
-   - [ ] JwtAuthGuard 적용
-   - [ ] Role-based access (필요 시)
-
-8. **테스트**
-   - [ ] 목록 조회 테스트
-   - [ ] 상세 조회 테스트
-   - [ ] 상태 변경 테스트
-   - [ ] 통계 집계 테스트
-
-**완료 기준:**
-
-- 관리자 API 5개가 모두 작동함
-- 통계가 정확하게 집계됨
-- JWT 인증이 적용됨
+3. [ ] 권한 검증
+   - 본인 신청만 수정/취소 가능
 
 ---
 
-### Phase 6: 테스트 및 최적화 (1일)
+### Phase 7: Admin 모듈 구현 (예정)
+
+#### 목표
+
+관리자 대시보드 API 구현
+
+#### 작업 내역
+
+1. [ ] AdminController
+   - GET `/admin/registrations`
+   - GET `/admin/registrations/:id`
+   - PATCH `/admin/registrations/:id/status`
+   - DELETE `/admin/registrations/:id`
+   - GET `/admin/statistics`
+
+2. [ ] AdminService
+   - `getAllRegistrations()`
+   - `getRegistrationById()`
+   - `updateStatus()`
+   - `deleteRegistration()`
+   - `getStatistics()`
+
+3. [ ] 권한 적용
+   - `@Roles('ADMIN', 'SUPER_ADMIN')`
+
+---
+
+### Phase 8: 테스트 및 최적화 (예정)
 
 #### 목표
 
@@ -914,48 +847,32 @@ API 요청/응답 타입 정의 및 검증 설정
 
 #### 작업 내역
 
-1. **단위 테스트**
-   - [ ] RegistrationService 테스트
-   - [ ] AdminAuthService 테스트
-   - [ ] 각 메서드별 테스트 케이스
+1. [ ] 단위 테스트
+   - Service 메서드
+   - DTO 검증
 
-2. **E2E 테스트**
-   - [ ] 신청 플로우 E2E 테스트
-   - [ ] 관리자 로그인 플로우 테스트
-   - [ ] API 시나리오 테스트
+2. [ ] E2E 테스트
+   - 신청 플로우
+   - 로그인 플로우
+   - 수정/취소 플로우
 
-3. **동시성 테스트**
-   - [ ] 좌석 동시 선택 시나리오
-   - [ ] Race Condition 테스트
-   - [ ] Lock 동작 확인
+3. [ ] 동시성 테스트
+   - 좌석 동시 선택
+   - Race condition 확인
 
-4. **성능 최적화**
-   - [ ] 쿼리 분석 (EXPLAIN)
-   - [ ] N+1 쿼리 해결
-   - [ ] 인덱스 최적화
-   - [ ] 불필요한 조인 제거
+4. [ ] 성능 최적화
+   - 쿼리 최적화
+   - 인덱스 튜닝
+   - N+1 문제 해결
 
-5. **Rate Limiting**
-   - [ ] `@nestjs/throttler` 설치
-   - [ ] 인증 코드 발송: 이메일당 3회/시간
-   - [ ] 신청 API: IP당 10회/시간
+5. [ ] Rate Limiting
+   - 인증 코드 발송: 이메일당 3회/시간
+   - 코드 검증: IP당 5회/10분
+   - 신청 API: IP당 10회/시간
 
-6. **로깅**
-   - [ ] Winston 또는 Pino 설정
-   - [ ] 에러 로깅
-   - [ ] 민감정보 마스킹
-
-7. **문서화**
-   - [ ] Swagger 설정
-   - [ ] API 문서 자동 생성
-   - [ ] DTO 예시 추가
-
-**완료 기준:**
-
-- 모든 테스트 통과
-- 동시성 이슈 없음
-- Rate Limiting 적용됨
-- Swagger 문서 완성됨
+6. [ ] Swagger 문서
+   - API 문서 자동 생성
+   - DTO 예시 추가
 
 ---
 
@@ -968,6 +885,16 @@ API 요청/응답 타입 정의 및 검증 설정
 - **유효기간**: 15분
 - **용도**: API 요청 인증
 - **저장 위치**: 메모리 (프론트엔드)
+- **페이로드**:
+  ```typescript
+  {
+    type: 'ACCESS',
+    userId: string,
+    email: string,
+    role: UserRole,
+    exp: 15분
+  }
+  ```
 
 #### Refresh Token
 
@@ -975,6 +902,33 @@ API 요청/응답 타입 정의 및 검증 설정
 - **용도**: Access Token 갱신
 - **저장 위치**: HttpOnly Cookie 또는 Secure Storage
 - **Rotation**: 갱신 시 새로운 Refresh Token 발급
+- **페이로드**:
+  ```typescript
+  {
+    type: 'REFRESH',
+    userId: string,
+    tokenId: string,
+    exp: 30일
+  }
+  ```
+
+### 이메일 인증 플로우
+
+#### 신청 시
+
+1. 이메일 입력
+2. 인증 코드 발송 (purpose: REGISTRATION)
+3. 코드 검증 → `isVerified = true`
+4. 30분 이내 신청 완료
+5. User 자동 생성 (role: APPLICANT)
+6. Registration 생성
+
+#### 로그인 시
+
+1. 이메일 입력
+2. 인증 코드 발송 (purpose: LOGIN)
+3. 코드 검증 → Access Token + Refresh Token 발급
+4. 내 신청 조회/수정/취소 가능
 
 ### 보안 기능
 
@@ -999,7 +953,6 @@ API 요청/응답 타입 정의 및 검증 설정
    - 트랜잭션 격리 수준: READ COMMITTED
 
 5. **민감정보 보호**
-   - 전화번호 암호화 (선택)
    - 로그에서 개인정보 제외
    - HTTPS 필수
 
@@ -1026,6 +979,9 @@ SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-password
 SMTP_FROM=noreply@one-day-pub.site
+
+# Admin
+ADMIN_EMAIL=admin@one-day-pub.site
 
 # Rate Limiting
 THROTTLE_TTL=60
@@ -1065,17 +1021,15 @@ THROTTLE_LIMIT=10
 
 ---
 
-## 총 소요 시간: 6일
+## 변경 이력
 
-| Phase    | 소요 시간 | 주요 작업                       |
-| -------- | --------- | ------------------------------- |
-| Phase 1  | 1일       | DB 스키마, 엔티티, 마이그레이션 |
-| Phase 2  | 0.5일     | DTO, 검증, 공통 모듈            |
-| Phase 3  | 1일       | 관리자 인증 (이메일 + JWT)      |
-| Phase 4  | 1.5일     | 신청 API 3개                    |
-| Phase 5  | 1일       | 관리자 API 5개                  |
-| Phase 6  | 1일       | 테스트, 최적화, 문서화          |
-| **합계** | **6일**   |                                 |
+| 날짜       | 항목                     | 변경 내용                                    |
+| ---------- | ------------------------ | -------------------------------------------- |
+| 2025-10-22 | User 기반 설계로 전환    | Admin + Applicant를 users 테이블로 통합     |
+| 2025-10-22 | 이메일 인증 플로우 추가  | 신청 전 이메일 인증 필수화                   |
+| 2025-10-22 | 로그인 시스템 추가       | 일반 사용자도 로그인하여 신청 관리 가능      |
+| 2025-10-22 | registration_members     | userId 추가, email 제거                      |
+| 2025-10-22 | email_verifications      | isUsed, updatedAt 추가, purpose 확장         |
 
 ---
 
