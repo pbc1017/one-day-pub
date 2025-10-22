@@ -212,7 +212,7 @@ jobs:
           kustomize edit set image \
             chansparcs/one-day-pub-api=${REGISTRY}/one-day-pub-api:${API_TAG} \
             chansparcs/one-day-pub-web=${REGISTRY}/one-day-pub-web:${WEB_TAG}
-          
+
           echo "✅ Image tags updated in kustomization.yaml"
           cat kustomization.yaml
 
@@ -283,7 +283,7 @@ jobs:
           kustomize edit set image \
             chansparcs/one-day-pub-api=${REGISTRY}/one-day-pub-api:${API_TAG} \
             chansparcs/one-day-pub-web=${REGISTRY}/one-day-pub-web:${WEB_TAG}
-          
+
           echo "✅ Image tags updated in kustomization.yaml"
           cat kustomization.yaml
 
