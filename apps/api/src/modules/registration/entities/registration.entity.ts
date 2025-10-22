@@ -29,12 +29,12 @@ export class Registration extends ModifiableEntity {
   @ApiProperty({ description: '신청 ID' })
   id: string;
 
-  @Column('varchar', { length: 36 })
+  @Column('varchar', { length: 36, name: 'user_id' })
   @ApiProperty({ description: '사용자 ID' })
   userId: string;
 
   @ManyToOne(() => User, { nullable: false })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   @ApiProperty({ description: '사용자 정보' })
   user: User;
 
@@ -46,11 +46,11 @@ export class Registration extends ModifiableEntity {
   @ApiProperty({ description: '성별', enum: Gender })
   gender: Gender;
 
-  @Column({ type: 'enum', enum: SeatType })
+  @Column({ type: 'enum', enum: SeatType, name: 'seat_type' })
   @ApiProperty({ description: '좌석 유형', enum: SeatType })
   seatType: SeatType;
 
-  @Column({ type: 'enum', enum: TimeSlot })
+  @Column({ type: 'enum', enum: TimeSlot, name: 'time_slot' })
   @ApiProperty({ description: '타임', enum: TimeSlot })
   timeSlot: TimeSlot;
 
@@ -62,12 +62,12 @@ export class Registration extends ModifiableEntity {
   @ApiProperty({ description: '신청 상태', enum: RegistrationStatus })
   status: RegistrationStatus;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: true, name: 'seat_id' })
   @ApiProperty({ description: '좌석 ID (자유석만)', nullable: true })
   seatId: number | null;
 
   @ManyToOne(() => Seat, { nullable: true })
-  @JoinColumn({ name: 'seatId' })
+  @JoinColumn({ name: 'seat_id' })
   @ApiProperty({ description: '좌석 정보', nullable: true })
   seat: Seat | null;
 

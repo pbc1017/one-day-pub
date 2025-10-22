@@ -13,7 +13,7 @@ export class User extends ModifiableEntity {
   @ApiProperty({ description: '사용자 ID' })
   id: string;
 
-  @Column({ unique: true, length: 255 })
+  @Column({ type: 'varchar', unique: true, length: 255 })
   @ApiProperty({ description: '이메일' })
   email: string;
 

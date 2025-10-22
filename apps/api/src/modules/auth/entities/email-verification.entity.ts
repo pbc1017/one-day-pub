@@ -17,11 +17,11 @@ export class EmailVerification {
   @ApiProperty({ description: '인증 ID' })
   id: string;
 
-  @Column({ length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   @ApiProperty({ description: '이메일' })
   email: string;
 
-  @Column({ length: 6 })
+  @Column({ type: 'varchar', length: 6 })
   @ApiProperty({ description: '6자리 인증 코드' })
   code: string;
 
@@ -29,23 +29,23 @@ export class EmailVerification {
   @ApiProperty({ description: '인증 목적', enum: EmailVerificationPurpose })
   purpose: EmailVerificationPurpose;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', default: false, name: 'is_verified' })
   @ApiProperty({ description: '인증 완료 여부' })
   isVerified: boolean;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', default: false, name: 'is_used' })
   @ApiProperty({ description: '사용 완료 여부 (신청 완료 등)' })
   isUsed: boolean;
 
-  @Column('timestamp')
+  @Column({ type: 'timestamp', name: 'expires_at' })
   @ApiProperty({ description: '만료 시간' })
   expiresAt: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   @ApiProperty({ description: '생성 일시' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   @ApiProperty({ description: '수정 일시' })
   updatedAt: Date;
 }

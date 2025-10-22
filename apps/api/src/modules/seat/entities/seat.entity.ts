@@ -9,15 +9,15 @@ export class Seat extends ModifiableEntity {
   @ApiProperty({ description: '좌석 ID' })
   id: number;
 
-  @Column({ type: 'varchar', unique: true, length: 10 })
+  @Column({ type: 'varchar', unique: true, length: 10, name: 'seat_number' })
   @ApiProperty({ description: '좌석 번호 (T1, T2, ...)' })
   seatNumber: string;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'table_size' })
   @ApiProperty({ description: '테이블 인원 (4 or 6)' })
   tableSize: number;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean', default: true, name: 'is_active' })
   @ApiProperty({ description: '활성화 여부' })
   isActive: boolean;
 }

@@ -12,26 +12,26 @@ export class RefreshToken extends ModifiableEntity {
   @ApiProperty({ description: '토큰 ID' })
   id: string;
 
-  @Column('varchar', { length: 36 })
+  @Column('varchar', { length: 36, name: 'user_id' })
   @ApiProperty({ description: '사용자 ID' })
   userId: string;
 
-  @Column({ unique: true, length: 500 })
+  @Column({ type: 'varchar', unique: true, length: 500 })
   @ApiProperty({ description: 'JWT 리프레시 토큰' })
   token: string;
 
-  @Column('timestamp')
+  @Column({ type: 'timestamp', name: 'expires_at' })
   @ApiProperty({ description: '만료 시간' })
   expiresAt: Date;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: 'boolean', default: false, name: 'is_revoked' })
   @ApiProperty({ description: '취소 여부' })
   isRevoked: boolean;
 
   @ManyToOne(() => User, user => user.refreshTokens, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   @ApiProperty({ description: '사용자 정보' })
   user: User;
 }
