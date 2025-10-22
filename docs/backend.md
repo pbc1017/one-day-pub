@@ -718,31 +718,65 @@ Zod 스키마를 사용한 타입 정의 및 검증 설정
 
 이메일 인증 기반 로그인 시스템 구현
 
+#### 현재 구조
+
+```
+src/modules/user/
+├── entities/
+│   ├── user.entity.ts ✅
+│   ├── refresh-token.entity.ts ✅
+│   └── index.ts ✅
+└── user.module.ts ✅
+
+src/modules/auth/
+├── entities/
+│   ├── email-verification.entity.ts ✅
+│   └── index.ts ✅
+├── dto/
+│   ├── send-code.dto.ts ✅
+│   ├── verify-code.dto.ts ✅
+│   ├── refresh-token.dto.ts ✅
+│   └── index.ts ✅
+├── strategies/
+│   └── jwt.strategy.ts
+├── auth.service.ts
+├── auth.controller.ts
+└── auth.module.ts
+```
+
 #### 작업 내역
 
-1. [ ] EmailService
+1. [ ] EmailService (공통 서비스)
+   - `src/common/services/email.service.ts`
    - 인증 코드 발송
-   - 이메일 템플릿
+   - 이메일 템플릿 (신청 완료, 인증 코드 등)
+   - SMTP 설정 (nodemailer)
 
 2. [ ] AuthService
-   - `sendVerificationCode()`
-   - `verifyCode()`
-   - `refreshAccessToken()`
-   - `logout()`
+   - `src/modules/auth/auth.service.ts`
+   - `sendVerificationCode()` - 이메일로 6자리 코드 발송
+   - `verifyCode()` - 코드 검증 및 JWT 토큰 발급
+   - `refreshAccessToken()` - Refresh Token으로 Access Token 갱신
+   - `logout()` - Refresh Token 무효화
 
-3. [ ] Guards
-   - `JwtAuthGuard`
-   - `RolesGuard`
+3. [ ] Guards (공통)
+   - `src/common/guards/jwt-auth.guard.ts` - JWT 인증 검증
+   - `src/common/guards/roles.guard.ts` - 역할 기반 권한 검증
 
-4. [ ] Decorators
-   - `@CurrentUser()`
-   - `@Roles()`
+4. [ ] Decorators (공통)
+   - `src/common/decorators/current-user.decorator.ts` - 현재 사용자 정보 주입
+   - `src/common/decorators/roles.decorator.ts` - 역할 메타데이터 설정
 
 5. [ ] AuthController
-   - POST `/auth/send-code`
-   - POST `/auth/verify-code`
-   - POST `/auth/refresh`
-   - POST `/auth/logout`
+   - `src/modules/auth/auth.controller.ts`
+   - POST `/api/auth/send-code` - 로그인용 인증 코드 발송
+   - POST `/api/auth/verify-code` - 코드 검증 및 로그인
+   - POST `/api/auth/refresh` - Access Token 갱신
+   - POST `/api/auth/logout` - 로그아웃
+
+6. [ ] JWT Strategy
+   - `src/modules/auth/strategies/jwt.strategy.ts`
+   - Passport JWT 전략 구성
 
 ---
 
@@ -752,28 +786,60 @@ Zod 스키마를 사용한 타입 정의 및 검증 설정
 
 신청 관련 Public API 구현
 
+#### 현재 구조
+
+```
+src/modules/registration/
+├── entities/
+│   ├── registration.entity.ts ✅
+│   ├── registration-member.entity.ts ✅
+│   └── index.ts ✅
+├── dto/
+│   ├── send-verification-code.dto.ts ✅
+│   ├── verify-email.dto.ts ✅
+│   ├── check-availability.dto.ts ✅
+│   ├── create-registration.dto.ts ✅
+│   └── index.ts ✅
+├── registration.service.ts
+├── registration.controller.ts
+└── registration.module.ts
+
+src/modules/seat/
+├── entities/
+│   ├── seat.entity.ts ✅
+│   └── index.ts ✅
+├── seat.service.ts
+└── seat.module.ts
+```
+
 #### 작업 내역
 
 1. [ ] RegistrationService
-   - `sendVerificationCode()` (신청용)
-   - `verifyEmail()` (신청용)
-   - `checkAvailability()`
-   - `getGeneralSeats()`
-   - `createRegistration()`
+   - `src/modules/registration/registration.service.ts`
+   - `sendVerificationCode()` - 신청용 이메일 인증 코드 발송
+   - `verifyEmail()` - 이메일 코드 검증 (중복 신청 확인 포함)
+   - `checkAvailability()` - 신청 가능 여부 조회
+   - `createRegistration()` - 신청 생성 (트랜잭션)
 
-2. [ ] RegistrationController
-   - POST `/registrations/send-verification-code`
-   - POST `/registrations/verify-email`
-   - GET `/registrations/availability`
-   - GET `/seats/general`
-   - POST `/registrations`
+2. [ ] SeatService
+   - `src/modules/seat/seat.service.ts`
+   - `getGeneralSeats()` - 일반석 목록 및 가용 좌석 조회
+   - 좌석 점유율 계산
 
-3. [ ] 비즈니스 로직
-   - 이메일 중복 확인
-   - 인원 제한 확인
-   - 좌석 중복 방지 (Pessimistic Lock)
-   - User 자동 생성/조회
-   - 신청 완료 이메일 발송
+3. [ ] RegistrationController
+   - `src/modules/registration/registration.controller.ts`
+   - POST `/api/registrations/send-verification-code` - 이메일 인증 요청
+   - POST `/api/registrations/verify-email` - 이메일 인증 확인
+   - GET `/api/registrations/availability` - 신청 가능 여부 조회
+   - GET `/api/seats/general` - 일반석 조회
+   - POST `/api/registrations` - 신청 생성
+
+4. [ ] 비즈니스 로직
+   - 이메일 중복 확인 (활성 신청 기준)
+   - 인원 제한 확인 (학교/성별/타임별)
+   - 좌석 중복 방지 (Pessimistic Write Lock)
+   - User 자동 생성/조회 (APPLICANT 역할)
+   - 신청 완료 이메일 발송 (로그인 링크 포함)
 
 ---
 
@@ -783,20 +849,32 @@ Zod 스키마를 사용한 타입 정의 및 검증 설정
 
 로그인 사용자의 신청 관리 API 구현
 
+#### 구조
+
+```
+src/modules/my/
+├── my-registration.controller.ts
+├── my-registration.service.ts
+└── my.module.ts
+```
+
 #### 작업 내역
 
-1. [ ] MyRegistrationController
-   - GET `/my/registrations`
-   - PATCH `/my/registrations/:id`
-   - DELETE `/my/registrations/:id`
+1. [ ] MyRegistrationService
+   - `src/modules/my/my-registration.service.ts`
+   - `getMyRegistrations()` - 내 신청 목록 조회 (신청자 + 동반인)
+   - `updateMyRegistration()` - 신청 정보 수정 (좌석 변경, 개인정보 수정)
+   - `cancelMyRegistration()` - 신청 취소
 
-2. [ ] MyRegistrationService
-   - `getMyRegistrations()`
-   - `updateMyRegistration()`
-   - `cancelMyRegistration()`
+2. [ ] MyRegistrationController
+   - `src/modules/my/my-registration.controller.ts`
+   - GET `/api/my/registrations` - 내 신청 목록 (JwtAuthGuard)
+   - PATCH `/api/my/registrations/:id` - 신청 수정 (JwtAuthGuard)
+   - DELETE `/api/my/registrations/:id` - 신청 취소 (JwtAuthGuard)
 
 3. [ ] 권한 검증
-   - 본인 신청만 수정/취소 가능
+   - 본인 신청만 수정/취소 가능 (user.id === registration.userId)
+   - APPLICANT 역할 전용
 
 ---
 
@@ -806,24 +884,44 @@ Zod 스키마를 사용한 타입 정의 및 검증 설정
 
 관리자 대시보드 API 구현
 
+#### 구조
+
+```
+src/modules/admin/
+├── admin-registration.controller.ts
+├── admin-registration.service.ts
+├── admin-statistics.controller.ts
+├── admin-statistics.service.ts
+└── admin.module.ts
+```
+
 #### 작업 내역
 
-1. [ ] AdminController
-   - GET `/admin/registrations`
-   - GET `/admin/registrations/:id`
-   - PATCH `/admin/registrations/:id/status`
-   - DELETE `/admin/registrations/:id`
-   - GET `/admin/statistics`
+1. [ ] AdminRegistrationService
+   - `src/modules/admin/admin-registration.service.ts`
+   - `getAllRegistrations()` - 전체 신청 목록 (페이지네이션, 필터)
+   - `getRegistrationById()` - 특정 신청 상세 조회
+   - `updateStatus()` - 신청 상태 변경 (입금 확인 등)
+   - `deleteRegistration()` - 신청 삭제
 
-2. [ ] AdminService
-   - `getAllRegistrations()`
-   - `getRegistrationById()`
-   - `updateStatus()`
-   - `deleteRegistration()`
-   - `getStatistics()`
+2. [ ] AdminStatisticsService
+   - `src/modules/admin/admin-statistics.service.ts`
+   - `getStatistics()` - 통계 데이터 집계
 
-3. [ ] 권한 적용
-   - `@Roles('ADMIN', 'SUPER_ADMIN')`
+3. [ ] AdminRegistrationController
+   - `src/modules/admin/admin-registration.controller.ts`
+   - GET `/api/admin/registrations` - 전체 신청 목록
+   - GET `/api/admin/registrations/:id` - 신청 상세
+   - PATCH `/api/admin/registrations/:id/status` - 상태 변경
+   - DELETE `/api/admin/registrations/:id` - 신청 삭제
+
+4. [ ] AdminStatisticsController
+   - `src/modules/admin/admin-statistics.controller.ts`
+   - GET `/api/admin/statistics` - 통계 조회
+
+5. [ ] 권한 적용
+   - `@Roles('ADMIN', 'SUPER_ADMIN')` 데코레이터 사용
+   - RolesGuard로 역할 검증
 
 ---
 
