@@ -1,7 +1,7 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 import { AppModule } from './app.module.js';
 
@@ -11,14 +11,8 @@ async function bootstrap() {
   // Cookie parser middleware - 쿠키 파싱을 위해 필요
   app.use(cookieParser());
 
-  // Global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-    })
-  );
+  // Global Zod validation pipe
+  app.useGlobalPipes(new ZodValidationPipe());
 
   // Enable CORS
   app.enableCors({
