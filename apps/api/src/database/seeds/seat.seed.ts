@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 
-import { Seat } from '../../entities/seat.entity.js';
+import { Seat } from '../../modules/seat/entities/seat.entity.js';
 
 export async function seedSeats(dataSource: DataSource) {
   const seatRepo = dataSource.getRepository(Seat);
