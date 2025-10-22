@@ -712,11 +712,11 @@ Zod 스키마를 사용한 타입 정의 및 검증 설정
 
 ---
 
-### Phase 4: Auth 모듈 구현 (예정)
+### Phase 4: Auth + Email 모듈 구현 (예정)
 
 #### 목표
 
-이메일 인증 기반 로그인 시스템 구현
+이메일 인증 기반 로그인 시스템 및 이메일 발송 시스템 구현
 
 #### 현재 구조
 
@@ -727,6 +727,14 @@ src/modules/user/
 │   ├── refresh-token.entity.ts ✅
 │   └── index.ts ✅
 └── user.module.ts ✅
+
+src/modules/email/
+├── templates/
+│   ├── verification-code.template.ts
+│   ├── registration-complete.template.ts
+│   └── index.ts
+├── email.service.ts
+└── email.module.ts
 
 src/modules/auth/
 ├── entities/
@@ -746,37 +754,59 @@ src/modules/auth/
 
 #### 작업 내역
 
-1. [ ] EmailService (공통 서비스)
-   - `src/common/services/email.service.ts`
-   - 인증 코드 발송
-   - 이메일 템플릿 (신청 완료, 인증 코드 등)
-   - SMTP 설정 (nodemailer)
+**1. EmailService (별도 모듈)**
 
-2. [ ] AuthService
-   - `src/modules/auth/auth.service.ts`
-   - `sendVerificationCode()` - 이메일로 6자리 코드 발송
-   - `verifyCode()` - 코드 검증 및 JWT 토큰 발급
-   - `refreshAccessToken()` - Refresh Token으로 Access Token 갱신
-   - `logout()` - Refresh Token 무효화
+- `src/modules/email/email.service.ts`
+- `sendVerificationCode()` - 인증 코드 발송 (로그인/신청용)
+- `sendRegistrationComplete()` - 신청 완료 알림 (로그인 링크 포함)
+- `sendEmail()` - 범용 이메일 발송
+- SMTP 설정 (nodemailer)
 
-3. [ ] Guards (공통)
-   - `src/common/guards/jwt-auth.guard.ts` - JWT 인증 검증
-   - `src/common/guards/roles.guard.ts` - 역할 기반 권한 검증
+- `src/modules/email/templates/`
+- 이메일 템플릿 관리
+- HTML 템플릿 생성 함수
 
-4. [ ] Decorators (공통)
-   - `src/common/decorators/current-user.decorator.ts` - 현재 사용자 정보 주입
-   - `src/common/decorators/roles.decorator.ts` - 역할 메타데이터 설정
+**2. AuthService**
 
-5. [ ] AuthController
-   - `src/modules/auth/auth.controller.ts`
-   - POST `/api/auth/send-code` - 로그인용 인증 코드 발송
-   - POST `/api/auth/verify-code` - 코드 검증 및 로그인
-   - POST `/api/auth/refresh` - Access Token 갱신
-   - POST `/api/auth/logout` - 로그아웃
+- `src/modules/auth/auth.service.ts`
+- `sendVerificationCode()` - 6자리 코드 생성 및 DB 저장, EmailService 호출
+- `verifyCode()` - 코드 검증 및 JWT 토큰 발급
+- `refreshAccessToken()` - Refresh Token으로 Access Token 갱신 (Rotation)
+- `logout()` - Refresh Token 무효화 (is_revoked = true)
 
-6. [ ] JWT Strategy
-   - `src/modules/auth/strategies/jwt.strategy.ts`
-   - Passport JWT 전략 구성
+**3. AuthController**
+
+- `src/modules/auth/auth.controller.ts`
+- POST `/api/auth/send-code` - 로그인용 인증 코드 발송 (Public)
+- POST `/api/auth/verify-code` - 코드 검증 및 로그인 (Public)
+- POST `/api/auth/refresh` - Access Token 갱신 (Public)
+- POST `/api/auth/logout` - 로그아웃 (JwtAuthGuard)
+
+**4. JWT Strategy**
+
+- `src/modules/auth/strategies/jwt.strategy.ts`
+- Passport JWT 전략 구성
+- Access Token 검증
+- User 정보 주입
+
+**5. Guards (공통)**
+
+- `src/common/guards/jwt-auth.guard.ts` - JWT 인증 검증
+- `src/common/guards/roles.guard.ts` - 역할 기반 권한 검증
+
+**6. Decorators (공통)**
+
+- `src/common/decorators/current-user.decorator.ts` - 현재 사용자 정보 주입
+- `src/common/decorators/roles.decorator.ts` - 역할 메타데이터 설정
+
+**7. 필요한 패키지**
+
+- `@nestjs/passport`
+- `@nestjs/jwt`
+- `passport`
+- `passport-jwt`
+- `nodemailer`
+- `@types/nodemailer`
 
 ---
 
@@ -818,61 +848,71 @@ src/modules/seat/
 #### 작업 내역
 
 **1. RegistrationService - Public APIs**
-   - `src/modules/registration/registration.service.ts`
-   - `sendVerificationCode()` - 신청용 이메일 인증 코드 발송
-   - `verifyEmail()` - 이메일 코드 검증 (중복 신청 확인 포함)
-   - `checkAvailability()` - 신청 가능 여부 조회
-   - `createRegistration()` - 신청 생성 (트랜잭션)
+
+- `src/modules/registration/registration.service.ts`
+- `sendVerificationCode()` - 신청용 이메일 인증 코드 발송 (EmailService 사용)
+- `verifyEmail()` - 이메일 코드 검증 (중복 신청 확인 포함)
+- `checkAvailability()` - 신청 가능 여부 조회
+- `createRegistration()` - 신청 생성 (트랜잭션, EmailService로 완료 알림)
 
 **2. RegistrationService - Authenticated APIs**
-   - `getMyRegistrations()` - 내 신청 목록 조회 (신청자 + 동반인)
-   - `getRegistrationById()` - 특정 신청 상세 (본인 확인)
-   - `updateRegistration()` - 신청 수정 (좌석 변경, 개인정보)
-   - `cancelRegistration()` - 신청 취소 (status = CANCELLED)
+
+- `getMyRegistrations()` - 내 신청 목록 조회 (신청자 + 동반인)
+- `getRegistrationById()` - 특정 신청 상세 (본인 확인)
+- `updateRegistration()` - 신청 수정 (좌석 변경, 개인정보)
+- `cancelRegistration()` - 신청 취소 (status = CANCELLED)
 
 **3. RegistrationService - Admin APIs**
-   - `getAllRegistrations()` - 전체 신청 목록 (페이지네이션, 필터)
-   - `getRegistrationByIdAdmin()` - 신청 상세 (관리자용)
-   - `updateStatus()` - 상태 변경 (입금 확인 등)
-   - `deleteRegistration()` - 신청 삭제 (물리 삭제)
+
+- `getAllRegistrations()` - 전체 신청 목록 (페이지네이션, 필터)
+- `getRegistrationByIdAdmin()` - 신청 상세 (관리자용)
+- `updateStatus()` - 상태 변경 (입금 확인 등)
+- `deleteRegistration()` - 신청 삭제 (물리 삭제)
 
 **4. SeatService**
-   - `src/modules/seat/seat.service.ts`
-   - `getGeneralSeats()` - 일반석 목록 및 가용 좌석 조회
-   - 좌석 점유율 계산
+
+- `src/modules/seat/seat.service.ts`
+- `getGeneralSeats()` - 일반석 목록 및 가용 좌석 조회
+- 좌석 점유율 계산
 
 **5. RegistrationController**
-   - `src/modules/registration/registration.controller.ts`
-   
-   Public APIs:
-   - POST `/api/registrations/send-verification-code`
-   - POST `/api/registrations/verify-email`
-   - GET `/api/registrations/availability`
-   - POST `/api/registrations`
-   
-   Authenticated APIs (JwtAuthGuard):
-   - GET `/api/registrations/me`
-   - GET `/api/registrations/:id`
-   - PATCH `/api/registrations/:id`
-   - DELETE `/api/registrations/:id`
-   
-   Admin APIs (RolesGuard: ADMIN, SUPER_ADMIN):
-   - GET `/api/admin/registrations`
-   - GET `/api/admin/registrations/:id`
-   - PATCH `/api/admin/registrations/:id/status`
-   - DELETE `/api/admin/registrations/:id`
+
+- `src/modules/registration/registration.controller.ts`
+
+Public APIs:
+
+- POST `/api/registrations/send-verification-code`
+- POST `/api/registrations/verify-email`
+- GET `/api/registrations/availability`
+- POST `/api/registrations`
+
+Authenticated APIs (JwtAuthGuard):
+
+- GET `/api/registrations/me`
+- GET `/api/registrations/:id`
+- PATCH `/api/registrations/:id`
+- DELETE `/api/registrations/:id`
+
+Admin APIs (RolesGuard: ADMIN, SUPER_ADMIN):
+
+- GET `/api/admin/registrations`
+- GET `/api/admin/registrations/:id`
+- PATCH `/api/admin/registrations/:id/status`
+- DELETE `/api/admin/registrations/:id`
 
 **6. SeatController**
-   - `src/modules/seat/seat.controller.ts`
-   - GET `/api/seats/general?time=1` (Public)
+
+- `src/modules/seat/seat.controller.ts`
+- GET `/api/seats/general?time=1` (Public)
 
 **7. 비즈니스 로직**
-   - 이메일 중복 확인 (활성 신청 기준)
-   - 인원 제한 확인 (학교/성별/타임별)
-   - 좌석 중복 방지 (Pessimistic Write Lock)
-   - User 자동 생성/조회 (APPLICANT 역할)
-   - 신청 완료 이메일 발송 (로그인 링크 포함)
-   - 본인 확인 로직 (user.id === registration.userId)
+
+- 이메일 중복 확인 (활성 신청 기준)
+- 인원 제한 확인 (학교/성별/타임별)
+- 좌석 중복 방지 (Pessimistic Write Lock)
+- User 자동 생성/조회 (APPLICANT 역할)
+- 신청 완료 이메일 발송 (로그인 링크 포함)
+- 본인 확인 로직 (user.id === registration.userId)
 
 ---
 
