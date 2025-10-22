@@ -213,7 +213,7 @@ export default function PersonalInfoStep({
             type="text"
             value={data.name}
             onChange={e => handleChange('name', e.target.value)}
-            placeholder="홍길동"
+            placeholder={school === 'CNU' ? '김차차' : '김넙죽'}
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
@@ -227,7 +227,7 @@ export default function PersonalInfoStep({
             type="text"
             value={data.department}
             onChange={e => handleChange('department', e.target.value)}
-            placeholder="컴퓨터공학과"
+            placeholder="학과를 입력하세요"
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.department && <p className="mt-1 text-sm text-red-400">{errors.department}</p>}
@@ -241,7 +241,7 @@ export default function PersonalInfoStep({
             type="text"
             value={data.studentId}
             onChange={e => handleChange('studentId', e.target.value)}
-            placeholder={school === 'KAIST' ? '20201234 (8자리)' : '202012345 (9자리)'}
+            placeholder={school === 'KAIST' ? '20XXXXXX' : '20XXXXXXX'}
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.studentId && <p className="mt-1 text-sm text-red-400">{errors.studentId}</p>}
@@ -255,7 +255,7 @@ export default function PersonalInfoStep({
             type="text"
             value={data.birthYear}
             onChange={e => handleChange('birthYear', e.target.value)}
-            placeholder="2000"
+            placeholder="XXXX"
             maxLength={4}
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
@@ -270,7 +270,7 @@ export default function PersonalInfoStep({
             type="tel"
             value={data.phone}
             onChange={e => handleChange('phone', e.target.value)}
-            placeholder="010-1234-5678"
+            placeholder="010-XXXX-XXXX"
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.phone && <p className="mt-1 text-sm text-red-400">{errors.phone}</p>}
@@ -284,7 +284,7 @@ export default function PersonalInfoStep({
             type="email"
             value={data.email}
             onChange={e => handleChange('email', e.target.value)}
-            placeholder="example@email.com"
+            placeholder="주로 사용하는 이메일을 입력하세요"
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
@@ -304,7 +304,7 @@ export default function PersonalInfoStep({
               type="text"
               value={companionData.name}
               onChange={e => handleCompanionChange('name', e.target.value)}
-              placeholder="김철수"
+              placeholder={school === 'CNU' ? '이차차' : '이넙죽'}
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
             {companionErrors.name && (
@@ -320,7 +320,7 @@ export default function PersonalInfoStep({
               type="text"
               value={companionData.department}
               onChange={e => handleCompanionChange('department', e.target.value)}
-              placeholder="전자공학과"
+              placeholder="학과를 입력하세요"
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
             {companionErrors.department && (
@@ -336,7 +336,7 @@ export default function PersonalInfoStep({
               type="text"
               value={companionData.studentId}
               onChange={e => handleCompanionChange('studentId', e.target.value)}
-              placeholder={school === 'KAIST' ? '20209876 (8자리)' : '202098765 (9자리)'}
+              placeholder={school === 'KAIST' ? '20XXXXXX' : '20XXXXXXX'}
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
             {companionErrors.studentId && (
@@ -352,7 +352,7 @@ export default function PersonalInfoStep({
               type="text"
               value={companionData.birthYear}
               onChange={e => handleCompanionChange('birthYear', e.target.value)}
-              placeholder="2001"
+              placeholder="XXXX"
               maxLength={4}
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
@@ -369,7 +369,7 @@ export default function PersonalInfoStep({
               type="tel"
               value={companionData.phone}
               onChange={e => handleCompanionChange('phone', e.target.value)}
-              placeholder="010-9876-5432"
+              placeholder="010-XXXX-XXXX"
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
             {companionErrors.phone && (
