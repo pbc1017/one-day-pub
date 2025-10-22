@@ -684,28 +684,29 @@ Authorization: Bearer {accessToken}
 
 ---
 
-### Phase 3: DTO 및 검증 (진행 중) - Zod + nestjs-zod
+### Phase 3: DTO 및 검증 ✅ **완료** - Zod + nestjs-zod
 
 #### 목표
 
 Zod 스키마를 사용한 타입 정의 및 검증 설정
+
 - Single Source of Truth: 스키마와 타입을 한 곳에서 관리
 - 런타임 검증 + 컴파일 타임 타입 체크
 - 프론트엔드와 백엔드 간 스키마 공유
 
 #### 작업 내역
 
-1. [ ] packages/interface Zod 스키마
+1. ✅ packages/interface Zod 스키마
    - `schemas/common/` (response, token)
    - `schemas/auth/` (request)
    - `schemas/registration/` (member, request, response)
 
-2. [ ] apps/api nestjs-zod DTOs
+2. ✅ apps/api nestjs-zod DTOs
    - Registration DTOs (4개)
    - Auth DTOs (3개)
    - Common DTOs (1개)
 
-3. [ ] Validation Pipes
+3. ✅ Validation Pipes
    - 전역 ZodValidationPipe 설정
    - Query parameter 변환 처리
 
