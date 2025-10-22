@@ -1,0 +1,5 @@
+export enum RegistrationStatus {
+  PENDING = 'PENDING',
+  PAYMENT_CONFIRMED = 'PAYMENT_CONFIRMED',
+  CANCELLED = 'CANCELLED',
+}

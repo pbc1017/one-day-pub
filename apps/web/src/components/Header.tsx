@@ -4,12 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { useAuth } from '@/providers/AuthProvider';
-import { getTodayStagesUrl } from '@/utils/stages';
-
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -19,51 +15,12 @@ export default function Header() {
     setIsMenuOpen(false);
   };
 
-  const handleLogout = () => {
-    logout();
-    closeMenu();
-  };
-
-  // SAFETY 역할 확인
-  const hasSafetyRole = user?.roles?.includes('safety') || false;
-
-  // 기본 네비게이션 아이템
-  const basicNavigationItems = [
-    {
-      title: '부스 배치도',
-      url: '/booth',
-    },
-    {
-      title: '무대 시간표',
-      url: getTodayStagesUrl(),
-    },
-  ];
-
-  // 네비게이션 아이템 생성
+  // 네비게이션 아이템
   const navigationItems = [
-    ...basicNavigationItems,
-    ...(isAuthenticated
-      ? [
-          // SAFETY 역할을 가진 사용자에게만 안전 관리 메뉴 표시
-          ...(hasSafetyRole
-            ? [
-                {
-                  title: '안전 관리',
-                  url: '/safety',
-                },
-              ]
-            : []),
-          {
-            title: '마이페이지',
-            url: '/mypage',
-          },
-        ]
-      : [
-          {
-            title: '로그인',
-            url: '/login',
-          },
-        ]),
+    {
+      title: '신청하기',
+      url: '/register',
+    },
   ];
 
   return (
@@ -152,75 +109,28 @@ export default function Header() {
             </button>
           </div>
 
-          {/* 사용자 정보 (로그인된 경우) */}
-          {isAuthenticated && user && (
-            <div className="p-6 border-b border-[#E53C87]/50">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#E53C87] rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-6 h-6 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-white font-semibold">{user.displayName || '새 사용자'}</p>
-                  <p className="text-gray-400 text-sm">{user.email}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* 메뉴 항목들 */}
           <nav className="p-6">
-            {/* 로딩 중일 때 */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                <span className="ml-2 text-white">로딩 중...</span>
-              </div>
-            ) : (
-              <ul className="space-y-4">
-                {navigationItems.map((item, index) => (
-                  <li key={index}>
-                    <Link
-                      href={item.url}
-                      onClick={closeMenu}
-                      className="block w-full text-left p-4 text-lg font-semibold text-white bg-[#E53C87] hover:bg-[#F06292] rounded-2xl border-2 border-[#E53C87] hover:border-[#F06292] transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
-                    >
-                      {item.title}
-                    </Link>
-                  </li>
-                ))}
-
-                {/* 로그아웃 버튼 (로그인된 경우) */}
-                {isAuthenticated && (
-                  <li>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left p-4 text-lg font-semibold text-white bg-red-600 hover:bg-red-700 rounded-2xl border border-red-500 hover:border-red-700 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
-                    >
-                      로그아웃
-                    </button>
-                  </li>
-                )}
-              </ul>
-            )}
+            <ul className="space-y-4">
+              {navigationItems.map((item, index) => (
+                <li key={index}>
+                  <Link
+                    href={item.url}
+                    onClick={closeMenu}
+                    className="block w-full text-left p-4 text-lg font-semibold text-white bg-[#E53C87] hover:bg-[#F06292] rounded-2xl border-2 border-[#E53C87] hover:border-[#F06292] transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
+                  >
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </nav>
 
           {/* 하단 정보 */}
           <div className="absolute bottom-6 left-6 right-6 text-center">
             <div className="p-4 bg-[#0a0a0a] rounded-2xl border-2 border-[#E53C87]/50">
               <p className="text-[#E53C87] text-sm font-semibold">One Day Pub 2025</p>
-              <p className="text-gray-300 text-xs mt-1">KAIST Art & Music Festival</p>
+              <p className="text-gray-300 text-xs mt-1">KAIST 일일호프</p>
             </div>
           </div>
         </div>

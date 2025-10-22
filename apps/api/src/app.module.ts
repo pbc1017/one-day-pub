@@ -5,12 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import databaseConfig from './config/database.config.js';
-import { AnalyticsModule } from './modules/analytics/analytics.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
-import { BoothModule } from './modules/booth/booth.module.js';
-import { SafetyModule } from './modules/safety/safety.module.js';
-import { StageModule } from './modules/stage/stage.module.js';
-import { UsersModule } from './modules/users/users.module.js';
+import { RegistrationModule } from './modules/registration/registration.module.js';
+import { SeatModule } from './modules/seat/seat.module.js';
+import { UserModule } from './modules/user/user.module.js';
 
 @Module({
   imports: [
@@ -23,12 +21,10 @@ import { UsersModule } from './modules/users/users.module.js';
       useFactory: (configService: ConfigService) => configService.get('database'),
       inject: [ConfigService],
     }),
-    AnalyticsModule,
+    RegistrationModule,
+    SeatModule,
+    UserModule,
     AuthModule,
-    UsersModule,
-    BoothModule,
-    SafetyModule,
-    StageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

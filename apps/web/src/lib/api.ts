@@ -1,29 +1,21 @@
-import { isValidAuthResponse, AuthError } from '@one-day-pub/interface/dtos/auth.dto.js';
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // 빌드 환경 감지
 const isBuildTime = typeof window === 'undefined' && process.env.NODE_ENV === 'production';
 
-// ApiError 클래스는 @one-day-pub/interface에서 AuthError로 대체됨
+// Custom Error class
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public code: string
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
 
 // 빌드 타임용 mock 데이터 생성
-function getMockResponse(endpoint: string) {
-  if (endpoint.includes('booths')) {
-    return {
-      data: [],
-    };
-  }
-
-  if (endpoint.includes('stages')) {
-    return {
-      data: {
-        fri: [],
-        sat: [],
-      },
-    };
-  }
-
+function getMockResponse() {
   return {};
 }
 
@@ -77,19 +69,19 @@ async function refreshAccessToken(): Promise<{ accessToken: string } | null> {
       });
 
       if (!response.ok) {
-        throw new AuthError(`Token refresh failed: ${response.statusText}`, 'NETWORK_ERROR');
+        throw new ApiError(`Token refresh failed: ${response.statusText}`, 'NETWORK_ERROR');
       }
 
       const data = await response.json();
 
-      // 타입 가드를 사용한 응답 검증
-      if (isValidAuthResponse(data)) {
-        const { accessToken } = data.data!.tokens;
+      // 응답 검증
+      if (data && data.accessToken) {
+        const { accessToken } = data;
         setTokens(accessToken); // localStorage에는 access token만 저장
         console.log('✅ Token refresh successful');
         return { accessToken };
       } else {
-        throw new AuthError('Invalid refresh response format', 'PARSE_ERROR');
+        throw new ApiError('Invalid refresh response format', 'PARSE_ERROR');
       }
     } catch (error) {
       console.error('❌ Token refresh failed:', error);
@@ -127,7 +119,7 @@ async function apiClientInternal<T>(
   // 빌드 시에는 API 호출을 건너뛰고 적절한 mock 응답 반환
   if (isBuildTime) {
     console.log('Skipping API call during build time:', url);
-    return getMockResponse(endpoint) as T;
+    return getMockResponse() as T;
   }
 
   // Authorization 헤더 준비
@@ -157,13 +149,13 @@ async function apiClientInternal<T>(
         return apiClientInternal<T>(endpoint, options, true);
       } else {
         // 토큰 갱신 실패 - 에러 던지기
-        throw new AuthError('Authentication failed - please login again', 'EXPIRED_TOKEN');
+        throw new ApiError('Authentication failed - please login again', 'EXPIRED_TOKEN');
       }
     }
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new AuthError(
+      throw new ApiError(
         `API request failed: ${response.statusText} - ${errorText}`,
         'NETWORK_ERROR'
       );
@@ -172,15 +164,15 @@ async function apiClientInternal<T>(
     const data = await response.json();
     return data;
   } catch (error) {
-    // AuthError는 그대로 재던지기
-    if (error instanceof AuthError) {
+    // ApiError는 그대로 재던지기
+    if (error instanceof ApiError) {
       throw error;
     }
 
     // 네트워크 오류 시 개발환경에서는 적절한 mock 응답 반환
     if (error instanceof TypeError && error.message.includes('fetch failed')) {
       console.warn('Network error detected, returning mock response for development');
-      return getMockResponse(endpoint) as T;
+      return getMockResponse() as T;
     }
 
     throw error;

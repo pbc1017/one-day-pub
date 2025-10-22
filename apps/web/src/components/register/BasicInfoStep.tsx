@@ -2,8 +2,6 @@
  * 1단계: 기본 정보 입력
  */
 
-import React from 'react';
-
 import RadioGroup, { RadioOption } from '@/components/ui/RadioGroup';
 import SegmentedControl, { SegmentOption } from '@/components/ui/SegmentedControl';
 import { BasicInfo, School, Gender, SeatType, TimeSlot, PartySize } from '@/types/register';
@@ -42,7 +40,7 @@ const partySizeOptions: SegmentOption[] = [
 export default function BasicInfoStep({ data, onChange, onNext }: BasicInfoStepProps) {
   const isMeetingSeat = data.seatType === 'MEETING';
 
-  const handleChange = (field: keyof BasicInfo, value: any) => {
+  const handleChange = (field: keyof BasicInfo, value: BasicInfo[keyof BasicInfo]) => {
     const newData = { ...data, [field]: value };
 
     // 좌석 유형이 자유석으로 변경되면 타임과 인원 초기화
