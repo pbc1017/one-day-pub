@@ -4,12 +4,13 @@
 
 import React, { useState } from 'react';
 
-import { PersonalInfo, CompanionInfo } from '@/types/register';
+import { PersonalInfo, CompanionInfo, School } from '@/types/register';
 
 interface PersonalInfoStepProps {
   data: PersonalInfo;
   companionData?: CompanionInfo;
   partySize?: number;
+  school: School | null;
   onChange: (data: PersonalInfo) => void;
   onCompanionChange?: (data: CompanionInfo) => void;
   onNext: () => void;
@@ -20,6 +21,7 @@ export default function PersonalInfoStep({
   data,
   companionData,
   partySize = 1,
+  school,
   onChange,
   onCompanionChange,
   onNext,
@@ -32,8 +34,24 @@ export default function PersonalInfoStep({
 
   const is2People = partySize === 2;
 
+  // 전화번호 자동 포맷팅 함수
+  const formatPhoneNumber = (value: string): string => {
+    // 숫자만 추출
+    const numbers = value.replace(/\D/g, '');
+
+    // 포맷 적용
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    if (numbers.length <= 10) {
+      return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
+    }
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+  };
+
   const handleChange = (field: keyof PersonalInfo, value: string) => {
-    onChange({ ...data, [field]: value });
+    // 전화번호 입력 시 자동 포맷팅 적용
+    const formattedValue = field === 'phone' ? formatPhoneNumber(value) : value;
+    onChange({ ...data, [field]: formattedValue });
     // 에러 초기화
     if (errors[field]) {
       setErrors({ ...errors, [field]: undefined });
@@ -42,7 +60,9 @@ export default function PersonalInfoStep({
 
   const handleCompanionChange = (field: keyof CompanionInfo, value: string) => {
     if (onCompanionChange && companionData) {
-      onCompanionChange({ ...companionData, [field]: value });
+      // 전화번호 입력 시 자동 포맷팅 적용
+      const formattedValue = field === 'phone' ? formatPhoneNumber(value) : value;
+      onCompanionChange({ ...companionData, [field]: formattedValue });
       // 에러 초기화
       if (companionErrors[field]) {
         setCompanionErrors({ ...companionErrors, [field]: undefined });
@@ -55,7 +75,17 @@ export default function PersonalInfoStep({
 
     if (!data.name.trim()) newErrors.name = '이름을 입력해주세요';
     if (!data.department.trim()) newErrors.department = '학과를 입력해주세요';
-    if (!data.studentId.trim()) newErrors.studentId = '학번을 입력해주세요';
+
+    // 학번 검증: 학교별 자릿수 체크
+    if (!data.studentId.trim()) {
+      newErrors.studentId = '학번을 입력해주세요';
+    } else if (
+      (school === 'KAIST' && !/^\d{8}$/.test(data.studentId)) ||
+      (school === 'CNU' && !/^\d{9}$/.test(data.studentId))
+    ) {
+      newErrors.studentId = '올바른 학번 형식이 아닙니다';
+    }
+
     if (!data.birthYear.trim()) {
       newErrors.birthYear = '생년을 입력해주세요';
     } else if (!/^\d{4}$/.test(data.birthYear)) {
@@ -83,7 +113,17 @@ export default function PersonalInfoStep({
 
     if (!companionData.name.trim()) newErrors.name = '이름을 입력해주세요';
     if (!companionData.department.trim()) newErrors.department = '학과를 입력해주세요';
-    if (!companionData.studentId.trim()) newErrors.studentId = '학번을 입력해주세요';
+
+    // 학번 검증: 학교별 자릿수 체크
+    if (!companionData.studentId.trim()) {
+      newErrors.studentId = '학번을 입력해주세요';
+    } else if (
+      (school === 'KAIST' && !/^\d{8}$/.test(companionData.studentId)) ||
+      (school === 'CNU' && !/^\d{9}$/.test(companionData.studentId))
+    ) {
+      newErrors.studentId = '올바른 학번 형식이 아닙니다';
+    }
+
     if (!companionData.birthYear.trim()) {
       newErrors.birthYear = '생년을 입력해주세요';
     } else if (!/^\d{4}$/.test(companionData.birthYear)) {
@@ -159,7 +199,7 @@ export default function PersonalInfoStep({
             type="text"
             value={data.studentId}
             onChange={e => handleChange('studentId', e.target.value)}
-            placeholder="202012345"
+            placeholder={school === 'KAIST' ? '20201234 (8자리)' : '202012345 (9자리)'}
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.studentId && <p className="mt-1 text-sm text-red-400">{errors.studentId}</p>}
@@ -254,7 +294,7 @@ export default function PersonalInfoStep({
               type="text"
               value={companionData.studentId}
               onChange={e => handleCompanionChange('studentId', e.target.value)}
-              placeholder="202098765"
+              placeholder={school === 'KAIST' ? '20209876 (8자리)' : '202098765 (9자리)'}
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
             {companionErrors.studentId && (

@@ -242,6 +242,7 @@ export default function RegisterPage() {
               data={personalInfo}
               companionData={companionInfo}
               partySize={basicInfo.partySize || 1}
+              school={basicInfo.school}
               onChange={setPersonalInfo}
               onCompanionChange={setCompanionInfo}
               onNext={() => handleNext('personal')}
