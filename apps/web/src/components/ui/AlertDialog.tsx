@@ -37,20 +37,20 @@ export default function AlertDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[35vh] p-4">
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" onClick={onConfirm} />
 
       {/* Dialog */}
-      <div className="relative z-10 bg-[#1a1a1a] border-2 border-[#2a2a2a] rounded-3xl p-8 max-w-sm w-auto min-w-[320px] mx-auto shadow-2xl">
+      <div className="relative z-10 bg-[#1a1a1a] border-2 border-[#2a2a2a] rounded-3xl p-6 max-w-xs w-auto min-w-[280px] mx-auto shadow-2xl">
         {title && <h3 className="text-xl font-bold text-white mb-4">{title}</h3>}
 
-        <p className="text-base text-gray-300 mb-8 leading-relaxed">{message}</p>
+        <p className="text-lg text-gray-300 mb-6 leading-relaxed">{message}</p>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end -mr-3">
           <button
             onClick={onConfirm}
-            className="py-2 px-8 bg-transparent hover:bg-[#E53C87]/10 border-2 border-transparent hover:border-[#E53C87] rounded-xl transition-all duration-300 text-base font-bold text-[#E53C87]"
+            className="py-1.5 px-6 bg-transparent hover:bg-[#E53C87]/10 border-2 border-transparent hover:border-[#E53C87] rounded-xl transition-all duration-300 text-base font-bold text-[#E53C87]"
           >
             {confirmText}
           </button>

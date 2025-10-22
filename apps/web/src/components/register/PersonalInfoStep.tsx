@@ -164,6 +164,32 @@ export default function PersonalInfoStep({
     router.replace('/');
   };
 
+  // 필수 정보 완성 여부 체크
+  const isPersonalInfoComplete = (): boolean => {
+    return !!(
+      data.name.trim() &&
+      data.department.trim() &&
+      data.studentId.trim() &&
+      data.birthYear.trim() &&
+      data.phone.trim() &&
+      data.email.trim()
+    );
+  };
+
+  const isCompanionInfoComplete = (): boolean => {
+    if (!is2People || !companionData) return true;
+
+    return !!(
+      companionData.name.trim() &&
+      companionData.department.trim() &&
+      companionData.studentId.trim() &&
+      companionData.birthYear.trim() &&
+      companionData.phone.trim()
+    );
+  };
+
+  const isAllComplete = isPersonalInfoComplete() && isCompanionInfoComplete();
+
   return (
     <div className="space-y-6">
       <div>
@@ -362,7 +388,8 @@ export default function PersonalInfoStep({
         </button>
         <button
           onClick={handleNext}
-          className="flex-1 py-4 px-6 bg-[#E53C87] hover:bg-[#F06292] border-2 border-[#E53C87] hover:border-[#F06292] rounded-xl transition-all duration-300 text-lg font-bold text-white"
+          disabled={!isAllComplete}
+          className="flex-1 py-4 px-6 bg-[#E53C87] hover:bg-[#F06292] disabled:bg-gray-600 disabled:cursor-not-allowed border-2 border-[#E53C87] hover:border-[#F06292] disabled:border-gray-600 rounded-xl transition-all duration-300 text-lg font-bold text-white"
         >
           다음
         </button>
