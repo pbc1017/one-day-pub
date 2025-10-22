@@ -780,11 +780,11 @@ src/modules/auth/
 
 ---
 
-### Phase 5: Registration 모듈 구현 (예정)
+### Phase 5: Registration + Seat 모듈 구현 (예정)
 
 #### 목표
 
-신청 관련 Public API 구현
+신청 관련 전체 API 구현 (Public + Authenticated + Admin)
 
 #### 현재 구조
 
@@ -799,6 +799,9 @@ src/modules/registration/
 │   ├── verify-email.dto.ts ✅
 │   ├── check-availability.dto.ts ✅
 │   ├── create-registration.dto.ts ✅
+│   ├── update-registration.dto.ts
+│   ├── registration-query.dto.ts (Admin용)
+│   ├── update-status.dto.ts (Admin용)
 │   └── index.ts ✅
 ├── registration.service.ts
 ├── registration.controller.ts
@@ -814,118 +817,108 @@ src/modules/seat/
 
 #### 작업 내역
 
-1. [ ] RegistrationService
+**1. RegistrationService - Public APIs**
    - `src/modules/registration/registration.service.ts`
    - `sendVerificationCode()` - 신청용 이메일 인증 코드 발송
    - `verifyEmail()` - 이메일 코드 검증 (중복 신청 확인 포함)
    - `checkAvailability()` - 신청 가능 여부 조회
    - `createRegistration()` - 신청 생성 (트랜잭션)
 
-2. [ ] SeatService
+**2. RegistrationService - Authenticated APIs**
+   - `getMyRegistrations()` - 내 신청 목록 조회 (신청자 + 동반인)
+   - `getRegistrationById()` - 특정 신청 상세 (본인 확인)
+   - `updateRegistration()` - 신청 수정 (좌석 변경, 개인정보)
+   - `cancelRegistration()` - 신청 취소 (status = CANCELLED)
+
+**3. RegistrationService - Admin APIs**
+   - `getAllRegistrations()` - 전체 신청 목록 (페이지네이션, 필터)
+   - `getRegistrationByIdAdmin()` - 신청 상세 (관리자용)
+   - `updateStatus()` - 상태 변경 (입금 확인 등)
+   - `deleteRegistration()` - 신청 삭제 (물리 삭제)
+
+**4. SeatService**
    - `src/modules/seat/seat.service.ts`
    - `getGeneralSeats()` - 일반석 목록 및 가용 좌석 조회
    - 좌석 점유율 계산
 
-3. [ ] RegistrationController
+**5. RegistrationController**
    - `src/modules/registration/registration.controller.ts`
-   - POST `/api/registrations/send-verification-code` - 이메일 인증 요청
-   - POST `/api/registrations/verify-email` - 이메일 인증 확인
-   - GET `/api/registrations/availability` - 신청 가능 여부 조회
-   - GET `/api/seats/general` - 일반석 조회
-   - POST `/api/registrations` - 신청 생성
+   
+   Public APIs:
+   - POST `/api/registrations/send-verification-code`
+   - POST `/api/registrations/verify-email`
+   - GET `/api/registrations/availability`
+   - POST `/api/registrations`
+   
+   Authenticated APIs (JwtAuthGuard):
+   - GET `/api/registrations/me`
+   - GET `/api/registrations/:id`
+   - PATCH `/api/registrations/:id`
+   - DELETE `/api/registrations/:id`
+   
+   Admin APIs (RolesGuard: ADMIN, SUPER_ADMIN):
+   - GET `/api/admin/registrations`
+   - GET `/api/admin/registrations/:id`
+   - PATCH `/api/admin/registrations/:id/status`
+   - DELETE `/api/admin/registrations/:id`
 
-4. [ ] 비즈니스 로직
+**6. SeatController**
+   - `src/modules/seat/seat.controller.ts`
+   - GET `/api/seats/general?time=1` (Public)
+
+**7. 비즈니스 로직**
    - 이메일 중복 확인 (활성 신청 기준)
    - 인원 제한 확인 (학교/성별/타임별)
    - 좌석 중복 방지 (Pessimistic Write Lock)
    - User 자동 생성/조회 (APPLICANT 역할)
    - 신청 완료 이메일 발송 (로그인 링크 포함)
+   - 본인 확인 로직 (user.id === registration.userId)
 
 ---
 
-### Phase 6: My 모듈 구현 (예정)
+### Phase 6: Stats 모듈 구현 (예정)
 
 #### 목표
 
-로그인 사용자의 신청 관리 API 구현
+관리자용 통계 API 구현
 
 #### 구조
 
 ```
-src/modules/my/
-├── my-registration.controller.ts
-├── my-registration.service.ts
-└── my.module.ts
+src/modules/stats/
+├── stats.service.ts
+├── stats.controller.ts
+└── stats.module.ts
 ```
 
 #### 작업 내역
 
-1. [ ] MyRegistrationService
-   - `src/modules/my/my-registration.service.ts`
-   - `getMyRegistrations()` - 내 신청 목록 조회 (신청자 + 동반인)
-   - `updateMyRegistration()` - 신청 정보 수정 (좌석 변경, 개인정보 수정)
-   - `cancelMyRegistration()` - 신청 취소
+1. [ ] StatsService
+   - `src/modules/stats/stats.service.ts`
+   - `getOverallStats()` - 전체 통계 (총 신청, 상태별, 좌석 유형별)
+   - `getRegistrationStats()` - 신청 통계 (시간대별 트렌드)
+   - `getSeatOccupancy()` - 좌석 점유율 (일반석별 현황)
+   - `getDemographics()` - 인구통계 (학교/성별/타임별 분포)
 
-2. [ ] MyRegistrationController
-   - `src/modules/my/my-registration.controller.ts`
-   - GET `/api/my/registrations` - 내 신청 목록 (JwtAuthGuard)
-   - PATCH `/api/my/registrations/:id` - 신청 수정 (JwtAuthGuard)
-   - DELETE `/api/my/registrations/:id` - 신청 취소 (JwtAuthGuard)
+2. [ ] StatsController
+   - `src/modules/stats/stats.controller.ts`
+   - GET `/api/stats` - 전체 통계 (RolesGuard: ADMIN, SUPER_ADMIN)
+   - GET `/api/stats/registrations` - 신청 통계
+   - GET `/api/stats/seats` - 좌석 점유율
+   - GET `/api/stats/demographics` - 인구통계
 
-3. [ ] 권한 검증
-   - 본인 신청만 수정/취소 가능 (user.id === registration.userId)
-   - APPLICANT 역할 전용
+3. [ ] 통계 로직
+   - TypeORM 집계 쿼리 (COUNT, GROUP BY)
+   - 캐싱 전략 (Redis 또는 메모리 캐시)
+   - 실시간 대시보드 데이터 제공
 
----
-
-### Phase 7: Admin 모듈 구현 (예정)
-
-#### 목표
-
-관리자 대시보드 API 구현
-
-#### 구조
-
-```
-src/modules/admin/
-├── admin-registration.controller.ts
-├── admin-registration.service.ts
-├── admin-statistics.controller.ts
-├── admin-statistics.service.ts
-└── admin.module.ts
-```
-
-#### 작업 내역
-
-1. [ ] AdminRegistrationService
-   - `src/modules/admin/admin-registration.service.ts`
-   - `getAllRegistrations()` - 전체 신청 목록 (페이지네이션, 필터)
-   - `getRegistrationById()` - 특정 신청 상세 조회
-   - `updateStatus()` - 신청 상태 변경 (입금 확인 등)
-   - `deleteRegistration()` - 신청 삭제
-
-2. [ ] AdminStatisticsService
-   - `src/modules/admin/admin-statistics.service.ts`
-   - `getStatistics()` - 통계 데이터 집계
-
-3. [ ] AdminRegistrationController
-   - `src/modules/admin/admin-registration.controller.ts`
-   - GET `/api/admin/registrations` - 전체 신청 목록
-   - GET `/api/admin/registrations/:id` - 신청 상세
-   - PATCH `/api/admin/registrations/:id/status` - 상태 변경
-   - DELETE `/api/admin/registrations/:id` - 신청 삭제
-
-4. [ ] AdminStatisticsController
-   - `src/modules/admin/admin-statistics.controller.ts`
-   - GET `/api/admin/statistics` - 통계 조회
-
-5. [ ] 권한 적용
-   - `@Roles('ADMIN', 'SUPER_ADMIN')` 데코레이터 사용
+4. [ ] 권한 적용
+   - `@Roles('ADMIN', 'SUPER_ADMIN')` 데코레이터
    - RolesGuard로 역할 검증
 
 ---
 
-### Phase 8: 테스트 및 최적화 (예정)
+### Phase 7: 테스트 및 최적화 (예정)
 
 #### 목표
 
