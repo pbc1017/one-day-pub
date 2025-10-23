@@ -2,14 +2,17 @@
  * 3단계: 개인정보 입력
  */
 
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
-import { PersonalInfo, CompanionInfo } from '@/types/register';
+import AlertDialog from '@/components/ui/AlertDialog';
+import { PersonalInfo, CompanionInfo, School } from '@/types/register';
 
 interface PersonalInfoStepProps {
   data: PersonalInfo;
   companionData?: CompanionInfo;
   partySize?: number;
+  school: School | null;
   onChange: (data: PersonalInfo) => void;
   onCompanionChange?: (data: CompanionInfo) => void;
   onNext: () => void;
@@ -20,20 +23,39 @@ export default function PersonalInfoStep({
   data,
   companionData,
   partySize = 1,
+  school,
   onChange,
   onCompanionChange,
   onNext,
   onPrev,
 }: PersonalInfoStepProps) {
+  const router = useRouter();
   const [errors, setErrors] = useState<Partial<Record<keyof PersonalInfo, string>>>({});
   const [companionErrors, setCompanionErrors] = useState<
     Partial<Record<keyof CompanionInfo, string>>
   >({});
+  const [showMinorAlert, setShowMinorAlert] = useState(false);
 
   const is2People = partySize === 2;
 
+  // 전화번호 자동 포맷팅 함수
+  const formatPhoneNumber = (value: string): string => {
+    // 숫자만 추출
+    const numbers = value.replace(/\D/g, '');
+
+    // 포맷 적용
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    if (numbers.length <= 10) {
+      return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
+    }
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+  };
+
   const handleChange = (field: keyof PersonalInfo, value: string) => {
-    onChange({ ...data, [field]: value });
+    // 전화번호 입력 시 자동 포맷팅 적용
+    const formattedValue = field === 'phone' ? formatPhoneNumber(value) : value;
+    onChange({ ...data, [field]: formattedValue });
     // 에러 초기화
     if (errors[field]) {
       setErrors({ ...errors, [field]: undefined });
@@ -42,7 +64,9 @@ export default function PersonalInfoStep({
 
   const handleCompanionChange = (field: keyof CompanionInfo, value: string) => {
     if (onCompanionChange && companionData) {
-      onCompanionChange({ ...companionData, [field]: value });
+      // 전화번호 입력 시 자동 포맷팅 적용
+      const formattedValue = field === 'phone' ? formatPhoneNumber(value) : value;
+      onCompanionChange({ ...companionData, [field]: formattedValue });
       // 에러 초기화
       if (companionErrors[field]) {
         setCompanionErrors({ ...companionErrors, [field]: undefined });
@@ -55,11 +79,25 @@ export default function PersonalInfoStep({
 
     if (!data.name.trim()) newErrors.name = '이름을 입력해주세요';
     if (!data.department.trim()) newErrors.department = '학과를 입력해주세요';
-    if (!data.studentId.trim()) newErrors.studentId = '학번을 입력해주세요';
+
+    // 학번 검증: 학교별 자릿수 체크
+    if (!data.studentId.trim()) {
+      newErrors.studentId = '학번을 입력해주세요';
+    } else if (
+      (school === 'KAIST' && !/^\d{8}$/.test(data.studentId)) ||
+      (school === 'CNU' && !/^\d{9}$/.test(data.studentId))
+    ) {
+      newErrors.studentId = '올바른 학번 형식이 아닙니다';
+    }
+
     if (!data.birthYear.trim()) {
       newErrors.birthYear = '생년을 입력해주세요';
     } else if (!/^\d{4}$/.test(data.birthYear)) {
       newErrors.birthYear = '4자리 숫자로 입력해주세요 (예: 2000)';
+    } else if (parseInt(data.birthYear) >= 2007) {
+      // 미성년자 체크 (2007년생 이상)
+      setShowMinorAlert(true);
+      return false;
     }
     if (!data.phone.trim()) {
       newErrors.phone = '전화번호를 입력해주세요';
@@ -83,11 +121,25 @@ export default function PersonalInfoStep({
 
     if (!companionData.name.trim()) newErrors.name = '이름을 입력해주세요';
     if (!companionData.department.trim()) newErrors.department = '학과를 입력해주세요';
-    if (!companionData.studentId.trim()) newErrors.studentId = '학번을 입력해주세요';
+
+    // 학번 검증: 학교별 자릿수 체크
+    if (!companionData.studentId.trim()) {
+      newErrors.studentId = '학번을 입력해주세요';
+    } else if (
+      (school === 'KAIST' && !/^\d{8}$/.test(companionData.studentId)) ||
+      (school === 'CNU' && !/^\d{9}$/.test(companionData.studentId))
+    ) {
+      newErrors.studentId = '올바른 학번 형식이 아닙니다';
+    }
+
     if (!companionData.birthYear.trim()) {
       newErrors.birthYear = '생년을 입력해주세요';
     } else if (!/^\d{4}$/.test(companionData.birthYear)) {
       newErrors.birthYear = '4자리 숫자로 입력해주세요 (예: 2000)';
+    } else if (parseInt(companionData.birthYear) >= 2007) {
+      // 미성년자 체크 (2007년생 이상)
+      setShowMinorAlert(true);
+      return false;
     }
     if (!companionData.phone.trim()) {
       newErrors.phone = '전화번호를 입력해주세요';
@@ -107,6 +159,36 @@ export default function PersonalInfoStep({
       onNext();
     }
   };
+
+  const handleMinorAlert = () => {
+    router.replace('/');
+  };
+
+  // 필수 정보 완성 여부 체크
+  const isPersonalInfoComplete = (): boolean => {
+    return !!(
+      data.name.trim() &&
+      data.department.trim() &&
+      data.studentId.trim() &&
+      data.birthYear.trim() &&
+      data.phone.trim() &&
+      data.email.trim()
+    );
+  };
+
+  const isCompanionInfoComplete = (): boolean => {
+    if (!is2People || !companionData) return true;
+
+    return !!(
+      companionData.name.trim() &&
+      companionData.department.trim() &&
+      companionData.studentId.trim() &&
+      companionData.birthYear.trim() &&
+      companionData.phone.trim()
+    );
+  };
+
+  const isAllComplete = isPersonalInfoComplete() && isCompanionInfoComplete();
 
   return (
     <div className="space-y-6">
@@ -131,7 +213,7 @@ export default function PersonalInfoStep({
             type="text"
             value={data.name}
             onChange={e => handleChange('name', e.target.value)}
-            placeholder="홍길동"
+            placeholder={school === 'CNU' ? '김차차' : '김넙죽'}
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
@@ -145,7 +227,7 @@ export default function PersonalInfoStep({
             type="text"
             value={data.department}
             onChange={e => handleChange('department', e.target.value)}
-            placeholder="컴퓨터공학과"
+            placeholder="학과를 입력하세요"
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.department && <p className="mt-1 text-sm text-red-400">{errors.department}</p>}
@@ -159,7 +241,7 @@ export default function PersonalInfoStep({
             type="text"
             value={data.studentId}
             onChange={e => handleChange('studentId', e.target.value)}
-            placeholder="202012345"
+            placeholder={school === 'KAIST' ? '20XXXXXX' : '20XXXXXXX'}
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.studentId && <p className="mt-1 text-sm text-red-400">{errors.studentId}</p>}
@@ -173,7 +255,7 @@ export default function PersonalInfoStep({
             type="text"
             value={data.birthYear}
             onChange={e => handleChange('birthYear', e.target.value)}
-            placeholder="2000"
+            placeholder="XXXX"
             maxLength={4}
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
@@ -188,7 +270,7 @@ export default function PersonalInfoStep({
             type="tel"
             value={data.phone}
             onChange={e => handleChange('phone', e.target.value)}
-            placeholder="010-1234-5678"
+            placeholder="010-XXXX-XXXX"
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.phone && <p className="mt-1 text-sm text-red-400">{errors.phone}</p>}
@@ -202,7 +284,7 @@ export default function PersonalInfoStep({
             type="email"
             value={data.email}
             onChange={e => handleChange('email', e.target.value)}
-            placeholder="example@email.com"
+            placeholder="주로 사용하는 이메일을 입력하세요"
             className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
           />
           {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
@@ -222,7 +304,7 @@ export default function PersonalInfoStep({
               type="text"
               value={companionData.name}
               onChange={e => handleCompanionChange('name', e.target.value)}
-              placeholder="김철수"
+              placeholder={school === 'CNU' ? '이차차' : '이넙죽'}
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
             {companionErrors.name && (
@@ -238,7 +320,7 @@ export default function PersonalInfoStep({
               type="text"
               value={companionData.department}
               onChange={e => handleCompanionChange('department', e.target.value)}
-              placeholder="전자공학과"
+              placeholder="학과를 입력하세요"
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
             {companionErrors.department && (
@@ -254,7 +336,7 @@ export default function PersonalInfoStep({
               type="text"
               value={companionData.studentId}
               onChange={e => handleCompanionChange('studentId', e.target.value)}
-              placeholder="202098765"
+              placeholder={school === 'KAIST' ? '20XXXXXX' : '20XXXXXXX'}
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
             {companionErrors.studentId && (
@@ -270,7 +352,7 @@ export default function PersonalInfoStep({
               type="text"
               value={companionData.birthYear}
               onChange={e => handleCompanionChange('birthYear', e.target.value)}
-              placeholder="2001"
+              placeholder="XXXX"
               maxLength={4}
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
@@ -287,7 +369,7 @@ export default function PersonalInfoStep({
               type="tel"
               value={companionData.phone}
               onChange={e => handleCompanionChange('phone', e.target.value)}
-              placeholder="010-9876-5432"
+              placeholder="010-XXXX-XXXX"
               className="w-full p-3 bg-[#1a1a1a] border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-[#E53C87] focus:outline-none transition-colors"
             />
             {companionErrors.phone && (
@@ -306,11 +388,19 @@ export default function PersonalInfoStep({
         </button>
         <button
           onClick={handleNext}
-          className="flex-1 py-4 px-6 bg-[#E53C87] hover:bg-[#F06292] border-2 border-[#E53C87] hover:border-[#F06292] rounded-xl transition-all duration-300 text-lg font-bold text-white"
+          disabled={!isAllComplete}
+          className="flex-1 py-4 px-6 bg-[#E53C87] hover:bg-[#F06292] disabled:bg-gray-600 disabled:cursor-not-allowed border-2 border-[#E53C87] hover:border-[#F06292] disabled:border-gray-600 rounded-xl transition-all duration-300 text-lg font-bold text-white"
         >
           다음
         </button>
       </div>
+
+      {/* 미성년자 알림 다이얼로그 */}
+      <AlertDialog
+        isOpen={showMinorAlert}
+        message="미성년자는 신청이 불가합니다"
+        onConfirm={handleMinorAlert}
+      />
     </div>
   );
 }

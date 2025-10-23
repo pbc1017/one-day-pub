@@ -46,7 +46,7 @@ export default function Home() {
               {/* 참여 대상 */}
               <div>
                 <h4 className="text-lg font-bold text-pink-gradient mb-2">참여 대상</h4>
-                <p className="text-base">: 충남대/카이스트 학생</p>
+                <p className="text-base">: 충남대학교/KAIST 학생</p>
                 <p className="text-sm text-gray-300 ml-2">(재학생, 휴학생 포함)</p>
               </div>
 
